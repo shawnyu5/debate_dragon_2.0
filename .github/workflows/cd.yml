@@ -29,14 +29,10 @@ jobs:
               # The hostname or the IP address
               host: ${{ secrets.SSH_HOST }}
               # The SSH username
-              username: ${{ secrets.SSH_USER }}
-              password: ${{ secrets.SSH_PASSWORD }}
+              key: ${{ secrets.SSH_KEY }}
+              # username: ${{ secrets.SSH_USER }}
+              # password: ${{ secrets.SSH_PASSWORD }}
               script: |
-                 cd discord_bots
+                 cd debate_dragon_2.0
                  git pull -f
                  docker compose up --build
-                 # docker stop debate_dragon
-                 # docker rm debate_dragon
-                 # docker build -t debate_dragon .
-                 # docker run --name debate_dragon -d debate_dragon
-                 # docker image prune -f
