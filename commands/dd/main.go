@@ -1,7 +1,6 @@
 package dd
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -41,11 +40,7 @@ func Handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	// CanvasSize := 1024
 	const CanvasSize = 1024
 	fontSize := 70
-	x := 2.3
-	y := 2.1
 	fontSize = shrinkFontSize(fontSize, optionMap["text"].StringValue(), 7)
-	x, y = adjustTextPos(x, y, optionMap["text"].StringValue())
-	fmt.Println(fmt.Sprintf("Handler x: %v", x)) // __AUTO_GENERATED_PRINT_VAR__
 
 	ctx := gg.NewContext(CanvasSize, CanvasSize)
 	ctx.SetRGB(1, 1, 1)
@@ -59,7 +54,11 @@ func Handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	ctx.DrawRoundedRectangle(0, 0, 512, 512, 0)
 	ctx.DrawImage(img, 0, 0)
 
-	ctx.DrawStringAnchored(optionMap["text"].StringValue(), float64(CanvasSize/2), float64(CanvasSize/2), x, y)
+	// The anchor point is x - w * ax, y - h * ay, where w, h is the size of the
+	// text. Use ax=0.5, ay=0.5 to center the text at the specified point
+	x := 20
+	y := 0.1
+	ctx.DrawStringWrapped(optionMap["text"].StringValue(), float64(CanvasSize/2), float64(CanvasSize/2), float64(x), float64(y), 15, 1, gg.AlignCenter)
 	ctx.Clip()
 	ctx.SavePNG("out.png")
 
@@ -96,12 +95,12 @@ func shrinkFontSize(fontSize int, userInput string, maxCharacterSize int) int {
 	return fontSize
 }
 
-// adjustTextPos adjust the text position based on the length of user input
-// returns the adjusted x and y positions
-func adjustTextPos(x, y float64, userInput string) (float64, float64) {
-	if len(userInput) > 5 {
-		return adjustTextPos(x-0.4, y, userInput[:len(userInput)-3])
-	}
+// // adjustTextPos adjust the text position based on the length of user input
+// // returns the adjusted x and y positions
+// func adjustTextPos(x, y float64, userInput string) (float64, float64) {
+// if len(userInput) > 5 && x > 0.9 {
+// return adjustTextPos(x-0.4, y, userInput[:len(userInput)-3])
+// }
 
-	return x, y
-}
+// return x, y
+// }
