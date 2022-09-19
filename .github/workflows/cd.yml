@@ -35,4 +35,4 @@ jobs:
               script: |
                  cd debate_dragon_2.0
                  git pull -f
-                 docker compose up --build
+                 docker compose up -d --build
