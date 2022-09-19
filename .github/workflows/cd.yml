@@ -30,7 +30,7 @@ jobs:
               host: ${{ secrets.SSH_HOST }}
               username: ${{ secrets.SSH_USER }}
               key: ${{ secrets.SSH_KEY }}
-              debug: true
+              # debug: true
               # password: ${{ secrets.SSH_PASSWORD }}
               script: |
                  cd debate_dragon_2.0
