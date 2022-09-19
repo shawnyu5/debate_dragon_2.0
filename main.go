@@ -30,12 +30,6 @@ type config struct {
 	} `json:"carmenRambles"`
 }
 
-// Bot parameters
-// var (
-// GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
-// BotToken       = flag.String("token", "", "Bot access token")
-// RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
-// )
 var c config
 
 var dg *discordgo.Session
@@ -110,7 +104,10 @@ func main() {
 	<-stop
 
 	// TODO: commands are not being deleted in my own server
-	utils.RemoveCommands(dg, registeredCommands)
+	// only remove commands in production
+	if !c.Development {
+		utils.RemoveCommands(dg, registeredCommands)
+	}
 
 	log.Println("Gracefully shutting down.")
 }

@@ -36,22 +36,23 @@ func Handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	const Size = 1024
-	ctx := gg.NewContext(Size, Size)
+	// CanvasSize := 1024
+	const CanvasSize = 1024
+	fontSize := 70
+	ctx := gg.NewContext(CanvasSize, CanvasSize)
 	ctx.SetRGB(1, 1, 1)
 	ctx.Clear()
 	ctx.SetRGB(0, 0, 0)
 
-	if err := ctx.LoadFontFace("./media/font/comic_sans/comicz.ttf", 96); err != nil {
+	fontSize = shrinkFontSize(fontSize, optionMap["text"].StringValue(), 7)
+	if err := ctx.LoadFontFace("./media/font/comic_sans/comicz.ttf", float64(fontSize)); err != nil {
 		log.Fatalln(err)
 	}
 
-	// NOTE: idk why this is necessary
-	// ctx.DrawStringAnchored(optionMap["text"].StringValue(), Size/6, Size/6, 0.50, 0.10)
 	ctx.DrawRoundedRectangle(0, 0, 512, 512, 0)
 	ctx.DrawImage(img, 0, 0)
-	// TODO: change values here to put the text where it should be
-	ctx.DrawStringAnchored(optionMap["text"].StringValue(), Size/6, Size/6, 0.50, 6.0)
+
+	ctx.DrawStringAnchored(optionMap["text"].StringValue(), float64(CanvasSize/2), float64(CanvasSize/2), 1.20, 1.1)
 	ctx.Clip()
 	ctx.SavePNG("out.png")
 
@@ -61,10 +62,7 @@ func Handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		log.Fatalln(err)
 	}
 
-	// outImg, outImageType, err := image.Decode(out)
-
-	// dg.ChannelFileSend(i.ChannelID, "out.png", out)
-	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Files: []*discordgo.File{
@@ -76,13 +74,17 @@ func Handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			},
 		},
 	})
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
 
-	// s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-	// Type: discordgo.InteractionResponseChannelMessageWithSource,
-	// Data: &discordgo.InteractionResponseData{
-	// Content: "Here is your dragon!",
-	// Flags:   discordgo.MessageFlagsEphemeral,
-	// },
-	// },
-	// )
+// shrinkFontSize shrink the font size passed in based on the length of user input and the maxCharacterSize
+// Returns the new font size
+func shrinkFontSize(fontSize int, userInput string, maxCharacterSize int) int {
+	// 7 is the max character at current size
+	if len(userInput) > maxCharacterSize {
+		return shrinkFontSize(fontSize-5, userInput, maxCharacterSize+5)
+	}
+	return fontSize
 }
