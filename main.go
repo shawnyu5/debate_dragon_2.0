@@ -52,7 +52,7 @@ func init() {
 
 func init() {
 	var err error
-	dg, err = discordgo.New("Bot " + c.TokenDev)
+	dg, err = discordgo.New("Bot " + c.Token)
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
