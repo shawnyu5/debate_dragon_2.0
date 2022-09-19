@@ -11,6 +11,7 @@ import (
 // Receives an instance of discord session to store commands in. An array of discord application commands to keep track of the stored commands. And an array of commands to register
 // Will panic if registration of a command fails.
 func RegisterCommands(dg *discordgo.Session, commands []*discordgo.ApplicationCommand, registeredCommands []*discordgo.ApplicationCommand) {
+	log.Println("Adding commands...")
 	for _, gld := range dg.State.Guilds {
 		for i, v := range commands {
 			cmd, err := dg.ApplicationCommandCreate(dg.State.User.ID, gld.ID, v)
@@ -32,6 +33,8 @@ func RemoveCommands(dg *discordgo.Session, registeredCommands []*discordgo.Appli
 			err := dg.ApplicationCommandDelete(dg.State.User.ID, gld.ID, cmd.ID)
 			if err != nil {
 				log.Printf("Cannot delete '%v' command in guild '%v': %v\n", cmd.Name, gld.Name, err)
+			} else {
+				log.Printf("Removing command /%v in guild %v", cmd.Name, gld.Name)
 			}
 		}
 	}
