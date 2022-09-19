@@ -1,0 +1,4 @@
+services:
+   debate_dragon:
+      build: ./
+      restart: "always"
