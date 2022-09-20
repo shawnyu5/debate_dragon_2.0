@@ -37,7 +37,12 @@ func Obj() *discordgo.ApplicationCommand {
 // Handler a handler function for insult command
 func Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	optionsMap := utils.ParseUserOptions(sess, i)
+	user := optionsMap["user"].UserValue(sess)
+	if user.ID == "652511543845453855" {
+		user = i.Message.Author
+	}
 	insult := getInsult(optionsMap["user"].UserValue(sess))
+	// 652511543845453855
 
 	// send a normal insult
 	if optionsMap["anonymous"] == nil {
@@ -60,7 +65,7 @@ func Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
-				Content: "Your insult as been send >:)",
+				Content: "Your insult has been send >:)",
 				Flags:   discordgo.MessageFlagsEphemeral,
 			},
 		})
