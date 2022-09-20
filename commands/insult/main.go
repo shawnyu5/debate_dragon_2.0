@@ -39,11 +39,10 @@ func Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	optionsMap := utils.ParseUserOptions(sess, i)
 	user := optionsMap["user"].UserValue(sess)
 	if user.ID == "652511543845453855" {
-		log.Println("I am being insulted. This will not fly")
 		user = i.Member.User
+		log.Println("I am being insulted. This will not fly. Insult this user instead", user)
 	}
-	insult := getInsult(optionsMap["user"].UserValue(sess))
-	// 652511543845453855
+	insult := getInsult(user)
 
 	// send a normal insult
 	if optionsMap["anonymous"] == nil {
