@@ -9,6 +9,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/dd"
+	"github.com/shawnyu5/debate_dragon_2.0/commands/insult"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
@@ -67,16 +68,20 @@ var (
 	dmPermission                   = false
 	defaultMemberPermissions int64 = discordgo.PermissionManageServer
 
+	// map of command names
 	commandNames = map[string]string{
-		"dd": "dd",
+		"dd":     "dd",
+		"insult": "insult",
 	}
 
 	commands = []*discordgo.ApplicationCommand{
 		dd.Obj(),
+		insult.Obj(),
 	}
 
 	commandHandlers = map[string]func(sess *discordgo.Session, i *discordgo.InteractionCreate){
-		commandNames["dd"]: dd.Handler,
+		commandNames["dd"]:     dd.Handler,
+		commandNames["insult"]: insult.Handler,
 	}
 )
 
