@@ -92,6 +92,7 @@ func main() {
 	dg.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
+
 	err := dg.Open()
 	if err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
@@ -99,6 +100,10 @@ func main() {
 
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
 	utils.RegisterCommands(dg, commands, registeredCommands)
+	dg.AddHandler(func(sess *discordgo.Session, gld *discordgo.GuildCreate) {
+		log.Printf("Bot added to new guild: %v", gld.Name)
+		utils.RegisterCommands(dg, commands, registeredCommands)
+	})
 
 	defer dg.Close()
 
