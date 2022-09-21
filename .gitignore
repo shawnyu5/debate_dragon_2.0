@@ -2,3 +2,4 @@ config.json
 .air.toml
 tmp/
 out.png
+.do_tasks
