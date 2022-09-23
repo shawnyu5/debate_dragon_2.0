@@ -50,8 +50,8 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 	insult := getInsult(user)
 
-	// send a normal insult
-	if optionsMap["anonymous"] == nil {
+	// send a normal insult if nothing is passed in, or if anonymous flag is set to false
+	if optionsMap["anonymous"] == nil || optionsMap["anonymous"].BoolValue() == false {
 		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
