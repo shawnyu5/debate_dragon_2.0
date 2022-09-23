@@ -7,10 +7,16 @@ import (
 	"net/http"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/shawnyu5/debate_dragon_2.0/commands"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
-func Obj() *discordgo.ApplicationCommand {
+var CommandObj = commands.CommandStruct{
+	Obj:     obj,
+	Handler: handler,
+}
+
+func obj() *discordgo.ApplicationCommand {
 	obj := &discordgo.ApplicationCommand{
 		Name:        "insult",
 		Description: "Ping someone to deliver a gut wrenching insult",
@@ -34,8 +40,8 @@ func Obj() *discordgo.ApplicationCommand {
 	return obj
 }
 
-// Handler a handler function for insult command
-func Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+// handler a handler function for insult command
+func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	optionsMap := utils.ParseUserOptions(sess, i)
 	user := optionsMap["user"].UserValue(sess)
 	if user.ID == "652511543845453855" {
