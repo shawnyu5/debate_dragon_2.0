@@ -164,13 +164,13 @@ def main():
 
     if len(sys.argv) > 1:
         user_input = vectorizer.transform([sys.argv[1]])
-        print(svm.predict(user_input))
+        print(svm.predict(user_input)[0])
         return
 
     # print(svm.predict(test_x_vector[9]))
 
     print(
-    f1_score(test_y, svm.predict(test_x_vector), average=None, labels=[True, False])
+        f1_score(test_y, svm.predict(test_x_vector), average=None, labels=[True, False])
     )
     save_model(svm, "model.pkl")
 
