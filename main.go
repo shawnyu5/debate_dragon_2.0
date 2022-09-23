@@ -75,12 +75,12 @@ var (
 	}
 
 	commands = []*discordgo.ApplicationCommand{
-		dd.Obj(),
+		dd.CommandObj.Obj(),
 		insult.CommandObj.Obj(),
 	}
 
 	commandHandlers = map[string]func(sess *discordgo.Session, i *discordgo.InteractionCreate){
-		commandNames["dd"]:     dd.Handler,
+		commandNames["dd"]:     dd.CommandObj.Handler,
 		commandNames["insult"]: insult.CommandObj.Handler,
 	}
 )
