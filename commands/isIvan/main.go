@@ -30,6 +30,14 @@ func obj() *discordgo.ApplicationCommand {
 				Required:     true,
 				Autocomplete: false,
 			},
+			{
+				Name:         "messagelimit",
+				Description:  "number of user messages to check. Default: 50. NOTE more messages will take longer to predict",
+				Required:     false,
+				Autocomplete: false,
+				MaxValue:     100,
+				Type:         discordgo.ApplicationCommandOptionInteger,
+			},
 		},
 	}
 	return obj
@@ -41,13 +49,21 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	// if a user was passed in
 	if optionsMap["user"] != nil {
 		err := utils.DeferReply(sess, i.Interaction)
-		possibleIvanMessages := utils.GetAllUserMessageFromChannel(sess, i.ChannelID, 50, optionsMap["user"].UserValue(sess).ID)
+		messageLimit := 50
+
+		if optionsMap["messageLimit"] != nil {
+			messageLimit = int(optionsMap["messageLimit"].IntValue())
+		}
+
+		// get all users messages in a channel
+		possibleIvanMessages := utils.GetAllUserMessageFromChannel(sess, i.ChannelID, messageLimit, optionsMap["user"].UserValue(sess).ID)
 
 		isIvanPossiblities := make([]bool, 0)
 		var wg sync.WaitGroup
 
 		for i, message := range possibleIvanMessages {
 			wg.Add(1)
+			// check if the message is from ivan, and store the results in a slice
 			go func(i int, message string) {
 				defer wg.Done()
 				isIvan := checkIsIvan(message)
@@ -58,15 +74,15 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 
 		wg.Wait()
 
+		// calculate the number of times true and false appear
 		isIvan, isNotIvan := averageTrueFalse(isIvanPossiblities)
 
-		res := fmt.Sprintf("<@%v>", i.Member.User.ID)
+		title := fmt.Sprintf("<@%v>", i.Member.User.ID)
 		_, err = sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
-			Content:    &res,
-			Components: &[]discordgo.MessageComponent{},
+			Content: &title,
 			Embeds: &[]*discordgo.MessageEmbed{
 				{
-					Title: fmt.Sprintf("Chances <@%v> is ivan are...", optionsMap["user"].UserValue(sess)),
+					Title: fmt.Sprintf("Chances <@%v> is ivan are...", optionsMap["user"].UserValue(sess).Username),
 					// "Chances this person is ivan are...",
 					Description: fmt.Sprintf("**Is Ivan**: %v%%\n**Is not Ivan**: %v%%", isIvan, isNotIvan),
 					Timestamp:   "",
@@ -74,13 +90,10 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 					Fields:      []*discordgo.MessageEmbedField{},
 				},
 			},
-			Files:           []*discordgo.File{},
-			AllowedMentions: &discordgo.MessageAllowedMentions{},
 		})
 		if err != nil {
 			log.Println(err)
 		}
-
 	}
 }
 
