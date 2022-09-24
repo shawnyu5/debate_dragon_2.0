@@ -1,0 +1,4 @@
+__pycache__/
+detector-env/
+.gitignore
+.air.toml
