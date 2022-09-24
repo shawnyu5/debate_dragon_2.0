@@ -98,6 +98,8 @@ func init() {
 }
 
 func main() {
+	dg.StateEnabled = true
+	dg.State.MaxMessageCount = 100
 	dg.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
