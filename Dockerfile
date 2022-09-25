@@ -16,7 +16,14 @@ RUN go build -o bot
 FROM golang:1.19.1-alpine3.16 AS prod
 
 WORKDIR /bot
+# install pip3
+RUN apk add py3-pip --no-cache
+
 COPY --from=build /bot/bot ./bot
 COPY --from=build /bot/config.json ./config.json
 COPY --from=build /bot/media ./media
+COPY ./ivan_detector/ ./ivan_detector/
+
+RUN cd ./ivan_detector && pip3 install --no-cache-dir -r requirements.txt
+
 CMD ["./bot"]

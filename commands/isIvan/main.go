@@ -57,6 +57,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 
 		// get all users messages in a channel
 		possibleIvanMessages := utils.GetAllUserMessageFromChannel(sess, i.ChannelID, messageLimit, optionsMap["user"].UserValue(sess).ID)
+		fmt.Println(fmt.Sprintf("handler possibleIvanMessages: %v", possibleIvanMessages)) // __AUTO_GENERATED_PRINT_VAR__
 
 		isIvanPossiblities := make([]bool, 0)
 		var wg sync.WaitGroup
