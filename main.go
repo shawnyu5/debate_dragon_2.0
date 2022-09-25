@@ -10,7 +10,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/dd"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/insult"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/isIvan"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
@@ -73,19 +72,16 @@ var (
 	commandNames = map[string]string{
 		"dd":     "dd",
 		"insult": "insult",
-		"isIvan": "isivan",
 	}
 
 	commands = []*discordgo.ApplicationCommand{
 		dd.CommandObj.Obj(),
 		insult.CommandObj.Obj(),
-		isIvan.CommandObj.Obj(),
 	}
 
 	commandHandlers = map[string]func(sess *discordgo.Session, i *discordgo.InteractionCreate){
 		commandNames["dd"]:     dd.CommandObj.Handler,
 		commandNames["insult"]: insult.CommandObj.Handler,
-		commandNames["isIvan"]: isIvan.CommandObj.Handler,
 	}
 )
 
@@ -98,8 +94,6 @@ func init() {
 }
 
 func main() {
-	dg.StateEnabled = true
-	dg.State.MaxMessageCount = 100
 	dg.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})

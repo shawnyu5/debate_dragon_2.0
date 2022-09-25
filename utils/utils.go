@@ -49,32 +49,3 @@ func ParseUserOptions(sess *discordgo.Session, i *discordgo.InteractionCreate) m
 	}
 	return optionMap
 }
-
-// DeferReply defers a reply
-func DeferReply(sess *discordgo.Session, i *discordgo.Interaction) error {
-	err := sess.InteractionRespond(i, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
-	})
-	return err
-}
-
-// ChannelMessages returns an array of strings for messages within a given channel
-// channelID : The ID of a Channel.
-// limit     : The number messages that can be returned. (max 100)
-// authorID  : The ID of a User.
-func GetAllUserMessageFromChannel(sess *discordgo.Session, channelID string, limit int, authorID string) []string {
-	ref, err := sess.ChannelMessages(channelID, limit, "", "", "")
-	if err != nil {
-		log.Fatal(err)
-	}
-	userMessages := make([]string, 0)
-	for _, v := range ref {
-		// if its the message we are looking for, and the message is not empty
-		if v.Author.ID == authorID && v.Content != "" {
-			userMessages = append(userMessages, v.Content)
-		}
-	}
-
-	return userMessages
-
-}

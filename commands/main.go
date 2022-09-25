@@ -6,7 +6,7 @@ type CommandStruct struct {
 	// command object
 	Obj func() *discordgo.ApplicationCommand
 	// command handler
-	Handler func(sess *discordgo.Session, i *discordgo.InteractionCreate)
+	Handler func(s *discordgo.Session, i *discordgo.InteractionCreate)
 }
 
 // type Command interface {

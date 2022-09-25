@@ -2,9 +2,6 @@ github.com/bwmarrin/discordgo v0.26.1 h1:AIrM+g3cl+iYBr4yBxCBp9tD9jR3K7upEjl0d89
 github.com/bwmarrin/discordgo v0.26.1/go.mod h1:NJZpH+1AfhIcyQsPeuBKsUtYrRnjkyu0kIVMCHkZtRY=
 github.com/fogleman/gg v1.3.0 h1:/7zJX8F6AaYQc57WQCyN9cAIz+4bCJGO9B+dyW29am8=
 github.com/fogleman/gg v1.3.0/go.mod h1:R/bRT+9gY/C5z7JzPU0zXsXHKM4/ayA+zqcVNZzPa1k=
-github.com/go-cmd/cmd v1.4.1 h1:JUcEIE84v8DSy02XTZpUDeGKExk2oW3DA10hTjbQwmc=
-github.com/go-cmd/cmd v1.4.1/go.mod h1:tbBenttXtZU4c5djS1o7PWL5pd2xAr5sIqH1kGdNiRc=
-github.com/go-test/deep v1.0.7 h1:/VSMRlnY/JSyqxQUzQLKVMAskpY/NZKFA5j2P+0pP2M=
 github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 h1:DACJavvAHhabrF08vX0COfcOBJRhZ8lUbR+ZWIs0Y5g=
 github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0/go.mod h1:E/TSTwGwJL78qG/PmXZO1EjYhfJinVAhrmmHX6Z8B9k=
 github.com/gorilla/websocket v1.4.2 h1:+/TMaTYc4QFitKJxsQ7Yye35DkWvkdLcvGKqM+x0Ufc=
