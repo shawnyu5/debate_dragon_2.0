@@ -270,5 +270,57 @@
    {
       "message": "he prob just gave us free marks, cause test 4 I got perfect on the coding part, pretty sure I shouldn't have",
       "is_ivan": false
+   },
+   {
+      "message": "Anyone going to Seneca Newnham Campus tomorrow?",
+      "is_ivan": true
+   },
+   {
+      "message": "When are you going to Seneca Newnham Campus?",
+      "is_ivan": true
+   },
+   {
+      "message": "Why is that?",
+      "is_ivan": true
+   },
+   {
+      "message": "What semester are you in?",
+      "is_ivan": true
+   },
+   {
+      "message": "If you are in 1st,2nd, 3rd, or 4th semester you have no options not to go on campus as the classes are hybrid.",
+      "is_ivan": true
+   },
+   {
+      "message": "That is not true.",
+      "is_ivan": true
+   },
+   {
+      "message": "Exactly. It is false.",
+      "is_ivan": true
+   },
+   {
+      "message": "Well you miss out when you don’t come on campus.",
+      "is_ivan": true
+   },
+   {
+      "message": "Personal choice.",
+      "is_ivan": true
+   },
+   {
+      "message": "What is that supposed to mean?",
+      "is_ivan": true
+   },
+   {
+      "message": "I don’t have my own company.",
+      "is_ivan": true
+   },
+   {
+      "message": "If I did I would not be in Seneca right now.",
+      "is_ivan": true
+   },
+   {
+      "message": "Ok",
+      "is_ivan": true
    }
 ]
