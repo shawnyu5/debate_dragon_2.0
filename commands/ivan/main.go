@@ -42,14 +42,14 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		log.Fatal(err)
 	}
 	_, err = sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
-		// Content: new(string),
-		Embeds: &[]*discordgo.MessageEmbed{
-			{
-				Title:       "All banned ivan users",
-				Description: formatList(bans),
-				Color:       0,
-			},
-		},
+		Content: formatList(bans),
+		// Embeds: &[]*discordgo.MessageEmbed{
+		// {
+		// Title:       "All banned ivan users",
+		// Description: formatList(bans),
+		// Color:       0,
+		// },
+		// },
 	},
 	)
 	if err != nil {
@@ -58,15 +58,16 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 }
 
 // formatList formats an array of GuildBans into a bullet
-func formatList(list []*discordgo.GuildBan) string {
+func formatList(list []*discordgo.GuildBan) *string {
 	str := ""
 	for _, item := range list {
 		str += fmt.Sprintf("- %s\n", item.User.Username)
 	}
 
 	if str == "" {
-		return "No banned Ivan users"
+		str := "No banned Ivan users"
+		return &str
 	}
-	str += fmt.Sprintf("Total accounts: %d", len(list))
-	return str
+	str += fmt.Sprintf("**Total accounts: %d**", len(list))
+	return &str
 }
