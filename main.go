@@ -10,28 +10,11 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/dd"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/insult"
+	"github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
-type config struct {
-	Token       string `json:"token"`
-	TokenDev    string `json:"token_dev"`
-	ClientID    string `json:"clientID"`
-	GuildID     string `json:"guildID"`
-	LogLevel    string `json:"logLevel"`
-	Development bool   `json:"development"`
-
-	CarmenRambles struct {
-		CarmenID          string `json:"carmenId"`
-		ChannelID         string `json:"channelId"`
-		CoolDown          int64  `json:"coolDown"`
-		GuildID           string `json:"guildID"`
-		MessageLimit      int64  `json:"messageLimit"`
-		SubscribersRoleID string `json:"subscribersRoleID"`
-	} `json:"carmenRambles"`
-}
-
-var c config
+var c utils.Config
 
 var dg *discordgo.Session
 
@@ -72,16 +55,19 @@ var (
 	commandNames = map[string]string{
 		"dd":     "dd",
 		"insult": "insult",
+		"ivan":   "ivan",
 	}
 
 	commands = []*discordgo.ApplicationCommand{
 		dd.CommandObj.Obj(),
 		insult.CommandObj.Obj(),
+		ivan.CommandObj.Obj(),
 	}
 
 	commandHandlers = map[string]func(sess *discordgo.Session, i *discordgo.InteractionCreate){
 		commandNames["dd"]:     dd.CommandObj.Handler,
 		commandNames["insult"]: insult.CommandObj.Handler,
+		commandNames["ivan"]:   ivan.CommandObj.Handler,
 	}
 )
 
@@ -104,6 +90,10 @@ func main() {
 	}
 
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
+
+	// remove old commands before adding new ones
+	// utils.RemoveCommands(dg, registeredCommands)
+
 	utils.RegisterCommands(dg, commands, registeredCommands)
 	dg.AddHandler(func(sess *discordgo.Session, gld *discordgo.GuildCreate) {
 		log.Printf("Bot added to new guild: %v", gld.Name)
@@ -120,7 +110,7 @@ func main() {
 	// TODO: commands are not being deleted in my own server
 	// only remove commands in production
 	if !c.Development {
-		utils.RemoveCommands(dg, registeredCommands)
+		utils.RemoveCommands(dg, registeredCommands, c)
 	}
 
 	log.Println("Gracefully shutting down.")
