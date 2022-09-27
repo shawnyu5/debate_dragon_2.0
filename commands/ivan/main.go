@@ -67,5 +67,6 @@ func formatList(list []*discordgo.GuildBan) string {
 	if str == "" {
 		return "No banned Ivan users"
 	}
+	str += fmt.Sprintf("Total accounts: %d", len(list))
 	return str
 }
