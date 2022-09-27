@@ -3,6 +3,7 @@ package ivan
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
@@ -38,18 +39,20 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	listLength := optionMap["list"]
 
 	bans, err := sess.GuildBans(i.GuildID, int(listLength.IntValue()), "", "")
+	bans = filterIvanBans(bans)
+
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	_, err = sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
-		Content: formatList(bans),
-		// Embeds: &[]*discordgo.MessageEmbed{
-		// {
-		// Title:       "All banned ivan users",
-		// Description: formatList(bans),
-		// Color:       0,
-		// },
-		// },
+		Embeds: &[]*discordgo.MessageEmbed{
+			{
+				Title:       "All banned ivan users",
+				Description: formatList(bans),
+				Color:       0,
+			},
+		},
 	},
 	)
 	if err != nil {
@@ -58,16 +61,27 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 }
 
 // formatList formats an array of GuildBans into a bullet
-func formatList(list []*discordgo.GuildBan) *string {
+func formatList(list []*discordgo.GuildBan) string {
 	str := ""
 	for _, item := range list {
 		str += fmt.Sprintf("- %s\n", item.User.Username)
 	}
 
 	if str == "" {
-		str := "No banned Ivan users"
-		return &str
+		return "No banned Ivan users"
 	}
 	str += fmt.Sprintf("**Total accounts: %d**", len(list))
-	return &str
+	return str
+}
+
+// filterIvanBans filter out all the ivan bans, and return a new []*discordgo.GuildBan
+func filterIvanBans(bans []*discordgo.GuildBan) []*discordgo.GuildBan {
+	list := make([]*discordgo.GuildBan, 0)
+
+	for _, ban := range bans {
+		if strings.Contains(strings.ToLower(ban.Reason), "ivan") {
+			list = append(list, ban)
+		}
+	}
+	return list
 }
