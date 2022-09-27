@@ -71,3 +71,11 @@ func ParseUserOptions(sess *discordgo.Session, i *discordgo.InteractionCreate) m
 	}
 	return optionMap
 }
+
+// DeferReply defers a reply
+func DeferReply(sess *discordgo.Session, i *discordgo.Interaction) error {
+	err := sess.InteractionRespond(i, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+	})
+	return err
+}
