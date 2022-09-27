@@ -7,6 +7,26 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+type Config struct {
+	Token       string `json:"token"`
+	TokenDev    string `json:"token_dev"`
+	AppID       string `json:"app_id"`
+	AppIDDev    string `json:"app_id_dev"`
+	ClientID    string `json:"clientID"`
+	GuildID     string `json:"guildID"`
+	LogLevel    string `json:"logLevel"`
+	Development bool   `json:"development"`
+
+	CarmenRambles struct {
+		CarmenID          string `json:"carmenId"`
+		ChannelID         string `json:"channelId"`
+		CoolDown          int64  `json:"coolDown"`
+		GuildID           string `json:"guildID"`
+		MessageLimit      int64  `json:"messageLimit"`
+		SubscribersRoleID string `json:"subscribersRoleID"`
+	} `json:"carmenRambles"`
+}
+
 // RegisterCommands register an array of commands to a discord session.
 // Receives an instance of discord session to store commands in. An array of discord application commands to keep track of the stored commands. And an array of commands to register
 // Will panic if registration of a command fails.
@@ -26,11 +46,13 @@ func RegisterCommands(dg *discordgo.Session, commands []*discordgo.ApplicationCo
 
 // RemoveCommands will delete all registered commands in all servers the discord bot is currently in
 // receives an instance of discord session to remove commands from. An array of discord application commands to remove
-func RemoveCommands(dg *discordgo.Session, registeredCommands []*discordgo.ApplicationCommand) {
+func RemoveCommands(sess *discordgo.Session, registeredCommands []*discordgo.ApplicationCommand, c Config) {
 	log.Println("Removing commands...")
-	for _, gld := range dg.State.Guilds {
+	for _, gld := range sess.State.Guilds {
 		for _, cmd := range registeredCommands {
-			err := dg.ApplicationCommandDelete(dg.State.User.ID, gld.ID, cmd.ID)
+			// TODO: fix this
+			err := sess.ApplicationCommandDelete(sess.State.User.ID, cmd.ID, gld.ID)
+			// err := sess.ApplicationCommandDelete(sess.State.User.ID, gld.ID, cmd.ID)
 			if err != nil {
 				log.Printf("Cannot delete '%v' command in guild '%v': %v\n", cmd.Name, gld.Name, err)
 			} else {
@@ -48,4 +70,12 @@ func ParseUserOptions(sess *discordgo.Session, i *discordgo.InteractionCreate) m
 		optionMap[opt.Name] = opt
 	}
 	return optionMap
+}
+
+// DeferReply defers a reply
+func DeferReply(sess *discordgo.Session, i *discordgo.Interaction) error {
+	err := sess.InteractionRespond(i, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+	})
+	return err
 }
