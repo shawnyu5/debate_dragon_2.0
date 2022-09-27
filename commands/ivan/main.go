@@ -15,7 +15,7 @@ var CommandObj = commands.CommandStruct{
 }
 
 func obj() *discordgo.ApplicationCommand {
-	// maxValue := float64(1000.0)
+	maxLength := float64(1000)
 	return &discordgo.ApplicationCommand{
 		Version:     "1.0",
 		Name:        "ivan",
@@ -24,16 +24,16 @@ func obj() *discordgo.ApplicationCommand {
 			{
 				Type:        discordgo.ApplicationCommandOptionInteger,
 				Name:        "list",
-				Description: "List all the Ivan accounts that has been banned",
-				// Description: "get all the ivan users that has been banned from this server. Optionally specify the length of the list to retrieve",
-				// MaxValue:    maxValue,
-				Required: true,
+				Description: "Length of the list of Ivan acocounts that has been banned",
+				MaxValue:    maxLength,
+				Required:    true,
 			},
 		},
 	}
 }
 
 func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+	utils.DeferReply(sess, i.Interaction)
 	optionMap := utils.ParseUserOptions(sess, i)
 	listLength := optionMap["list"]
 
@@ -41,42 +41,25 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// // get all the user that has been banned cuz they were ivan
-	// for _, ban := range bans {
-	// // check if ban reason contains "ivan"
-	// if strings.Contains(strings.ToLower(ban.User.Username), "ivan") {
-	// list = append(list, ban.User.Username)
-	// }
-	// }
-
-	err = sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			TTS:        false,
-			Components: []discordgo.MessageComponent{},
-			Embeds: []*discordgo.MessageEmbed{
-				{
-					Title:       "All banned ivan users",
-					Description: formatList(bans),
-					Color:       0,
-				},
+	_, err = sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+		// Content: new(string),
+		Embeds: &[]*discordgo.MessageEmbed{
+			{
+				Title:       "All banned ivan users",
+				Description: formatList(bans),
+				Color:       0,
 			},
-			AllowedMentions: &discordgo.MessageAllowedMentions{},
-			Files:           []*discordgo.File{},
-			Flags:           0,
-			Choices:         []*discordgo.ApplicationCommandOptionChoice{},
-			CustomID:        "",
-			Title:           "All Banned ivan users",
 		},
-	})
+	},
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
+// formatList formats an array of GuildBans into a bullet
 func formatList(list []*discordgo.GuildBan) string {
 	str := ""
-	fmt.Println(fmt.Sprintf("formatList list: %v", list)) // __AUTO_GENERATED_PRINT_VAR__
 	for _, item := range list {
 		str += fmt.Sprintf("- %s\n", item.User.Username)
 	}
