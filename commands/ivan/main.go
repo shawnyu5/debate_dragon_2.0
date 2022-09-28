@@ -39,7 +39,7 @@ func obj() *discordgo.ApplicationCommand {
 		},
 	}
 
-	// new custom ivan emotes option
+	// dynamically add new custom ivan emotes option
 	newOption := discordgo.ApplicationCommandOption{
 		Type:        discordgo.ApplicationCommandOptionString,
 		Name:        "emote",
@@ -47,15 +47,14 @@ func obj() *discordgo.ApplicationCommand {
 		Required:    false,
 		Choices:     []*discordgo.ApplicationCommandOptionChoice{},
 	}
-	for _, emote := range emotes {
+	// add the emote names based on the names defined in config.json
+	for name := range emotes {
 		newOption.Choices = append(newOption.Choices, &discordgo.ApplicationCommandOptionChoice{
-			Name:  emote.Name,
-			Value: emote.Name,
+			Name:  name,
+			Value: name,
 		})
 	}
 	obj.Options = append(obj.Options, &newOption)
-
-	fmt.Println(fmt.Sprintf("obj obj: %+v", obj.Options[1].Choices)) // __AUTO_GENERATED_PRINT_VAR__
 	return obj
 }
 
@@ -87,24 +86,32 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		}
 	} else if optionMap["emote"] != nil {
 		emotes := getAllEmotes()
-		fmt.Println(fmt.Sprintf("handler emotes: %v", emotes)) // __AUTO_GENERATED_PRINT_VAR__
-		f, err := os.Open("./test_img.jpg")
+		chosenEmote := optionMap["emote"].StringValue()
+
+		// if the chosen emote does not exist, send error
+		if emotes[chosenEmote] == "" {
+			utils.SendErrorMessage(sess, i, "Your chosen emote does not exist...")
+		}
+
+		f, err := os.Open(emotes[chosenEmote])
+
 		if err != nil {
-			utils.EditErrorResponse(sess, i, err.Error())
+			utils.SendErrorMessage(sess, i, err.Error())
 			log.Fatal(err)
 		}
 
 		_, err = sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 			Files: []*discordgo.File{
 				{
-					Name:        "test.png",
-					ContentType: "image/jpg",
+					Name:        chosenEmote + ".png",
+					ContentType: "image/png",
 					Reader:      f,
 				},
 			},
 		})
 
 		if err != nil {
+			utils.SendErrorMessage(sess, i, err.Error())
 			log.Fatal(err)
 		}
 	}
@@ -136,15 +143,14 @@ func filterIvanBans(bans []*discordgo.GuildBan) []*discordgo.GuildBan {
 	return list
 }
 
-func getAllEmotes() []emote {
+// getAllEmotes returns a list of all the emotes in a map, as specified in config.json. Of name: fileLocation key value pairs
+func getAllEmotes() map[string]string {
 	// map of name: fileLocation for all emotes
-	emotes := make([]emote, 0)
+	emotes := make(map[string]string)
 	config := utils.LoadConfig()
 
 	for _, emote := range config.Ivan.Emotes {
-		emotes = append(emotes, emote)
+		emotes[emote.Name] = emote.FileLocation
 	}
-
 	return emotes
-
 }

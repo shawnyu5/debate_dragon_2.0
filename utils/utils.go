@@ -110,25 +110,9 @@ func LoadConfig() Config {
 
 // SendErrorMessage send an empheral message notifying the user something went wrong with the command. With an optional error message
 func SendErrorMessage(sess *discordgo.Session, i *discordgo.InteractionCreate, err string) {
-	e := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Content: "Something went wrong...",
-			Flags:   discordgo.MessageFlagsEphemeral,
-		},
-	})
-
-	if e != nil {
-		log.Printf("Error editing response: %v", e)
-	}
-
-}
-
-// SendErrorMessage send an empheral message notifying the user something went wrong with the command. With an optional error message
-func EditErrorResponse(sess *discordgo.Session, i *discordgo.InteractionCreate, err string) {
-	mess := "Something went wrong..." + err
-	_, e := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
-		Content: &mess,
+	_, e := sess.FollowupMessageCreate(i.Interaction, false, &discordgo.WebhookParams{
+		Content: "Something went wrong... " + err,
+		Flags:   discordgo.MessageFlagsEphemeral,
 	})
 
 	if e != nil {

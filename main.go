@@ -59,10 +59,13 @@ var (
 )
 
 func init() {
-	dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	dg.AddHandler(func(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-			h(s, i)
+			h(sess, i)
+		} else {
+			utils.SendErrorMessage(sess, i, "")
 		}
+
 	})
 }
 
