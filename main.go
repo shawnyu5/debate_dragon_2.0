@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
@@ -20,18 +18,7 @@ var dg *discordgo.Session
 
 // init reads config.json and sets global config variable
 func init() {
-	// read json file
-	f, err := os.Open("config.json")
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	b, err := ioutil.ReadAll(f)
-	if err != nil {
-		panic(err)
-	}
-	json.Unmarshal(b, &c)
+	c = utils.LoadConfig()
 }
 
 func init() {
@@ -72,10 +59,13 @@ var (
 )
 
 func init() {
-	dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	dg.AddHandler(func(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-			h(s, i)
+			h(sess, i)
+		} else {
+			utils.SendErrorMessage(sess, i, "")
 		}
+
 	})
 }
 

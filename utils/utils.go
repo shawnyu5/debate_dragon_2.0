@@ -1,8 +1,11 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -17,6 +20,12 @@ type Config struct {
 	LogLevel    string `json:"logLevel"`
 	Development bool   `json:"development"`
 
+	Ivan struct {
+		Emotes []struct {
+			Name         string `json:"name"`
+			FileLocation string `json:"fileLocation"`
+		} `json:"emotes"`
+	} `json:"ivan"`
 	CarmenRambles struct {
 		CarmenID          string `json:"carmenId"`
 		ChannelID         string `json:"channelId"`
@@ -51,7 +60,8 @@ func RemoveCommands(sess *discordgo.Session, registeredCommands []*discordgo.App
 	for _, gld := range sess.State.Guilds {
 		for _, cmd := range registeredCommands {
 			// TODO: fix this
-			err := sess.ApplicationCommandDelete(sess.State.User.ID, cmd.ID, gld.ID)
+			err := sess.ApplicationCommandDelete(cmd.ApplicationID, cmd.ID, gld.ID)
+			// err := sess.ApplicationCommandDelete(cmd.ApplicationID, cmd.ID, "")
 			// err := sess.ApplicationCommandDelete(sess.State.User.ID, gld.ID, cmd.ID)
 			if err != nil {
 				log.Printf("Cannot delete '%v' command in guild '%v': %v\n", cmd.Name, gld.Name, err)
@@ -78,4 +88,35 @@ func DeferReply(sess *discordgo.Session, i *discordgo.Interaction) error {
 		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 	})
 	return err
+}
+
+// LoadConfig loads the config file, and return the config in a struct
+func LoadConfig() Config {
+	var c Config
+	// read json file
+	f, err := os.Open("config.json")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		panic(err)
+	}
+	json.Unmarshal(b, &c)
+	return c
+}
+
+// SendErrorMessage send an empheral message notifying the user something went wrong with the command. With an optional error message
+func SendErrorMessage(sess *discordgo.Session, i *discordgo.InteractionCreate, err string) {
+	_, e := sess.FollowupMessageCreate(i.Interaction, false, &discordgo.WebhookParams{
+		Content: "Something went wrong... " + err,
+		Flags:   discordgo.MessageFlagsEphemeral,
+	})
+
+	if e != nil {
+		log.Printf("Error editing response: %v", e)
+	}
+
 }
