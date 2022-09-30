@@ -3,6 +3,8 @@ package commands
 import "github.com/bwmarrin/discordgo"
 
 type CommandStruct struct {
+	// name of the slash command, as will be used in discord
+	Name string
 	// command object
 	Obj func() *discordgo.ApplicationCommand
 	// command handler
