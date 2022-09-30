@@ -10,6 +10,7 @@ import (
 )
 
 var CommandObj = commands.CommandStruct{
+	Name:    "dd",
 	Obj:     obj,
 	Handler: handler,
 }

@@ -12,6 +12,7 @@ import (
 )
 
 var CommandObj = commands.CommandStruct{
+	Name:    "insult",
 	Obj:     obj,
 	Handler: handler,
 }
