@@ -36,9 +36,6 @@ func obj() *discordgo.ApplicationCommand {
 				MaxValue:    maxLength,
 				Required:    false,
 			},
-         {
-
-         }
 		},
 	}
 
