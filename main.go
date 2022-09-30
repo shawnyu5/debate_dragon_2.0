@@ -39,11 +39,11 @@ var (
 	defaultMemberPermissions int64 = discordgo.PermissionManageServer
 
 	// map of command names
-	commandNames = map[string]string{
-		"dd":     "dd",
-		"insult": "insult",
-		"ivan":   "ivan",
-	}
+	// commandNames = map[string]string{
+	// "dd":     "dd",
+	// "insult": "insult",
+	// "ivan":   "ivan",
+	// }
 
 	commands = []*discordgo.ApplicationCommand{
 		dd.CommandObj.Obj(),
@@ -52,9 +52,9 @@ var (
 	}
 
 	commandHandlers = map[string]func(sess *discordgo.Session, i *discordgo.InteractionCreate){
-		commandNames["dd"]:     dd.CommandObj.Handler,
-		commandNames["insult"]: insult.CommandObj.Handler,
-		commandNames["ivan"]:   ivan.CommandObj.Handler,
+		dd.CommandObj.Name:     dd.CommandObj.Handler,
+		insult.CommandObj.Name: insult.CommandObj.Handler,
+		ivan.CommandObj.Name:   ivan.CommandObj.Handler,
 	}
 )
 
