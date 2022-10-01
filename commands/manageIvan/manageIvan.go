@@ -148,7 +148,7 @@ func startBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		time.Sleep(message.countDownTime * time.Second)
 	}
 
-	sess.GuildBanCreateWithReason(i.GuildID, ivanBanState.User.ID, "Ivan", 0)
+	// sess.GuildBanCreateWithReason(i.GuildID, ivanBanState.User.ID, "Ivan", 0)
 
 	// time.Sleep(5 * time.Second)
 	// send embed that user has been banned
