@@ -59,12 +59,12 @@ func obj() *discordgo.ApplicationCommand {
 				Autocomplete: false,
 			},
 			{
-				Type:        discordgo.ApplicationCommandOptionNumber,
+				Type:        discordgo.ApplicationCommandOptionInteger,
 				Name:        "countdown",
 				Description: "countdown till Ivan is banned. DEFAULT 15 seconds",
 				Required:    false,
 				MinValue:    &minValue,
-				MaxValue:    20,
+				MaxValue:    30,
 			},
 		},
 	}
@@ -77,12 +77,10 @@ func commandHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	// set default value to 15, is not set by user
 	// also keep track of countdown time in state
-	// TODO: fix this.
 	if countDown == nil {
 		ivanBanState.CountDownTime = int(15)
 	} else {
 		ivanBanState.CountDownTime = int(countDown.IntValue())
-
 	}
 
 	// store the user to ban in state
@@ -91,7 +89,7 @@ func commandHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content: "Confirm if you would like to proceed",
+			Content: fmt.Sprintf("Confirm if you ban <@%s> in %d seconds", ivanBanState.User.ID, ivanBanState.CountDownTime),
 			Flags:   discordgo.MessageFlagsEphemeral,
 			Components: []discordgo.MessageComponent{
 				discordgo.ActionsRow{
@@ -129,49 +127,101 @@ func startBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		},
 	})
 
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// keep track of all sent messages so we cant delete them later
+	sentMessages := []*discordgo.Message{}
+	messages := generateMessages(ivanBanState.CountDownTime)
+	fmt.Println(fmt.Sprintf("startBanningIvan ivanBanState.CountDownTime: %v", ivanBanState.CountDownTime)) // __AUTO_GENERATED_PRINT_VAR__
+
 	// start count down
-	mess, err := sess.ChannelMessageSend(i.ChannelID, "Count down started: 15s")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	time.Sleep(5 * time.Second)
-	for sec := ivanBanState.CountDownTime - 5; sec >= 0; sec = sec - 5 {
-		fmt.Println(fmt.Sprintf("startBanningIvan j: %v", sec)) // __AUTO_GENERATED_PRINT_VAR__
-
-		// change the message if there are 5 seconds or less left in the countdown and pass control to another function
-		if sec <= 5 {
-			mess, err = sess.ChannelMessageEdit(i.ChannelID, mess.ID, fmt.Sprintf("Any last words? <@%s>\nTime till ban: %ds", ivanBanState.User.ID, sec))
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			break
-		} else {
-			mess, err = sess.ChannelMessageEdit(i.ChannelID, mess.ID, fmt.Sprintf("Time till ban: %vs", sec))
-			if err != nil {
-				log.Println(err)
-				return
-			}
+	for _, message := range messages {
+		mess, err := sess.ChannelMessageSend(i.ChannelID, message)
+		if err != nil {
+			log.Println(err)
+			return
 		}
-
+		sentMessages = append(sentMessages, mess)
 		time.Sleep(5 * time.Second)
-
 	}
+
+	// mess, err := sess.ChannelMessageSend(i.ChannelID, fmt.Sprintf("Count down started: %ds", ivanBanState.CountDownTime))
+	// if err != nil {
+	// log.Println(err)
+	// return
+	// }
+
+	// if err != nil {
+	// log.Println(err)
+	// return
+	// }
+
+	// time.Sleep(5 * time.Second)
+	// for sec := ivanBanState.CountDownTime - 5; sec >= 0; sec = sec - 5 {
+	// fmt.Println(fmt.Sprintf("startBanningIvan j: %v", sec)) // __AUTO_GENERATED_PRINT_VAR__
+
+	// // change the message if there are 5 seconds or less left in the countdown and pass control to another function
+	// if sec <= 5 {
+	// mess, err = sess.ChannelMessageEdit(i.ChannelID, mess.ID, fmt.Sprintf("Any last words? <@%s>\nTime till ban: %ds", ivanBanState.User.ID, sec))
+	// if err != nil {
+	// log.Println(err)
+	// return
+	// }
+	// break
+	// } else {
+	// mess, err = sess.ChannelMessageEdit(i.ChannelID, mess.ID, fmt.Sprintf("Time till ban: %vs", sec))
+	// if err != nil {
+	// log.Println(err)
+	// return
+	// }
+	// }
+
+	// time.Sleep(5 * time.Second)
+	// }
 
 	fmt.Println("startBanningIvan after for loop") // __AUTO_GENERATED_PRINTF__
 
 	time.Sleep(5 * time.Second)
-	sess.ChannelMessageSend(i.ChannelID, "USER HAS BEEN BANNED")
+	// sess.ChannelMessageSend(i.ChannelID, "USER HAS BEEN BANNED")
+	_, err = sess.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
+		Content: "",
+		Embed: &discordgo.MessageEmbed{
+			URL:         "",
+			Type:        "",
+			Title:       "Ivan Ban",
+			Description: fmt.Sprintf("<@%s> HAS BEEN BANNED", ivanBanState.User.ID),
+			Timestamp:   "",
+			Color:       0,
+			Footer:      &discordgo.MessageEmbedFooter{},
+			Image:       &discordgo.MessageEmbedImage{},
+			Thumbnail:   &discordgo.MessageEmbedThumbnail{},
+			Video:       &discordgo.MessageEmbedVideo{},
+			Provider:    &discordgo.MessageEmbedProvider{},
+			Author:      &discordgo.MessageEmbedAuthor{},
+			Fields:      []*discordgo.MessageEmbedField{},
+		},
+	})
 
-	// time.AfterFunc(5*time.Second, func() {
-	// })
+	if err != nil {
+		log.Println(err)
+	}
+
+	time.Sleep(5 * time.Second)
+	// clean up all messages
+	for _, message := range sentMessages {
+		go func(mess *discordgo.Message) {
+			err := sess.ChannelMessageDelete(i.ChannelID, mess.ID)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+		}(message)
+	}
+
 }
 
 // dontBanIvan handle with the dont ban button is pushed
@@ -217,4 +267,23 @@ func createDontBanButton(disable bool) discordgo.Button {
 		Emoji:    discordgo.ComponentEmoji{},
 		CustomID: dontBanIvanID,
 	}
+}
+
+// generateMessages generates an array of messages for the count down, based on the length of the countDownTime
+// return an array of messages for the count down
+func generateMessages(countDownTime int) []string {
+	messages := make([]string, 0)
+	for sec := countDownTime; sec > 0; sec = sec - 5 {
+		// the first message should be different
+		if sec == countDownTime {
+			messages = append(messages, fmt.Sprintf("Count down started: %ds", sec))
+		} else if sec <= 5 {
+			// if there are 5 seconds or less left, ask for last words
+			messages = append(messages, fmt.Sprintf("Any last words? <@%s>\nTime till ban: %ds", ivanBanState.User.ID, sec))
+		} else {
+			// other wise send normal count down time
+			messages = append(messages, fmt.Sprintf("Time till ban: %vs", sec))
+		}
+	}
+	return messages
 }
