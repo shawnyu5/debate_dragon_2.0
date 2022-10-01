@@ -89,7 +89,7 @@ func commandHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content: fmt.Sprintf("Confirm if you ban <@%s> in %d seconds", ivanBanState.User.ID, ivanBanState.CountDownTime),
+			Content: fmt.Sprintf("Confirm if you want to ban <@%s> in %d seconds", ivanBanState.User.ID, ivanBanState.CountDownTime),
 			Flags:   discordgo.MessageFlagsEphemeral,
 			Components: []discordgo.MessageComponent{
 				discordgo.ActionsRow{
@@ -135,7 +135,6 @@ func startBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	// keep track of all sent messages so we cant delete them later
 	sentMessages := []*discordgo.Message{}
 	messages := generateMessages(ivanBanState.CountDownTime)
-	fmt.Println(fmt.Sprintf("startBanningIvan ivanBanState.CountDownTime: %v", ivanBanState.CountDownTime)) // __AUTO_GENERATED_PRINT_VAR__
 
 	// start count down
 	for _, message := range messages {
