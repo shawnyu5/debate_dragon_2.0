@@ -86,6 +86,8 @@ func init() {
 		case discordgo.InteractionMessageComponent:
 			if h, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
 				h(sess, i)
+			} else {
+				utils.SendErrorMessage(sess, i, "")
 			}
 		}
 	})
