@@ -42,7 +42,7 @@ var CommandObj = commands.CommandStruct{
 }
 
 func obj() *discordgo.ApplicationCommand {
-	defaultManageServerPermission := int64(discordgo.PermissionManageServer)
+	defaultManageServerPermission := int64(discordgo.PermissionModerateMembers)
 	minValue := float64(5)
 
 	return &discordgo.ApplicationCommand{
