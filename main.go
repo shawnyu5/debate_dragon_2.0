@@ -34,6 +34,9 @@ func init() {
 	}
 }
 
+// a handler function type for slash command and components
+type handlerFunc func(sess *discordgo.Session, i *discordgo.InteractionCreate)
+
 var (
 	integerOptionMinValue          = 1.0
 	dmPermission                   = false
@@ -53,48 +56,26 @@ var (
 		manageIvan.CommandObj.Obj(),
 	}
 
-	commandHandlers = map[string]func(sess *discordgo.Session, i *discordgo.InteractionCreate){
+	// for handling slash commands
+	commandHandlers = map[string]handlerFunc{
 		dd.CommandObj.Name:         dd.CommandObj.CommandHandler,
 		insult.CommandObj.Name:     insult.CommandObj.CommandHandler,
 		ivan.CommandObj.Name:       ivan.CommandObj.CommandHandler,
 		manageIvan.CommandObj.Name: manageIvan.CommandObj.CommandHandler,
 	}
 
-	// "gobanIvan": func(sess *discordgo.Session, i *discordgo.InteractionCreate) {
-	// err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-	// Type: discordgo.InteractionResponseChannelMessageWithSource,
-	// Data: &discordgo.InteractionResponseData{
-	// Content:         "HELLO BUTTON",
-	// Components:      []discordgo.MessageComponent{},
-	// Embeds:          []*discordgo.MessageEmbed{},
-	// AllowedMentions: &discordgo.MessageAllowedMentions{},
-	// Files:           []*discordgo.File{},
-	// Flags:           0,
-	// Choices:         []*discordgo.ApplicationCommandOptionChoice{},
-	// CustomID:        "",
-	// Title:           "",
-	// },
-	// })
-	// if err != nil {
-	// log.Println(err)
+	// componentsHandlers = map[string]func(sess *discordgo.Session, i *discordgo.InteractionCreate){
+	// manageIvan.CommandObj.ComponentID: manageIvan.CommandObj.ComponentHandler,
 	// }
-	// },
+
+	componentsHandlers = map[string]utils.HandlerFunc{}
 )
 
 func init() {
+	// TODO: this is kinda ugly. Find a nicer implementation
+	componentsHandlers = utils.AddComponentHandlers(manageIvan.CommandObj.Components, componentsHandlers)
+
 	dg.AddHandler(func(sess *discordgo.Session, i *discordgo.InteractionCreate) {
-		// switch i.Type {
-		// case discordgo.InteractionApplicationCommand:
-		// if h, ok := commandsHandlers[i.ApplicationCommandData().Name]; ok {
-		// h(s, i)
-		// }
-		// case discordgo.InteractionMessageComponent:
-
-		// if h, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
-		// h(s, i)
-		// }
-		// }
-
 		switch i.Type {
 		case discordgo.InteractionApplicationCommand:
 			if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
