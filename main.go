@@ -9,6 +9,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands/dd"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/insult"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
+	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
@@ -49,23 +50,63 @@ var (
 		dd.CommandObj.Obj(),
 		insult.CommandObj.Obj(),
 		ivan.CommandObj.Obj(),
+		manageIvan.CommandObj.Obj(),
 	}
 
 	commandHandlers = map[string]func(sess *discordgo.Session, i *discordgo.InteractionCreate){
-		dd.CommandObj.Name:     dd.CommandObj.Handler,
-		insult.CommandObj.Name: insult.CommandObj.Handler,
-		ivan.CommandObj.Name:   ivan.CommandObj.Handler,
+		dd.CommandObj.Name:         dd.CommandObj.CommandHandler,
+		insult.CommandObj.Name:     insult.CommandObj.CommandHandler,
+		ivan.CommandObj.Name:       ivan.CommandObj.CommandHandler,
+		manageIvan.CommandObj.Name: manageIvan.CommandObj.CommandHandler,
 	}
+
+	// "gobanIvan": func(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+	// err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+	// Type: discordgo.InteractionResponseChannelMessageWithSource,
+	// Data: &discordgo.InteractionResponseData{
+	// Content:         "HELLO BUTTON",
+	// Components:      []discordgo.MessageComponent{},
+	// Embeds:          []*discordgo.MessageEmbed{},
+	// AllowedMentions: &discordgo.MessageAllowedMentions{},
+	// Files:           []*discordgo.File{},
+	// Flags:           0,
+	// Choices:         []*discordgo.ApplicationCommandOptionChoice{},
+	// CustomID:        "",
+	// Title:           "",
+	// },
+	// })
+	// if err != nil {
+	// log.Println(err)
+	// }
+	// },
 )
 
 func init() {
 	dg.AddHandler(func(sess *discordgo.Session, i *discordgo.InteractionCreate) {
-		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-			h(sess, i)
-		} else {
-			utils.SendErrorMessage(sess, i, "")
-		}
+		// switch i.Type {
+		// case discordgo.InteractionApplicationCommand:
+		// if h, ok := commandsHandlers[i.ApplicationCommandData().Name]; ok {
+		// h(s, i)
+		// }
+		// case discordgo.InteractionMessageComponent:
 
+		// if h, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
+		// h(s, i)
+		// }
+		// }
+
+		switch i.Type {
+		case discordgo.InteractionApplicationCommand:
+			if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+				h(sess, i)
+			} else {
+				utils.SendErrorMessage(sess, i, "")
+			}
+		case discordgo.InteractionMessageComponent:
+			if h, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
+				h(sess, i)
+			}
+		}
 	})
 }
 

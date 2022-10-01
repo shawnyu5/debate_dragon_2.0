@@ -14,7 +14,7 @@ import (
 var CommandObj = commands.CommandStruct{
 	Name:    "ivan",
 	Obj:     obj,
-	Handler: handler,
+	CommandHandler: handler,
 }
 
 type emote struct {

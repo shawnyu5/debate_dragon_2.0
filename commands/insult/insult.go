@@ -14,7 +14,7 @@ import (
 var CommandObj = commands.CommandStruct{
 	Name:    "insult",
 	Obj:     obj,
-	Handler: handler,
+	CommandHandler: handler,
 }
 
 func obj() *discordgo.ApplicationCommand {

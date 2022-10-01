@@ -8,7 +8,9 @@ type CommandStruct struct {
 	// command object
 	Obj func() *discordgo.ApplicationCommand
 	// command handler
-	Handler func(sess *discordgo.Session, i *discordgo.InteractionCreate)
+	CommandHandler func(sess *discordgo.Session, i *discordgo.InteractionCreate)
+	// component handler
+	ComponentHandler func(sess *discordgo.Session, i *discordgo.InteractionCreate)
 }
 
 // type Command interface {
