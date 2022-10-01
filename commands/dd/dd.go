@@ -12,7 +12,7 @@ import (
 var CommandObj = commands.CommandStruct{
 	Name:    "dd",
 	Obj:     obj,
-	Handler: handler,
+	CommandHandler: handler,
 }
 
 // obj return a discord ApplicationCommand object defining this command

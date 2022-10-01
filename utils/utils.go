@@ -36,6 +36,9 @@ type Config struct {
 	} `json:"carmenRambles"`
 }
 
+// a handler function type for slash command and components
+type HandlerFunc func(sess *discordgo.Session, i *discordgo.InteractionCreate)
+
 // RegisterCommands register an array of commands to a discord session.
 // Receives an instance of discord session to store commands in. An array of discord application commands to keep track of the stored commands. And an array of commands to register
 // Will panic if registration of a command fails.
@@ -119,4 +122,16 @@ func SendErrorMessage(sess *discordgo.Session, i *discordgo.InteractionCreate, e
 		log.Printf("Error editing response: %v", e)
 	}
 
+}
+
+// addComponentHandlers appends an array of component handlers to the componentsHandlers dictionary
+func AddComponentHandlers(cmds []struct {
+	ComponentID      string
+	ComponentHandler HandlerFunc
+}, handlers map[string]HandlerFunc) map[string]HandlerFunc {
+	for _, cmd := range cmds {
+		handlers[cmd.ComponentID] = cmd.ComponentHandler
+	}
+
+	return handlers
 }
