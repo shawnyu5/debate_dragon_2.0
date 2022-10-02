@@ -13,8 +13,6 @@ import (
 type Config struct {
 	Token       string `json:"token"`
 	TokenDev    string `json:"token_dev"`
-	AppID       string `json:"app_id"`
-	AppIDDev    string `json:"app_id_dev"`
 	ClientID    string `json:"clientID"`
 	GuildID     string `json:"guildID"`
 	LogLevel    string `json:"logLevel"`
@@ -28,7 +26,6 @@ type Config struct {
 	} `json:"ivan"`
 	CarmenRambles struct {
 		CarmenID          string `json:"carmenId"`
-		ChannelID         string `json:"channelId"`
 		CoolDown          int64  `json:"coolDown"`
 		GuildID           string `json:"guildID"`
 		MessageLimit      int64  `json:"messageLimit"`
