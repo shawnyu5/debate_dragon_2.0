@@ -6,5 +6,5 @@ A blazingly fast discord bot written in Go to burn your debate foes to the groun
 
 <img src="media/img/dragon_drawing.png" alt="dragon drawing" width="300">
 
-`/insult user:<userName> anonymous: <true | false>`: Send an insult to `userName`
+`/insult user:<userName> anonymous: <true | false>`: Send an insult to `userName`. `anonymous` determines if you'll be shown as the person that executed the command
 
