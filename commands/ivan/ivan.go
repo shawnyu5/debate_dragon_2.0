@@ -12,8 +12,8 @@ import (
 )
 
 var CommandObj = commands.CommandStruct{
-	Name:    "ivan",
-	Obj:     obj,
+	Name:           "ivan",
+	Obj:            obj,
 	CommandHandler: handler,
 }
 
@@ -65,8 +65,8 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	if optionMap["list"] != nil {
 		listLength := optionMap["list"]
-		bans, err := sess.GuildBans(i.GuildID, int(listLength.IntValue()), "", "")
-		bans = filterIvanBans(bans)
+		bans, err := sess.GuildBans(i.GuildID, 500, "", "")
+		bans = filterIvanBans(bans, listLength.IntValue())
 
 		if err != nil {
 			log.Fatal(err)
@@ -133,12 +133,17 @@ func formatList(list []*discordgo.GuildBan) string {
 }
 
 // filterIvanBans filter out all the ivan bans, and return a new []*discordgo.GuildBan
-func filterIvanBans(bans []*discordgo.GuildBan) []*discordgo.GuildBan {
+func filterIvanBans(bans []*discordgo.GuildBan, listLength int64) []*discordgo.GuildBan {
 	list := make([]*discordgo.GuildBan, 0)
 
 	for _, ban := range bans {
 		if strings.Contains(strings.ToLower(ban.Reason), "ivan") {
 			list = append(list, ban)
+		}
+
+		// stop adding to list once we reached desired capacity
+		if len(list) == int(listLength) {
+			break
 		}
 	}
 	return list
