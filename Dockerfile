@@ -20,4 +20,5 @@ WORKDIR /bot
 COPY --from=build /bot/bot ./bot
 COPY --from=build /bot/config.json ./config.json
 COPY --from=build /bot/media ./media
+COPY --from=build /bot/generate_docs ./generate_docs
 CMD ["./bot"]
