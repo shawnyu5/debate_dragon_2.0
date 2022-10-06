@@ -137,7 +137,7 @@ func filterIvanBans(bans []*discordgo.GuildBan, listLength int64) []*discordgo.G
 	list := make([]*discordgo.GuildBan, 0)
 
 	for _, ban := range bans {
-		if strings.Contains(strings.ToLower(ban.Reason), "ivan") {
+		if strings.Contains(strings.ToLower(ban.Reason), "ivan") || strings.Contains(strings.ToLower(ban.User.Username), "ivan") {
 			list = append(list, ban)
 		}
 
