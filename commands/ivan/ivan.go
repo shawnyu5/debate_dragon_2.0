@@ -115,6 +115,15 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 			utils.SendErrorMessage(sess, i, err.Error())
 			log.Fatal(err)
 		}
+	} else {
+		content := "Ivan is the best"
+		_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+			Content: &content,
+		})
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
 }
 
