@@ -8,6 +8,7 @@ COPY ./media ./media/
 COPY ./commands ./commands/
 COPY ./main.go ./main.go
 COPY ./config.json ./config.json
+COPY ./generate_docs/ ./generate_docs/
 
 # CMD ["ls"]
 RUN go build -o bot
