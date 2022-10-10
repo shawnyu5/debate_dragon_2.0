@@ -20,6 +20,8 @@ type state struct {
 // custom ID for banning ivan
 var startBanProcessID = "start_ivan_ban"
 var dontBanIvanID = "dont_ban_ivan"
+var banJumpScareID = "ban_jump_scare"
+
 var ivanBanState = state{}
 
 var CommandObj = commands.CommandStruct{
@@ -38,9 +40,14 @@ var CommandObj = commands.CommandStruct{
 			ComponentID:      dontBanIvanID,
 			ComponentHandler: dontBanIvan,
 		},
+		{
+			ComponentID:      banJumpScareID,
+			ComponentHandler: banJumpScare,
+		},
 	},
 }
 
+// obj returns the command object for `/manageivan` command
 func obj() *discordgo.ApplicationCommand {
 	defaultManageMessagesPermission := int64(discordgo.PermissionManageMessages)
 	minValue := float64(5)
@@ -108,7 +115,7 @@ func commandHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 }
 
-// startBanningIvan handles the countdown to ban ivan
+// startBanningIvan handles the countdown to ban a user
 func startBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	// change original ephemeral message to command executor
 	err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -205,6 +212,10 @@ func dontBanIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 
 }
 
+// jumpScareBan handle with the jump scare button is pushed
+func jumpScareBan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+}
+
 // createBanButton create a ban button
 func createBanButton(disable bool) discordgo.Button {
 	return discordgo.Button{
@@ -227,13 +238,24 @@ func createDontBanButton(disable bool) discordgo.Button {
 	}
 }
 
+// createJumpScareButton create a jump scare button
+func createJumpScareButton(disable bool) discordgo.Button {
+	return discordgo.Button{
+		Label:    "Jump scare",
+		Style:    discordgo.SecondaryButton,
+		Disabled: disable,
+		Emoji:    discordgo.ComponentEmoji{},
+		CustomID: banJumpScareID,
+	}
+}
+
 type countDownMessage struct {
 	message       string
 	countDownTime time.Duration
 }
 
-// generateMessages generates an array of countDownMessage structs for the count down, based on the length of the countDownTime
-// return an array of messages for the count down
+// generateMessages generates an array of messages for the count down, based on the length of the countDownTime
+// return an array of countDownMessage for the count down
 func generateMessages(countDownTime int) []countDownMessage {
 	messages := make([]countDownMessage, 0)
 	for sec := countDownTime; sec > 0; sec = sec - 5 {
