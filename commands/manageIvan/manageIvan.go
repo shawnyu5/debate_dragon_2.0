@@ -28,7 +28,7 @@ var CommandObj = commands.CommandStruct{
 	CommandHandler: commandHandler,
 	Components: []struct {
 		ComponentID      string
-		ComponentHandler utils.HandlerFunc
+		ComponentHandler commands.HandlerFunc
 	}{
 		{
 			ComponentID:      startBanProcessID,
