@@ -132,3 +132,21 @@ func AddComponentHandlers(cmds []struct {
 
 	return handlers
 }
+
+// DeleteAllMessages Delete all messages in a channel
+// messages: array of discord messages to delete
+// sess    : the discord session
+// i       : discord interaction
+func DeleteAllMessages(sess *discordgo.Session, i *discordgo.InteractionCreate, messages []*discordgo.Message) {
+	for _, message := range messages {
+		go func(mess *discordgo.Message) {
+			err := sess.ChannelMessageDelete(i.ChannelID, mess.ID)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+		}(message)
+	}
+
+}

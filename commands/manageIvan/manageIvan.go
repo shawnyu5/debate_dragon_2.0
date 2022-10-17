@@ -42,7 +42,7 @@ var CommandObj = commands.CommandStruct{
 		},
 		{
 			ComponentID:      banJumpScareID,
-			ComponentHandler: banJumpScare,
+			ComponentHandler: jumpScareBan,
 		},
 	},
 }
@@ -214,6 +214,70 @@ func dontBanIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 
 // jumpScareBan handle with the jump scare button is pushed
 func jumpScareBan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+	// change original ephemeral message to command executor
+	err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseUpdateMessage,
+		Data: &discordgo.InteractionResponseData{
+			Content: "Sequence initiated...",
+			Flags:   discordgo.MessageFlagsEphemeral,
+			Components: []discordgo.MessageComponent{
+				discordgo.ActionsRow{
+					Components: []discordgo.MessageComponent{
+						createBanButton(true),
+						createDontBanButton(true),
+					},
+				},
+			},
+		},
+	})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// keep track of all sent messages so we cant delete them later
+	sentMessages := []*discordgo.Message{}
+	messages := generateMessages(ivanBanState.CountDownTime)
+
+	// start count down
+	for _, message := range messages {
+		mess, err := sess.ChannelMessageSend(i.ChannelID, message.message)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		sentMessages = append(sentMessages, mess)
+		time.Sleep(message.countDownTime * time.Second)
+	}
+	mess, err := sess.ChannelMessageSend(i.ChannelID, fmt.Sprintf("jk, we ain't that mean, you will not be banned %s", ivanBanState.User.ID))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	sentMessages = append(sentMessages, mess)
+	time.Sleep(5 * time.Second)
+
+	mess, err = sess.ChannelMessageSend(i.ChannelID, "Good bye now...")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	sentMessages = append(sentMessages, mess)
+
+	time.Sleep(3 * time.Second)
+
+	// clean up all messages
+	utils.DeleteAllMessages(sess, i, sentMessages)
+	// for _, message := range sentMessages {
+	// go func(mess *discordgo.Message) {
+	// err := sess.ChannelMessageDelete(i.ChannelID, mess.ID)
+	// if err != nil {
+	// log.Println(err)
+	// return
+	// }
+
+	// }(message)
+	// }
 }
 
 // createBanButton create a ban button
@@ -250,7 +314,9 @@ func createJumpScareButton(disable bool) discordgo.Button {
 }
 
 type countDownMessage struct {
-	message       string
+	// the message to send
+	message string
+	// length of the count down in seconds
 	countDownTime time.Duration
 }
 
