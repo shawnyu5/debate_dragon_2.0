@@ -79,6 +79,7 @@ var (
 func init() {
 	// TODO: this is kinda ugly. Find a nicer implementation
 	componentsHandlers = utils.AddComponentHandlers(manageIvan.CommandObj.Components, componentsHandlers)
+	componentsHandlers = utils.AddComponentHandlers(rmp.CommandObj.Components, componentsHandlers)
 
 	dg.AddHandler(func(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		switch i.Type {

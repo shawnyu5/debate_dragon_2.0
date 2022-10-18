@@ -4,7 +4,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// a handler function type for slash command and components
+// a handler function type for slash command
 type HandlerFunc func(sess *discordgo.Session, i *discordgo.InteractionCreate)
 
 type CommandStruct struct {
