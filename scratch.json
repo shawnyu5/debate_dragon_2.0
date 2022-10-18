@@ -1,0 +1,174 @@
+{
+   "data": {
+      "school": null,
+      "search": {
+         "teachers": {
+            "didFallback": false,
+            "edges": [
+               {
+                  "cursor": "YXJyYXljb25uZWN0aW9uOjA=",
+                  "node": {
+                     "__typename": "Teacher",
+                     "avgDifficulty": 4.1,
+                     "avgRating": 2.4,
+                     "department": "History",
+                     "firstName": "Pat",
+                     "id": "VGVhY2hlci04MTI1ODU=",
+                     "isSaved": false,
+                     "lastName": "Crawford",
+                     "legacyId": 812585,
+                     "numRatings": 7,
+                     "school": {
+                        "id": "U2Nob29sLTcyNA==",
+                        "name": "The Ohio State University"
+                     },
+                     "wouldTakeAgainPercent": -1
+                  }
+               },
+               {
+                  "cursor": "YXJyYXljb25uZWN0aW9uOjE=",
+                  "node": {
+                     "__typename": "Teacher",
+                     "avgDifficulty": 2.8,
+                     "avgRating": 3.5,
+                     "department": "Chemistry",
+                     "firstName": "Patrick",
+                     "id": "VGVhY2hlci0xMDQ1NjIx",
+                     "isSaved": false,
+                     "lastName": "Crawford",
+                     "legacyId": 1045621,
+                     "numRatings": 16,
+                     "school": {
+                        "id": "U2Nob29sLTY2",
+                        "name": "Augustana College"
+                     },
+                     "wouldTakeAgainPercent": 75
+                  }
+               },
+               {
+                  "cursor": "YXJyYXljb25uZWN0aW9uOjI=",
+                  "node": {
+                     "__typename": "Teacher",
+                     "avgDifficulty": 3.3,
+                     "avgRating": 2,
+                     "department": "History",
+                     "firstName": "Pat",
+                     "id": "VGVhY2hlci0xMjkzODk2",
+                     "isSaved": false,
+                     "lastName": "Crawford",
+                     "legacyId": 1293896,
+                     "numRatings": 3,
+                     "school": {
+                        "id": "U2Nob29sLTEyMjE=",
+                        "name": "Wright State University"
+                     },
+                     "wouldTakeAgainPercent": -1
+                  }
+               },
+               {
+                  "cursor": "YXJyYXljb25uZWN0aW9uOjM=",
+                  "node": {
+                     "__typename": "Teacher",
+                     "avgDifficulty": 0,
+                     "avgRating": 0,
+                     "department": "History",
+                     "firstName": "Patrick",
+                     "id": "VGVhY2hlci0yNTEwNTM2",
+                     "isSaved": false,
+                     "lastName": "Crawford",
+                     "legacyId": 2510536,
+                     "numRatings": 0,
+                     "school": {
+                        "id": "U2Nob29sLTE1NTc=",
+                        "name": "Tarrant County College (all)"
+                     },
+                     "wouldTakeAgainPercent": -1
+                  }
+               },
+               {
+                  "cursor": "YXJyYXljb25uZWN0aW9uOjQ=",
+                  "node": {
+                     "__typename": "Teacher",
+                     "avgDifficulty": 3,
+                     "avgRating": 4.2,
+                     "department": "Computer Science",
+                     "firstName": "Patrick",
+                     "id": "VGVhY2hlci0yMTYxNjE1",
+                     "isSaved": false,
+                     "lastName": "Crawford",
+                     "legacyId": 2161615,
+                     "numRatings": 20,
+                     "school": {
+                        "id": "U2Nob29sLTE0OTc=",
+                        "name": "Seneca College of Applied Arts and Technology (all campuses)"
+                     },
+                     "wouldTakeAgainPercent": 90.4762
+                  }
+               },
+               {
+                  "cursor": "YXJyYXljb25uZWN0aW9uOjU=",
+                  "node": {
+                     "__typename": "Teacher",
+                     "avgDifficulty": 2,
+                     "avgRating": 4,
+                     "department": "Economics",
+                     "firstName": "Patrick",
+                     "id": "VGVhY2hlci0yNzE3Njcy",
+                     "isSaved": false,
+                     "lastName": "Crawford",
+                     "legacyId": 2717672,
+                     "numRatings": 1,
+                     "school": {
+                        "id": "U2Nob29sLTM1Mg==",
+                        "name": "George Mason University"
+                     },
+                     "wouldTakeAgainPercent": 100
+                  }
+               }
+            ],
+            "filters": [
+               {
+                  "field": "teacherdepartment_s",
+                  "options": [
+                     {
+                        "id": "RGVwYXJ0bWVudC04",
+                        "value": "chemistry"
+                     },
+                     {
+                        "id": "RGVwYXJ0bWVudC0xMQ==",
+                        "value": "computer science"
+                     },
+                     {
+                        "id": "RGVwYXJ0bWVudC0xNQ==",
+                        "value": "economics"
+                     },
+                     {
+                        "id": "RGVwYXJ0bWVudC0yNw==",
+                        "value": "history"
+                     }
+                  ]
+               }
+            ],
+            "pageInfo": {
+               "endCursor": "YXJyYXljb25uZWN0aW9uOjU=",
+               "hasNextPage": false
+            },
+            "resultCount": 6
+         }
+      }
+   },
+   "errors": [
+      {
+         "message": "invalid base64",
+         "locations": [
+            {
+               "line": 8,
+               "column": 3
+            }
+         ],
+         "path": [
+            "school"
+         ]
+      }
+   ]
+}

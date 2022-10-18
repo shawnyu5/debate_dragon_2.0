@@ -11,6 +11,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands/insult"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
+	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
 )
@@ -56,6 +57,7 @@ var (
 		insult.CommandObj.Obj(),
 		ivan.CommandObj.Obj(),
 		manageIvan.CommandObj.Obj(),
+		rmp.CommandObj.Obj(),
 	}
 
 	// for handling slash commands
@@ -64,6 +66,7 @@ var (
 		insult.CommandObj.Name:     insult.CommandObj.CommandHandler,
 		ivan.CommandObj.Name:       ivan.CommandObj.CommandHandler,
 		manageIvan.CommandObj.Name: manageIvan.CommandObj.CommandHandler,
+		rmp.CommandObj.Name:        rmp.CommandObj.CommandHandler,
 	}
 
 	// componentsHandlers = map[string]func(sess *discordgo.Session, i *discordgo.InteractionCreate){
