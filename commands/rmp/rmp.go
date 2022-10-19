@@ -12,9 +12,9 @@ const profSelectMenuID = "prof select menu"
 
 type state struct {
 	// all seneca profs returned from RMP
-	allProfs []ProfNode
+	AllSenecaProfs []ProfNode
 	// user selected prof node
-	selectedProf ProfNode
+	SelectedProf ProfNode
 }
 
 var rmpState = state{}
@@ -56,6 +56,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	profName := options["profname"].StringValue()
 	searchResult := SearchRmpProfByName(profName)
 	senecaProfs := FilterSenecaProfs(searchResult)
+	rmpState.AllSenecaProfs = senecaProfs
 
 	// if not profs are found, return message
 	if len(senecaProfs) == 0 {
@@ -70,6 +71,8 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 			panic(err)
 		}
 
+	} else if len(senecaProfs) > 1 {
+		// if there is more than 1 prof, respond with select menu
 		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
@@ -77,7 +80,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 				Components: []discordgo.MessageComponent{
 					discordgo.ActionsRow{
 						Components: []discordgo.MessageComponent{
-							createSelectMenu(senecaProfs, false),
+							createSelectMenu(rmpState.AllSenecaProfs, false),
 						},
 					},
 				},
@@ -89,39 +92,9 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		}
 	} else {
 		// since there is only 1 prof, we just get the first element of the array
-		prof := rmpState.allProfs[0]
+		prof := rmpState.AllSenecaProfs[0]
 		// respond with prof information
-		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Content:    "",
-				Components: []discordgo.MessageComponent{},
-				Embeds: []*discordgo.MessageEmbed{
-					{
-						Type:        "",
-						Title:       fmt.Sprintf("%s %s", prof.FirstName, prof.LastName),
-						Description: profDescription(prof),
-						Color:       0,
-						Footer: &discordgo.MessageEmbedFooter{
-							Text:         "Information retrieved from ratemyprof.com",
-							IconURL:      "https://pbs.twimg.com/profile_images/1146077191043788800/hG1lAGm9_400x400.png",
-							ProxyIconURL: "",
-						},
-						// Image:     &discordgo.MessageEmbedImage{},
-						// Thumbnail: &discordgo.MessageEmbedThumbnail{},
-						// Video:     &discordgo.MessageEmbedVideo{},
-						// Provider:  &discordgo.MessageEmbedProvider{},
-						Author: &discordgo.MessageEmbedAuthor{
-							URL:          "",
-							Name:         "brought to you by your mom TM",
-							IconURL:      "",
-							ProxyIconURL: "",
-						},
-						Fields: []*discordgo.MessageEmbedField{},
-					},
-				},
-			},
-		})
+		err := sendProfInformation(sess, i, prof)
 		if err != nil {
 			panic(err)
 		}
@@ -133,21 +106,15 @@ func menuHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	data := i.MessageComponentData()
 	// id of the prof selected by the user
 	selectedProfID := data.Values[0]
-	err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Content: selectedProfID,
-		},
-	})
+	// get the prof node the user selected
+	for _, prof := range rmpState.AllSenecaProfs {
+		if prof.ID == selectedProfID {
+			rmpState.SelectedProf = prof
+		}
+	}
+	err := sendProfInformation(sess, i, rmpState.SelectedProf)
 	if err != nil {
 		panic(err)
-	}
-
-	// find the prof that was selected by the user, and store it in the global state
-	for _, prof := range rmpState.allProfs {
-		if prof.ID == selectedProfID {
-			rmpState.selectedProf = prof
-		}
 	}
 }
 
@@ -157,18 +124,20 @@ func createSelectMenu(profs []ProfNode, disabled bool) discordgo.SelectMenu {
 	menu := discordgo.SelectMenu{
 		CustomID:    profSelectMenuID,
 		Placeholder: "Please select a prof",
+		MinValues:   &MinValues,
+		MaxValues:   1,
 		Options:     []discordgo.SelectMenuOption{},
 		Disabled:    disabled,
-		MinValues:   &MinValues,
 	}
 
 	// add all profs as an option to the select menu
 	for _, prof := range profs {
 		// convert id to a string, so we can search by the id later to get the rating of a prof
 		option := discordgo.SelectMenuOption{
-			Label:       fmt.Sprintf("%s %s", prof.FirstName, prof.LastName),
+			Label:       prof.fullName(),
 			Value:       prof.ID,
 			Description: fmt.Sprintf("Department: %s", prof.Department),
+			Emoji:       discordgo.ComponentEmoji{},
 			Default:     false,
 		}
 		menu.Options = append(menu.Options, option)
@@ -176,9 +145,29 @@ func createSelectMenu(profs []ProfNode, disabled bool) discordgo.SelectMenu {
 	return menu
 }
 
-// profDescription generate a description about a professor
-func profDescription(prof ProfNode) string {
-	return fmt.Sprintf(`- **Average rating**: %f
-- **Average difficulty**: %f
-- **Would take again**: %f%%`, prof.AvgRating, prof.AvgDifficulty, prof.WouldTakeAgainPercent)
+// sendProfInformation reply to an interaction with information about a professor
+func sendProfInformation(sess *discordgo.Session, i *discordgo.InteractionCreate, prof ProfNode) error {
+	return sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Embeds: []*discordgo.MessageEmbed{
+				{
+					URL:         prof.rmpURL(),
+					Type:        "",
+					Title:       fmt.Sprintf("%s %s", prof.FirstName, prof.LastName),
+					Description: prof.profDescription(),
+					Timestamp:   "",
+					Color:       0,
+					Footer:      &discordgo.MessageEmbedFooter{Text: "Information retrieved from ratemyprof.com", IconURL: "https://pbs.twimg.com/profile_images/1146077191043788800/hG1lAGm9_400x400.png", ProxyIconURL: ""},
+					Image:       &discordgo.MessageEmbedImage{},
+					Thumbnail:   &discordgo.MessageEmbedThumbnail{},
+					Video:       &discordgo.MessageEmbedVideo{},
+					Provider:    &discordgo.MessageEmbedProvider{},
+					Author:      &discordgo.MessageEmbedAuthor{URL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley", Name: "brought to you by your mom TM", IconURL: "", ProxyIconURL: ""},
+					Fields:      []*discordgo.MessageEmbedField{},
+				},
+			},
+		},
+	})
+
 }

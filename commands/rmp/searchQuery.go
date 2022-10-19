@@ -3,9 +3,12 @@ package rmp
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	googleQuery "github.com/google/go-querystring/query"
 )
 
 // a search query for rmp
@@ -42,6 +45,28 @@ type ProfNode struct {
 		Name string `json:"name"`
 	} `json:"school"`
 	WouldTakeAgainPercent float64 `json:"wouldTakeAgainPercent"`
+}
+
+// profDescription generate a description the professor
+func (p *ProfNode) profDescription() string {
+	return fmt.Sprintf(`- **Average rating**: %f
+- **Average difficulty**: %f
+- **Would take again**: %f%%`, p.AvgRating, p.AvgDifficulty, p.WouldTakeAgainPercent)
+}
+
+// fullName return a profs first and last name
+func (p *ProfNode) fullName() string {
+	return fmt.Sprintf("%s %s", p.FirstName, p.LastName)
+}
+
+// rmpURL generate a url for the current professor to their RMP page
+func (p *ProfNode) rmpURL() string {
+	type Options struct {
+		Tid int64 `url:"tid"`
+	}
+	opt := Options{Tid: p.LegacyID}
+	v, _ := googleQuery.Values(opt)
+	return fmt.Sprintf("https://www.ratemyprofessors.com/professor?%s", v.Encode())
 }
 
 // api response when searching for a prof
