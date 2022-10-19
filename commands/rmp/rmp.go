@@ -63,7 +63,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
-				Content: "No profs by that name is at seneca...",
+				Content: fmt.Sprintf("No profs by the name `%s` is at Seneca...", profName),
 				Flags:   discordgo.MessageFlagsEphemeral,
 			},
 		})
