@@ -56,13 +56,20 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	profName := options["profname"].StringValue()
 	searchResult := SearchRmpProfByName(profName)
 	senecaProfs := FilterSenecaProfs(searchResult)
-	rmpState.allProfs = senecaProfs
 
-	// j, _ := json.Marshal(senecaProfs)
-	// fmt.Printf("handler prof: %+v\n", string(j)) // __AUTO_GENERATED_PRINT_VAR__
+	// if not profs are found, return message
+	if len(senecaProfs) == 0 {
+		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: "No profs by that name is at seneca...",
+				Flags:   discordgo.MessageFlagsEphemeral,
+			},
+		})
+		if err != nil {
+			panic(err)
+		}
 
-	// if there is more than 1 prof, respond with select menu
-	if len(senecaProfs) > 1 {
 		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
