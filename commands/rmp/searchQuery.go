@@ -41,7 +41,7 @@ type ProfNode struct {
 		ID   string `json:"id"`
 		Name string `json:"name"`
 	} `json:"school"`
-	WouldTakeAgainPercent int64 `json:"wouldTakeAgainPercent"`
+	WouldTakeAgainPercent float64 `json:"wouldTakeAgainPercent"`
 }
 
 // api response when searching for a prof
@@ -67,7 +67,7 @@ type searchResponse struct {
 							ID   string `json:"id"`
 							Name string `json:"name"`
 						} `json:"school"`
-						WouldTakeAgainPercent int64 `json:"wouldTakeAgainPercent"`
+						WouldTakeAgainPercent float64 `json:"wouldTakeAgainPercent"`
 					} `json:"node"`
 				} `json:"edges"`
 				Filters []struct {
