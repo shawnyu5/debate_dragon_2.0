@@ -140,7 +140,7 @@ func generateQuery(profName string) SearchQuery {
 	}
 }
 
-// SearchRmpProfByName search for a professor by name on RMP
+// SearchRmpProfByName search for a professor by name on RMP, using the graphql api
 // name: the name of the professor to search for
 // Returns a `searchResponse` struct
 func SearchRmpProfByName(name string) searchResponse {
@@ -173,7 +173,7 @@ func SearchRmpProfByName(name string) searchResponse {
 	return result
 }
 
-// FilterSenecaProfs filter out the professors from seneca
+// FilterSenecaProfs returns only the profs from seneca college
 // Returns a list of professor nodes from Seneca only
 func FilterSenecaProfs(profs searchResponse) []ProfNode {
 	senecaProfs := []ProfNode{}
