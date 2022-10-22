@@ -94,7 +94,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		// since there is only 1 prof, we just get the first element of the array
 		prof := rmpState.AllSenecaProfs[0]
 		// respond with prof information
-		err := sendProfInformation(sess, i, prof)
+		err := SendProfInformation(sess, i, prof)
 		if err != nil {
 			panic(err)
 		}
@@ -112,7 +112,7 @@ func menuHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 			rmpState.SelectedProf = prof
 		}
 	}
-	err := sendProfInformation(sess, i, rmpState.SelectedProf)
+	err := SendProfInformation(sess, i, rmpState.SelectedProf)
 	if err != nil {
 		panic(err)
 	}
@@ -145,8 +145,8 @@ func createSelectMenu(profs []ProfNode, disabled bool) discordgo.SelectMenu {
 	return menu
 }
 
-// sendProfInformation reply to an interaction with information about a professor
-func sendProfInformation(sess *discordgo.Session, i *discordgo.InteractionCreate, prof ProfNode) error {
+// SendProfInformation reply to an interaction with information about a professor
+func SendProfInformation(sess *discordgo.Session, i *discordgo.InteractionCreate, prof ProfNode) error {
 	return sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
@@ -158,13 +158,22 @@ func sendProfInformation(sess *discordgo.Session, i *discordgo.InteractionCreate
 					Description: prof.profDescription(),
 					Timestamp:   "",
 					Color:       0,
-					Footer:      &discordgo.MessageEmbedFooter{Text: "Information retrieved from ratemyprof.com", IconURL: "https://pbs.twimg.com/profile_images/1146077191043788800/hG1lAGm9_400x400.png", ProxyIconURL: ""},
-					Image:       &discordgo.MessageEmbedImage{},
-					Thumbnail:   &discordgo.MessageEmbedThumbnail{},
-					Video:       &discordgo.MessageEmbedVideo{},
-					Provider:    &discordgo.MessageEmbedProvider{},
-					Author:      &discordgo.MessageEmbedAuthor{URL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley", Name: "brought to you by your mom TM", IconURL: "", ProxyIconURL: ""},
-					Fields:      []*discordgo.MessageEmbedField{},
+					Footer: &discordgo.MessageEmbedFooter{
+						Text:         "Information retrieved from ratemyprof.com",
+						IconURL:      "https://pbs.twimg.com/profile_images/1146077191043788800/hG1lAGm9_400x400.png",
+						ProxyIconURL: "",
+					},
+					Image:     &discordgo.MessageEmbedImage{},
+					Thumbnail: &discordgo.MessageEmbedThumbnail{},
+					Video:     &discordgo.MessageEmbedVideo{},
+					Provider:  &discordgo.MessageEmbedProvider{},
+					Author: &discordgo.MessageEmbedAuthor{
+						URL:          "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
+						Name:         "brought to you by your mom TM",
+						IconURL:      "",
+						ProxyIconURL: "",
+					},
+					Fields: []*discordgo.MessageEmbedField{},
 				},
 			},
 		},

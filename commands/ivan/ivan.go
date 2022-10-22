@@ -17,14 +17,14 @@ var CommandObj = commands.CommandStruct{
 	CommandHandler: handler,
 }
 
-type emote struct {
+type Emote struct {
 	Name         string `json:"name"`
 	FileLocation string `json:"fileLocation"`
 }
 
 func obj() *discordgo.ApplicationCommand {
 	maxLength := float64(1000)
-	emotes := getAllEmotes()
+	emotes := GetAllEmotes()
 	obj := &discordgo.ApplicationCommand{
 		Version:     "1.0",
 		Name:        "ivan",
@@ -66,7 +66,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	if optionMap["list"] != nil {
 		listLength := optionMap["list"]
 		bans, err := sess.GuildBans(i.GuildID, 500, "", "")
-		bans = filterIvanBans(bans, listLength.IntValue())
+		bans = FilterIvanBans(bans, listLength.IntValue())
 
 		if err != nil {
 			log.Fatal(err)
@@ -76,7 +76,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 			Embeds: &[]*discordgo.MessageEmbed{
 				{
 					Title:       "All banned ivan users",
-					Description: formatList(bans),
+					Description: FormatList(bans),
 					Color:       0,
 				},
 			},
@@ -86,7 +86,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 			log.Fatal(err)
 		}
 	} else if optionMap["emote"] != nil {
-		emotes := getAllEmotes()
+		emotes := GetAllEmotes()
 		chosenEmote := optionMap["emote"].StringValue()
 
 		// if the chosen emote does not exist, send error
@@ -127,8 +127,8 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 }
 
-// formatList formats an array of GuildBans into a bullet
-func formatList(list []*discordgo.GuildBan) string {
+// FormatList formats an array of GuildBans into a bullet list
+func FormatList(list []*discordgo.GuildBan) string {
 	str := ""
 	for _, item := range list {
 		str += fmt.Sprintf("- %s\n", item.User.Username)
@@ -141,8 +141,8 @@ func formatList(list []*discordgo.GuildBan) string {
 	return str
 }
 
-// filterIvanBans filter out all the ivan bans, and return a new []*discordgo.GuildBan
-func filterIvanBans(bans []*discordgo.GuildBan, listLength int64) []*discordgo.GuildBan {
+// FilterIvanBans filter out all the ivan bans, and return a new []*discordgo.GuildBan
+func FilterIvanBans(bans []*discordgo.GuildBan, listLength int64) []*discordgo.GuildBan {
 	list := make([]*discordgo.GuildBan, 0)
 
 	for _, ban := range bans {
@@ -158,8 +158,8 @@ func filterIvanBans(bans []*discordgo.GuildBan, listLength int64) []*discordgo.G
 	return list
 }
 
-// getAllEmotes returns a list of all the emotes in a map, as specified in config.json. Of name: fileLocation key value pairs
-func getAllEmotes() map[string]string {
+// GetAllEmotes returns a list of all the emotes in a map, as specified in config.json. Of name: fileLocation key value pairs
+func GetAllEmotes() map[string]string {
 	// map of name: fileLocation for all emotes
 	emotes := make(map[string]string)
 	config := utils.LoadConfig()
