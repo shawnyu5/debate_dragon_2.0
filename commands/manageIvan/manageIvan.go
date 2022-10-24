@@ -313,10 +313,10 @@ type CountDownMessage struct {
 // return an array of countDownMessage for the count down
 func GenerateMessages(countDownTime int) []CountDownMessage {
 	messages := make([]CountDownMessage, 0)
+	// if the user picks 5 secs as the count down time, then dont bother counting down
 	for sec := countDownTime; sec > 0; sec = sec - 5 {
-		// if the user picks 5 secs as the count down time, then dont bother counting down
+		// if there are 5 seconds or less left, ask for last words
 		if sec <= 5 {
-			// if there are 5 seconds or less left, ask for last words
 			messages = append(messages, CountDownMessage{
 				message:       fmt.Sprintf("Any last words? <@%s>\nTime till ban: %ds", ivanBanState.User.ID, sec),
 				countDownTime: time.Duration(sec),
