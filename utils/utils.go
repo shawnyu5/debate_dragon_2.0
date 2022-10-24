@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/shawnyu5/debate_dragon_2.0/commands"
 )
 
 type Config struct {
@@ -32,9 +33,6 @@ type Config struct {
 		SubscribersRoleID string `json:"subscribersRoleID"`
 	} `json:"carmenRambles"`
 }
-
-// a handler function type for slash command and components
-type HandlerFunc func(sess *discordgo.Session, i *discordgo.InteractionCreate)
 
 // RegisterCommands register an array of commands to a discord session.
 // Receives an instance of discord session to store commands in. An array of discord application commands to keep track of the stored commands. And an array of commands to register
@@ -124,8 +122,8 @@ func SendErrorMessage(sess *discordgo.Session, i *discordgo.InteractionCreate, e
 // addComponentHandlers appends an array of component handlers to the componentsHandlers dictionary
 func AddComponentHandlers(cmds []struct {
 	ComponentID      string
-	ComponentHandler HandlerFunc
-}, handlers map[string]HandlerFunc) map[string]HandlerFunc {
+	ComponentHandler commands.HandlerFunc
+}, handlers map[string]commands.HandlerFunc) map[string]commands.HandlerFunc {
 	for _, cmd := range cmds {
 		handlers[cmd.ComponentID] = cmd.ComponentHandler
 	}

@@ -32,15 +32,15 @@ var CommandObj = commands.CommandStruct{
 	CommandHandler: commandHandler,
 	Components: []struct {
 		ComponentID      string
-		ComponentHandler utils.HandlerFunc
+		ComponentHandler commands.HandlerFunc
 	}{
 		{
 			ComponentID:      startBanProcessID,
-			ComponentHandler: startBanningIvan,
+			ComponentHandler: StartBanningIvan,
 		},
 		{
 			ComponentID:      dontBanIvanID,
-			ComponentHandler: dontBanIvan,
+			ComponentHandler: DontBanButton,
 		},
 		{
 			ComponentID:      banJumpScareID,
@@ -119,8 +119,8 @@ func commandHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 }
 
 // startBanningIvan handles the interaction countdown to ban a user
-func startBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
-	// change original ephemeral message to disable all buttons and signal the start of sequence
+func StartBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+	// change original ephemeral message to command executor
 	err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseUpdateMessage,
 		Data: &discordgo.InteractionResponseData{
@@ -186,8 +186,8 @@ func startBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	utils.DeleteAllMessages(sess, i, sentMessages)
 }
 
-// dontBanIvan handle with the dont ban button is pushed
-func dontBanIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+// DontBanButton handle when the dont ban button is pushed
+func DontBanButton(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseUpdateMessage,
 		Data: &discordgo.InteractionResponseData{

@@ -12,8 +12,8 @@ import (
 )
 
 var CommandObj = commands.CommandStruct{
-	Name:    "insult",
-	Obj:     obj,
+	Name:           "insult",
+	Obj:            obj,
 	CommandHandler: handler,
 }
 
@@ -49,7 +49,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		user = i.Member.User
 		log.Println("I am being insulted. This will not fly. Insult this user instead", user)
 	}
-	insult := getInsult(user)
+	insult := GetInsult(user)
 
 	// send a normal insult if nothing is passed in, or if anonymous flag is set to false
 	if optionsMap["anonymous"] == nil || optionsMap["anonymous"].BoolValue() == false {
@@ -79,8 +79,8 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 }
 
-// getInsult return an insult ping the user passed into the function
-func getInsult(user *discordgo.User) string {
+// GetInsult return an insult ping the user passed into the function
+func GetInsult(user *discordgo.User) string {
 	// make http get request to insult api
 	resp, err := http.Get("https://insult.mattbas.org/api/insult")
 	if err != nil {

@@ -6,10 +6,12 @@ import (
 	"os/signal"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/shawnyu5/debate_dragon_2.0/commands"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/dd"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/insult"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
+	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
 )
@@ -50,11 +52,12 @@ var (
 	// "ivan":   "ivan",
 	// }
 
-	commands = []*discordgo.ApplicationCommand{
+	slashCommands = []*discordgo.ApplicationCommand{
 		dd.CommandObj.Obj(),
 		insult.CommandObj.Obj(),
 		ivan.CommandObj.Obj(),
 		manageIvan.CommandObj.Obj(),
+		rmp.CommandObj.Obj(),
 	}
 
 	// for handling slash commands
@@ -63,18 +66,20 @@ var (
 		insult.CommandObj.Name:     insult.CommandObj.CommandHandler,
 		ivan.CommandObj.Name:       ivan.CommandObj.CommandHandler,
 		manageIvan.CommandObj.Name: manageIvan.CommandObj.CommandHandler,
+		rmp.CommandObj.Name:        rmp.CommandObj.CommandHandler,
 	}
 
 	// componentsHandlers = map[string]func(sess *discordgo.Session, i *discordgo.InteractionCreate){
 	// manageIvan.CommandObj.ComponentID: manageIvan.CommandObj.ComponentHandler,
 	// }
 
-	componentsHandlers = map[string]utils.HandlerFunc{}
+	componentsHandlers = map[string]commands.HandlerFunc{}
 )
 
 func init() {
 	// TODO: this is kinda ugly. Find a nicer implementation
 	componentsHandlers = utils.AddComponentHandlers(manageIvan.CommandObj.Components, componentsHandlers)
+	componentsHandlers = utils.AddComponentHandlers(rmp.CommandObj.Components, componentsHandlers)
 
 	dg.AddHandler(func(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		switch i.Type {
@@ -108,15 +113,15 @@ func main() {
 		log.Fatalf("Cannot open the session: %v", err)
 	}
 
-	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
+	registeredCommands := make([]*discordgo.ApplicationCommand, len(slashCommands))
 
 	// remove old commands before adding new ones
 	// utils.RemoveCommands(dg, registeredCommands)
 
-	utils.RegisterCommands(dg, commands, registeredCommands)
+	utils.RegisterCommands(dg, slashCommands, registeredCommands)
 	dg.AddHandler(func(sess *discordgo.Session, gld *discordgo.GuildCreate) {
 		log.Printf("Bot added to new guild: %v", gld.Name)
-		utils.RegisterCommands(dg, commands, registeredCommands)
+		utils.RegisterCommands(dg, slashCommands, registeredCommands)
 	})
 
 	defer dg.Close()

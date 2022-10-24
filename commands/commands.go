@@ -2,8 +2,10 @@ package commands
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
+
+// a handler function type for slash command
+type HandlerFunc func(sess *discordgo.Session, i *discordgo.InteractionCreate)
 
 type CommandStruct struct {
 	// name of the slash command, as will be used in discord
@@ -17,6 +19,6 @@ type CommandStruct struct {
 		// component custom ID
 		ComponentID string
 		// component handler for button clicking and such
-		ComponentHandler utils.HandlerFunc
+		ComponentHandler HandlerFunc
 	}
 }

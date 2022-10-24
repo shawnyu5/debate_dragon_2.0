@@ -10,8 +10,8 @@ import (
 )
 
 var CommandObj = commands.CommandStruct{
-	Name:    "dd",
-	Obj:     obj,
+	Name:           "dd",
+	Obj:            obj,
 	CommandHandler: handler,
 }
 
@@ -47,7 +47,7 @@ func handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	// CanvasSize := 1024
 	const CanvasSize = 1024
 	fontSize := 70
-	fontSize = shrinkFontSize(fontSize, optionMap["text"].StringValue(), 7)
+	fontSize = ShrinkFontSize(fontSize, optionMap["text"].StringValue(), 7)
 
 	ctx := gg.NewContext(CanvasSize, CanvasSize)
 	ctx.SetRGB(1, 1, 1)
@@ -92,22 +92,12 @@ func handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 }
 
-// shrinkFontSize shrink the font size passed in based on the length of user input and the maxCharacterSize
+// ShrinkFontSize shrink the font size passed in based on the length of user input and the maxCharacterSize
 // Returns the new font size
-func shrinkFontSize(fontSize int, userInput string, maxCharacterSize int) int {
+func ShrinkFontSize(fontSize int, userInput string, maxCharacterSize int) int {
 	// 7 is the max character at current size
 	if len(userInput) > maxCharacterSize {
-		return shrinkFontSize(fontSize-5, userInput, maxCharacterSize+5)
+		return ShrinkFontSize(fontSize-5, userInput, maxCharacterSize+5)
 	}
 	return fontSize
 }
-
-// // adjustTextPos adjust the text position based on the length of user input
-// // returns the adjusted x and y positions
-// func adjustTextPos(x, y float64, userInput string) (float64, float64) {
-// if len(userInput) > 5 && x > 0.9 {
-// return adjustTextPos(x-0.4, y, userInput[:len(userInput)-3])
-// }
-
-// return x, y
-// }
