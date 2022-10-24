@@ -17,9 +17,13 @@ type state struct {
 	CountDownTime int
 }
 
+var config = utils.LoadConfig()
+
 // custom ID for banning ivan
 var startBanProcessID = "start_ivan_ban"
 var dontBanIvanID = "dont_ban_ivan"
+var banJumpScareID = "ban_jump_scare"
+
 var ivanBanState = state{}
 
 var CommandObj = commands.CommandStruct{
@@ -38,15 +42,20 @@ var CommandObj = commands.CommandStruct{
 			ComponentID:      dontBanIvanID,
 			ComponentHandler: DontBanButton,
 		},
+		{
+			ComponentID:      banJumpScareID,
+			ComponentHandler: jumpScareBan,
+		},
 	},
 }
 
+// obj returns the command object for `/manageivan` command
 func obj() *discordgo.ApplicationCommand {
 	defaultManageMessagesPermission := int64(discordgo.PermissionManageMessages)
 	minValue := float64(5)
 
 	return &discordgo.ApplicationCommand{
-		Version:                  "1.0",
+		Version:                  "1.1",
 		Name:                     "manageivan",
 		DefaultMemberPermissions: &defaultManageMessagesPermission,
 		Description:              "Command to help the management of Ivan",
@@ -96,6 +105,7 @@ func commandHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 					Components: []discordgo.MessageComponent{
 						createBanButton(false),
 						createDontBanButton(false),
+						createJumpScareButton(false),
 					},
 				},
 			},
@@ -108,7 +118,7 @@ func commandHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 }
 
-// StartBanningIvan handles the countdown to ban ivan
+// startBanningIvan handles the interaction countdown to ban a user
 func StartBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	// change original ephemeral message to command executor
 	err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -121,6 +131,7 @@ func StartBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 					Components: []discordgo.MessageComponent{
 						createBanButton(true),
 						createDontBanButton(true),
+						createJumpScareButton(true),
 					},
 				},
 			},
@@ -147,7 +158,10 @@ func StartBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		time.Sleep(message.countDownTime * time.Second)
 	}
 
-	sess.GuildBanCreateWithReason(i.GuildID, ivanBanState.User.ID, "Ivan", 0)
+	if !config.Development {
+		fmt.Println("Banning user for real")
+		sess.GuildBanCreateWithReason(i.GuildID, ivanBanState.User.ID, "Ivan", 0)
+	}
 
 	// time.Sleep(5 * time.Second)
 	// send embed that user has been banned
@@ -169,17 +183,7 @@ func StartBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	time.Sleep(5 * time.Second)
 	// clean up all messages
-	for _, message := range sentMessages {
-		go func(mess *discordgo.Message) {
-			err := sess.ChannelMessageDelete(i.ChannelID, mess.ID)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-
-		}(message)
-	}
-
+	utils.DeleteAllMessages(sess, i, sentMessages)
 }
 
 // DontBanButton handle when the dont ban button is pushed
@@ -194,6 +198,7 @@ func DontBanButton(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 					Components: []discordgo.MessageComponent{
 						createBanButton(true),
 						createDontBanButton(true),
+						createJumpScareButton(true),
 					},
 				},
 			},
@@ -205,10 +210,69 @@ func DontBanButton(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 
 }
 
+// jumpScareBan handle with the jump scare button is pushed
+func jumpScareBan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+	// change original ephemeral message to command executor
+	err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseUpdateMessage,
+		Data: &discordgo.InteractionResponseData{
+			Content: "Jump scare sequence initiated...",
+			Flags:   discordgo.MessageFlagsEphemeral,
+			Components: []discordgo.MessageComponent{
+				discordgo.ActionsRow{
+					Components: []discordgo.MessageComponent{
+						createBanButton(true),
+						createDontBanButton(true),
+						createJumpScareButton(true),
+					},
+				},
+			},
+		},
+	})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// keep track of all sent messages so we cant delete them later
+	sentMessages := []*discordgo.Message{}
+	messages := GenerateMessages(ivanBanState.CountDownTime)
+
+	// start count down
+	for _, message := range messages {
+		mess, err := sess.ChannelMessageSend(i.ChannelID, message.message)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		sentMessages = append(sentMessages, mess)
+		time.Sleep(message.countDownTime * time.Second)
+	}
+	mess, err := sess.ChannelMessageSend(i.ChannelID, fmt.Sprintf("jk, we ain't that mean, you will not be banned <@%s>", ivanBanState.User.ID))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	sentMessages = append(sentMessages, mess)
+	time.Sleep(5 * time.Second)
+
+	mess, err = sess.ChannelMessageSend(i.ChannelID, "Good bye now...")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	sentMessages = append(sentMessages, mess)
+
+	time.Sleep(3 * time.Second)
+
+	// clean up all messages
+	utils.DeleteAllMessages(sess, i, sentMessages)
+}
+
 // createBanButton create a ban button
 func createBanButton(disable bool) discordgo.Button {
 	return discordgo.Button{
-		Label:    "Ban!",
+		Label:    "Ban",
 		Style:    discordgo.DangerButton,
 		Disabled: disable,
 		Emoji:    discordgo.ComponentEmoji{},
@@ -227,20 +291,32 @@ func createDontBanButton(disable bool) discordgo.Button {
 	}
 }
 
+// createJumpScareButton create a jump scare button
+func createJumpScareButton(disable bool) discordgo.Button {
+	return discordgo.Button{
+		Label:    "Jump scare",
+		Style:    discordgo.SuccessButton,
+		Disabled: disable,
+		Emoji:    discordgo.ComponentEmoji{},
+		CustomID: banJumpScareID,
+	}
+}
+
 type CountDownMessage struct {
-	message       string
+	// the message to send
+	message string
+	// length of the count down in seconds
 	countDownTime time.Duration
 }
 
-// GenerateMessages generates countdown messages based on the length of the countDownTime
-// countDownTime: time in seconds of the count down
-// return an array of CountDownMessages
+// GenerateMessages generates an array of messages for the count down, based on the length of the countDownTime
+// return an array of countDownMessage for the count down
 func GenerateMessages(countDownTime int) []CountDownMessage {
 	messages := make([]CountDownMessage, 0)
+	// if the user picks 5 secs as the count down time, then dont bother counting down
 	for sec := countDownTime; sec > 0; sec = sec - 5 {
-		// if the user picks 5 secs as the count down time, then dont bother counting down
+		// if there are 5 seconds or less left, ask for last words
 		if sec <= 5 {
-			// if there are 5 seconds or less left, ask for last words
 			messages = append(messages, CountDownMessage{
 				message:       fmt.Sprintf("Any last words? <@%s>\nTime till ban: %ds", ivanBanState.User.ID, sec),
 				countDownTime: time.Duration(sec),
@@ -248,7 +324,7 @@ func GenerateMessages(countDownTime int) []CountDownMessage {
 		} else if sec == countDownTime {
 			// the very first message should be different
 			messages = append(messages, CountDownMessage{
-				message:       fmt.Sprintf("Count down started: %ds", sec),
+				message:       fmt.Sprintf("Count down started to ban <@%s>: %ds", ivanBanState.User.ID, sec),
 				countDownTime: time.Duration(5),
 			})
 		} else {
