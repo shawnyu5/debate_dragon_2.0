@@ -2,6 +2,8 @@ package rmp
 
 import (
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
@@ -85,6 +87,27 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 					},
 				},
 			},
+		})
+
+		// disable select menu after 3 mins
+		time.AfterFunc(3*time.Minute, func() {
+			// content := "hello"
+			_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+				Content: new(string),
+				Components: &[]discordgo.MessageComponent{
+					discordgo.ActionsRow{
+						Components: []discordgo.MessageComponent{
+							createSelectMenu(rmpState.AllSenecaProfs, true),
+						},
+					},
+				},
+				Embeds:          &[]*discordgo.MessageEmbed{},
+				Files:           []*discordgo.File{},
+				AllowedMentions: &discordgo.MessageAllowedMentions{},
+			})
+			if err != nil {
+				log.Fatal(err)
+			}
 		})
 
 		if err != nil {
