@@ -188,7 +188,7 @@ func SendProfInformation(sess *discordgo.Session, i *discordgo.InteractionCreate
 					Provider:  &discordgo.MessageEmbedProvider{},
 					Author: &discordgo.MessageEmbedAuthor{
 						URL:          "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
-						Name:         fmt.Sprintf("brought to you by @%s's mom TM", sess.State.User.Username),
+						Name:         fmt.Sprintf("brought to you by @%s's mom TM", i.Member.User.Username),
 						IconURL:      "",
 						ProxyIconURL: "",
 					},
