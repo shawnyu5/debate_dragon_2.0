@@ -90,8 +90,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		})
 
 		// disable select menu after 3 mins
-		time.AfterFunc(3*time.Minute, func() {
-			// content := "hello"
+		time.AfterFunc(2*time.Minute, func() {
 			_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 				Content: new(string),
 				Components: &[]discordgo.MessageComponent{
@@ -101,9 +100,6 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 						},
 					},
 				},
-				Embeds:          &[]*discordgo.MessageEmbed{},
-				Files:           []*discordgo.File{},
-				AllowedMentions: &discordgo.MessageAllowedMentions{},
 			})
 			if err != nil {
 				log.Fatal(err)
@@ -192,7 +188,7 @@ func SendProfInformation(sess *discordgo.Session, i *discordgo.InteractionCreate
 					Provider:  &discordgo.MessageEmbedProvider{},
 					Author: &discordgo.MessageEmbedAuthor{
 						URL:          "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
-						Name:         "brought to you by your mom TM",
+						Name:         fmt.Sprintf("brought to you by @%s's mom TM", sess.State.User.Username),
 						IconURL:      "",
 						ProxyIconURL: "",
 					},
