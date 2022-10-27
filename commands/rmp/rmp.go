@@ -89,7 +89,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 			},
 		})
 
-		// disable select menu after 3 mins
+		// disable select menu after 2 mins
 		time.AfterFunc(2*time.Minute, func() {
 			_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 				Content: new(string),
