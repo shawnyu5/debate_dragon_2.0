@@ -160,7 +160,11 @@ func StartBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	if !config.Development {
 		fmt.Println("Banning user for real")
-		sess.GuildBanCreateWithReason(i.GuildID, ivanBanState.User.ID, "Ivan", 0)
+		err = sess.GuildBanCreateWithReason(i.GuildID, ivanBanState.User.ID, "Ivan", 0)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
 
 	// time.Sleep(5 * time.Second)

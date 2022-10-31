@@ -17,7 +17,6 @@ import (
 )
 
 var c utils.Config
-
 var dg *discordgo.Session
 
 // init reads config.json and sets global config variable
@@ -103,7 +102,6 @@ func main() {
 	go func() {
 		generatedocs.Generate()
 	}()
-
 	dg.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
