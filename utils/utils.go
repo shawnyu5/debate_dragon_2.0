@@ -38,23 +38,34 @@ type Config struct {
 // Receives an instance of discord session to store commands in. An array of discord application commands to keep track of the stored commands. And an array of commands to register
 // Will panic if registration of a command fails.
 func RegisterCommands(sess *discordgo.Session, commands []*discordgo.ApplicationCommand, registeredCommands []*discordgo.ApplicationCommand) {
-	// c := LoadConfig()
+	c := LoadConfig()
+	ignoreGuilds := make([]discordgo.Guild, 0)
 	log.Println("Adding commands...")
 	for _, gld := range sess.State.Guilds {
-		// roles := gld.Roles
-		fmt.Println(gld.Name)
-		// if c.Development {
-		// for _, role := range roles {
-		// // if bot role is not at the top 2, dont register commmands here
-		// fmt.Printf("RegisterCommands role.Name: %v\n", role.Name)         // __AUTO_GENERATED_PRINT_VAR__
-		// fmt.Printf("RegisterCommands role.Position: %v\n", role.Position) // __AUTO_GENERATED_PRINT_VAR__
-		// if role.Name == "debate dragon alpha" && role.Position > 3 {
-		// log.Printf("Bot role is not at the top 2, not registering commands in guild %v", gld.Name)
-		// continue
-		// }
-		// }
-		// }
+		roles := gld.Roles
+		if c.Development {
+			for _, role := range roles {
+				// if bot role is not at the top 2, dont register commmands here
+				if role.Name == "debate dragon alpha" && role.Position > 3 {
+					log.Printf("Bot role is not at the top 2, not registering commands in guild %v", gld.Name)
+					ignoreGuilds = append(ignoreGuilds, *gld)
+				}
+			}
+		} else {
+			for _, role := range roles {
+				// if bot role is not at the top 2, dont register commmands here
+				if role.Name == "debate_dragon" && role.Position > 3 {
+					log.Printf("Bot role is not at the top 2, not registering commands in guild %v", gld.Name)
+					ignoreGuilds = append(ignoreGuilds, *gld)
+				}
+			}
+
+		}
 		for i, v := range commands {
+			if ignore := Contains(ignoreGuilds, gld.ID); ignore {
+				log.Printf("Ignoring guild %v", gld.Name)
+				continue
+			}
 			cmd, err := sess.ApplicationCommandCreate(sess.State.User.ID, gld.ID, v)
 			if err != nil {
 				log.Panicf("Cannot create '%v' command: %v", v.Name, err)
@@ -71,10 +82,7 @@ func RemoveCommands(sess *discordgo.Session, registeredCommands []*discordgo.App
 	log.Println("Removing commands...")
 	for _, gld := range sess.State.Guilds {
 		for _, cmd := range registeredCommands {
-			// TODO: fix this
 			err := sess.ApplicationCommandDelete(sess.State.User.ID, gld.ID, cmd.ID)
-			// err := sess.ApplicationCommandDelete(cmd.ApplicationID, cmd.ID, "")
-			// err := sess.ApplicationCommandDelete(sess.State.User.ID, gld.ID, cmd.ID)
 			if err != nil {
 				log.Printf("Cannot delete '%v' command in guild '%v': %v\n", cmd.Name, gld.Name, err)
 			} else {
@@ -161,4 +169,17 @@ func DeleteAllMessages(sess *discordgo.Session, i *discordgo.InteractionCreate, 
 		}(message)
 	}
 
+}
+
+// Contains checks if an array contains an element
+// arr : the array to check
+// elem: the element to check for
+// returns true if the array contains the element, false otherwise
+func Contains(arr []discordgo.Guild, id string) bool {
+	for _, v := range arr {
+		if v.ID == id {
+			return true
+		}
+	}
+	return false
 }
