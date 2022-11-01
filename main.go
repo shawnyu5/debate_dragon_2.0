@@ -126,7 +126,7 @@ func main() {
 		utils.RegisterCommands(dg, slashCommands, registeredCommands)
 	})
 	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
-		subforcarmen.CheckMessage(mess.Message)
+		subforcarmen.CheckMessageAuthor(mess.Message, c.SubForCarmen.CarmenID)
 	})
 
 	defer dg.Close()
