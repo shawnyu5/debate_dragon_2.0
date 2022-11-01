@@ -25,13 +25,19 @@ type Config struct {
 			FileLocation string `json:"fileLocation"`
 		} `json:"emotes"`
 	} `json:"ivan"`
-	CarmenRambles struct {
-		CarmenID          string `json:"carmenId"`
-		CoolDown          int64  `json:"coolDown"`
-		GuildID           string `json:"guildID"`
+	SubForCarmen struct {
+		// id of carmen user to track messages of
+		CarmenID string `json:"carmenId"`
+		// cool down, defined in seconds
+		CoolDown int64 `json:"coolDown"`
+		// the guild to keep track of carmen messages
+		GuildID string `json:"guildID"`
+		// number of messages before a notification is triggered
 		MessageLimit      int64  `json:"messageLimit"`
 		SubscribersRoleID string `json:"subscribersRoleID"`
-	} `json:"carmenRambles"`
+		// channels to ignore
+		IgnoredChannels []string `json:"ignoredChannels"`
+	} `json:"subForCarmen"`
 }
 
 // RegisterCommands register an array of commands to a discord session.

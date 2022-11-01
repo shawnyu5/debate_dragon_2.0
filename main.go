@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -13,6 +12,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
+	subforcarmen "github.com/shawnyu5/debate_dragon_2.0/commands/subForCarmen"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
 )
@@ -58,15 +58,17 @@ var (
 		ivan.CommandObj.Obj(),
 		manageIvan.CommandObj.Obj(),
 		rmp.CommandObj.Obj(),
+		subforcarmen.CommandObj.Obj(),
 	}
 
 	// for handling slash commands
 	commandHandlers = map[string]handlerFunc{
-		dd.CommandObj.Name:         dd.CommandObj.CommandHandler,
-		insult.CommandObj.Name:     insult.CommandObj.CommandHandler,
-		ivan.CommandObj.Name:       ivan.CommandObj.CommandHandler,
-		manageIvan.CommandObj.Name: manageIvan.CommandObj.CommandHandler,
-		rmp.CommandObj.Name:        rmp.CommandObj.CommandHandler,
+		dd.CommandObj.Name:           dd.CommandObj.CommandHandler,
+		insult.CommandObj.Name:       insult.CommandObj.CommandHandler,
+		ivan.CommandObj.Name:         ivan.CommandObj.CommandHandler,
+		manageIvan.CommandObj.Name:   manageIvan.CommandObj.CommandHandler,
+		rmp.CommandObj.Name:          rmp.CommandObj.CommandHandler,
+		subforcarmen.CommandObj.Name: subforcarmen.CommandObj.CommandHandler,
 	}
 
 	// componentsHandlers = map[string]func(sess *discordgo.Session, i *discordgo.InteractionCreate){
@@ -124,7 +126,7 @@ func main() {
 		utils.RegisterCommands(dg, slashCommands, registeredCommands)
 	})
 	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
-		fmt.Println(mess.Content)
+		subforcarmen.CheckMessage(mess.Message)
 	})
 
 	defer dg.Close()
