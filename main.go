@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -102,6 +103,7 @@ func main() {
 	go func() {
 		generatedocs.Generate()
 	}()
+	// dg.Identify.Intents |= discordgo.IntentGuildMessages
 	dg.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
@@ -120,6 +122,9 @@ func main() {
 	dg.AddHandler(func(sess *discordgo.Session, gld *discordgo.GuildCreate) {
 		log.Printf("Bot added to new guild: %v", gld.Name)
 		utils.RegisterCommands(dg, slashCommands, registeredCommands)
+	})
+	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
+		fmt.Println(mess.Content)
 	})
 
 	defer dg.Close()
