@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
+	"github.com/spf13/afero"
 )
+
+var AppFs = afero.NewOsFs()
 
 type Config struct {
 	Token       string `json:"token"`
@@ -28,12 +30,12 @@ type Config struct {
 	SubForCarmen struct {
 		// id of carmen user to track messages of
 		CarmenID string `json:"carmenId"`
-		// cool down, defined in seconds
-		CoolDown int64 `json:"coolDown"`
+		// cool down, defined in minutes
+		CoolDown int `json:"coolDown"`
 		// the guild to keep track of carmen messages
 		GuildID string `json:"guildID"`
 		// number of messages before a notification is triggered
-		MessageLimit      int64  `json:"messageLimit"`
+		MessageLimit      int    `json:"messageLimit"`
 		SubscribersRoleID string `json:"subscribersRoleID"`
 		// channels to ignore
 		IgnoredChannels []string `json:"ignoredChannels"`
@@ -120,7 +122,7 @@ func DeferReply(sess *discordgo.Session, i *discordgo.Interaction) error {
 func LoadConfig() Config {
 	var c Config
 	// read json file
-	f, err := os.Open("config.json")
+	f, err := AppFs.Open("config.json")
 	if err != nil {
 		panic(err)
 	}
