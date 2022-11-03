@@ -93,19 +93,24 @@ func IsCoolDown(mess *discordgo.Message, coolDownPeriod float64) bool {
 	return false
 }
 
-// IncreaseCounter increases the message counter of the current message's time is within 5 mins of the last message. Else resets counter to 0
+// IncreaseCounter increases the message counter if the current message's time is within 5 mins of the last message. Else resets counter to 0
+// mess  : the current message
 // return: true if the counter is increased. False other wise
 func IncreaseCounter(mess *discordgo.Message) bool {
-	// if the message is from SubForCarmen author, and its been longer than the cool down period
+	c := utils.LoadConfig()
+	// time difference between last message time and current message time
 	timeDiff := mess.Timestamp.Sub(CarmenState.LastMessageTime)
+	fmt.Printf("IncreaseCounter timeDiff: %v\n", timeDiff) // __AUTO_GENERATED_PRINT_VAR__
 
-	// timeDiff := time.Since(mess.Timestamp)
 	// increase counter if current message is sent within 5 mins of last message
 	if timeDiff.Minutes() <= float64(6) {
 		CarmenState.Counter++
 		CarmenState.LastMessageTime = mess.Timestamp
+	}
+	// reset counter if counter has reached message limit
+	if CarmenState.Counter == c.SubForCarmen.MessageLimit {
+		CarmenState.Counter = 0
 		return true
 	}
-	CarmenState.Counter = 0
 	return false
 }
