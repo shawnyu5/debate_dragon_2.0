@@ -1,6 +1,8 @@
 package subforcarmen
 
 import (
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -28,12 +30,9 @@ type State struct {
 	Counter int
 }
 
-var CarmenState = State{}
-
-// updates the global state value
-// func (s *State) UpdateState() {
-// CarmenState = *s
-// }
+var CarmenState = State{
+	LastMessageTime: time.Now(),
+}
 
 func obj() *discordgo.ApplicationCommand {
 	c := utils.LoadConfig()
@@ -74,12 +73,21 @@ func CheckMessageAuthor(mess *discordgo.Message, authorID string) bool {
 // coolDownPeriod: the length of cool down period in minues
 // return        : true if the message is within cool down period, false other wise
 func IsCoolDown(mess *discordgo.Message, coolDownPeriod float64) bool {
+	c := utils.LoadConfig()
+
+	// no cool down period in development
+	if c.Development {
+		return false
+	}
+	// TODO: I dont think this logic is right...
 	// get time difference between last message time and current message time
 	timeDiff := mess.Timestamp.Sub(CarmenState.LastMessageTime)
+	fmt.Printf("IsCoolDown timeDiff: %v\n", timeDiff) // __AUTO_GENERATED_PRINT_VAR__
 
 	// if time difference is within cool down period, update last message time stamp
 	if timeDiff.Minutes() <= coolDownPeriod {
 		CarmenState.LastMessageTime = mess.Timestamp
+		fmt.Println("IsCoolDown") // __AUTO_GENERATED_PRINTF__
 		return true
 	}
 	return false
