@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/bwmarrin/discordgo v0.26.2-0.20221023230326-afab84009be8
 	github.com/fogleman/gg v1.3.0
+	github.com/spf13/afero v1.9.2
 )
 
 require (
@@ -21,7 +22,7 @@ require (
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/onsi/ginkgo/v2 v2.4.0
 	github.com/onsi/gomega v1.23.0
-	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
+	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa // indirect
 	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69 // indirect
 	golang.org/x/sys v0.1.0 // indirect
 )
