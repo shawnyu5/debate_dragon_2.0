@@ -114,3 +114,11 @@ func IncreaseCounter(mess *discordgo.Message) bool {
 	}
 	return false
 }
+
+// ShouldTriggerNotification Checks if state counter has reached message limit
+// messageLimit: the message limit to trigger a notification
+// return      : true if state counter has reached messageLimit. False other wise
+func ShouldTriggerNotification(messageLimit int) bool {
+	return CarmenState.Counter >= messageLimit
+}
+
