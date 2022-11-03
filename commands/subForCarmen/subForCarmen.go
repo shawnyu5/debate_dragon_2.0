@@ -122,3 +122,15 @@ func ShouldTriggerNotification(messageLimit int) bool {
 	return CarmenState.Counter >= messageLimit
 }
 
+// SendNotification sends a notification to a channel
+// sess     : the discord session
+// channelID: the channel ID to send the notification to
+// subRoleID: the role to ping
+func SendNotification(sess *discordgo.Session, channelID string, subRoleID string) error {
+	_, err := sess.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
+		Content: fmt.Sprintf("Ayo <@&%s> Caramel is rambling again", subRoleID),
+	})
+
+	return err
+}
+
