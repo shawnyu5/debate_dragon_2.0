@@ -153,45 +153,68 @@ var _ = Describe("Subforcarmen", func() {
 		})
 	})
 
-	// TODO: fix this unit test
-	// Context("IncreaseCounter()", func() {
-	// It("Should increase counter when message is within 5mins", func() {
-	// // 5 mins ago from now
-	// fiveMinsAgo := time.Now().Add(time.Duration(-5) * time.Minute)
-	// state := subforcarmen.State{
-	// LastNotificationTime: time.Time{},
-	// LastMessageTime:      fiveMinsAgo,
-	// Counter:              0,
-	// }
-	// mess := &discordgo.Message{
-	// Timestamp: time.Now(),
-	// }
-	// subforcarmen.CarmenState = state
+	Context("IncreaseCounter()", func() {
+		It("Should increase counter when message is sent within 5 mins", func() {
+			c := utils.Config{
+				Development: false,
+				SubForCarmen: struct {
+					CarmenID          string   "json:\"carmenId\""
+					CoolDown          int      "json:\"coolDown\""
+					GuildID           string   "json:\"guildID\""
+					MessageLimit      int      "json:\"messageLimit\""
+					SubscribersRoleID string   "json:\"subscribersRoleID\""
+					IgnoredChannels   []string "json:\"ignoredChannels\""
+				}{
+					MessageLimit: 5,
+				},
+			}
+			CreateMockConfig(utils.AppFs, c)
 
-	// Expect(subforcarmen.IncreaseCounter(mess)).To(BeTrue())
-	// // counter should have increased by one
-	// Expect(subforcarmen.CarmenState.Counter).To(Equal(1))
-	// Expect(subforcarmen.CarmenState.LastMessageTime).To(BeIdenticalTo(mess.Timestamp))
-	// })
+			// last message was sent 5 mins ago
+			subforcarmen.CarmenState.LastMessageTime = time.Now().Add(time.Duration(-4) * time.Minute)
+			subforcarmen.CarmenState.Counter = 0
+			mess := &discordgo.Message{
+				Timestamp: time.Now(),
+			}
+			Expect(subforcarmen.IncreaseCounter(mess)).To(BeTrue())
 
-	// It("Should reset counter to 0 when message is more than 5 mins ago", func() {
-	// // 5 mins ago from now
-	// tenMinsAgo := time.Now().Add(time.Duration(-15) * time.Minute)
-	// state := subforcarmen.State{
-	// LastNotificationTime: time.Time{},
-	// LastMessageTime:      tenMinsAgo,
-	// Counter:              5,
-	// }
-	// mess := &discordgo.Message{
-	// Timestamp: time.Now(),
-	// }
-	// subforcarmen.CarmenState = state
+			// counter should have increased by one
+			Expect(subforcarmen.CarmenState.Counter).To(Equal(1))
+			Expect(subforcarmen.CarmenState.LastMessageTime).To(BeIdenticalTo(mess.Timestamp))
+		})
 
-	// Expect(subforcarmen.IncreaseCounter(mess)).To(BeFalse())
-	// // counter should have increased by one
-	// Expect(subforcarmen.CarmenState.Counter).To(Equal(0))
-	// })
-	// })
+		It("Should reset counter to 0 when message is more than 5 mins ago", func() {
+			c := utils.Config{
+				Development: false,
+				SubForCarmen: struct {
+					CarmenID          string   "json:\"carmenId\""
+					CoolDown          int      "json:\"coolDown\""
+					GuildID           string   "json:\"guildID\""
+					MessageLimit      int      "json:\"messageLimit\""
+					SubscribersRoleID string   "json:\"subscribersRoleID\""
+					IgnoredChannels   []string "json:\"ignoredChannels\""
+				}{
+					MessageLimit: 5,
+				},
+			}
+			CreateMockConfig(utils.AppFs, c)
+
+			state := subforcarmen.State{
+				LastNotificationTime: time.Time{},
+				LastMessageTime:      time.Now().Add(time.Duration(-4) * time.Minute),
+				Counter:              5,
+			}
+			subforcarmen.CarmenState = state
+
+			mess := &discordgo.Message{
+				Timestamp: time.Now(),
+			}
+
+			Expect(subforcarmen.IncreaseCounter(mess)).To(BeFalse())
+			// counter should have increased by one
+			Expect(subforcarmen.CarmenState.Counter).To(Equal(0))
+		})
+	})
 	Context("ShouldTriggerNotification()", func() {
 		It("Should return true when counter < messageLimit", func() {
 			subforcarmen.CarmenState.Counter = 5
