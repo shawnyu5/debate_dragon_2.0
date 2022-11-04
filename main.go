@@ -125,7 +125,7 @@ func main() {
 	})
 	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 		fmt.Println(mess.Content)
-		subforcarmen.Listen(sess, mess.Message, c.SubForCarmen.CarmenID, mess.GuildID)
+		subforcarmen.Listen(sess, mess.Message)
 	})
 
 	defer dg.Close()

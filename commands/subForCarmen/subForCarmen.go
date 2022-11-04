@@ -60,14 +60,16 @@ func obj() *discordgo.ApplicationCommand {
 
 // Listen Checks a discord message to see if it's SubForCarmen author. And does the needed actions if it is
 // sess    : the discord session
-// mess    : the message to check
-// authorID: the author ID to check
+// mess    : the discord message
 // guildID : the guild ID to check
 // Return  : true if a notification is sent. False other wise
-func Listen(sess *discordgo.Session, mess *discordgo.Message, authorID string, guildID string) bool {
+func Listen(sess *discordgo.Session, mess *discordgo.Message) bool {
 	c := utils.LoadConfig()
 	if !IsValidMessage(mess) { // If the message is not valid
 		log.Println("not a valid message")
+		return false
+	} else if IsIgnoredChannel(mess.ChannelID) {
+		log.Println("Channel in ignore list, ignoring")
 		return false
 	} else if IsCoolDown(mess) { // if we are within cool down period
 		log.Println("Within cool down period")
