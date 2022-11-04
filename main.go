@@ -1,15 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/dd"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/insult"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
 	subforcarmen "github.com/shawnyu5/debate_dragon_2.0/commands/subForCarmen"
@@ -53,21 +51,21 @@ var (
 	// }
 
 	slashCommands = []*discordgo.ApplicationCommand{
-		dd.CommandObj.Obj(),
-		insult.CommandObj.Obj(),
-		ivan.CommandObj.Obj(),
-		manageIvan.CommandObj.Obj(),
-		rmp.CommandObj.Obj(),
+		// dd.CommandObj.Obj(),
+		// insult.CommandObj.Obj(),
+		// ivan.CommandObj.Obj(),
+		// manageIvan.CommandObj.Obj(),
+		// rmp.CommandObj.Obj(),
 		subforcarmen.CommandObj.Obj(),
 	}
 
 	// for handling slash commands
 	commandHandlers = map[string]handlerFunc{
-		dd.CommandObj.Name:           dd.CommandObj.CommandHandler,
-		insult.CommandObj.Name:       insult.CommandObj.CommandHandler,
-		ivan.CommandObj.Name:         ivan.CommandObj.CommandHandler,
-		manageIvan.CommandObj.Name:   manageIvan.CommandObj.CommandHandler,
-		rmp.CommandObj.Name:          rmp.CommandObj.CommandHandler,
+		// dd.CommandObj.Name:           dd.CommandObj.CommandHandler,
+		// insult.CommandObj.Name:       insult.CommandObj.CommandHandler,
+		// ivan.CommandObj.Name:         ivan.CommandObj.CommandHandler,
+		// manageIvan.CommandObj.Name:   manageIvan.CommandObj.CommandHandler,
+		// rmp.CommandObj.Name:          rmp.CommandObj.CommandHandler,
 		subforcarmen.CommandObj.Name: subforcarmen.CommandObj.CommandHandler,
 	}
 
@@ -126,7 +124,8 @@ func main() {
 		utils.RegisterCommands(dg, slashCommands, registeredCommands)
 	})
 	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
-		subforcarmen.CheckMessageAuthor(mess.Message, c.SubForCarmen.CarmenID)
+		fmt.Println(mess.Content)
+		subforcarmen.Listen(sess, mess.Message, c.SubForCarmen.CarmenID, mess.GuildID)
 	})
 
 	defer dg.Close()
