@@ -195,6 +195,14 @@ func SendNotification(sess *discordgo.Session, channelID string, subRoleID strin
 }
 
 // IsIgnoredChannel check if the message is from a channel that should be ignored
-func IsIgnoredChannel() {
-
+// chann: the channel ID to look for
+// return: true if the channel is in the ignore list. False other wise
+func IsIgnoredChannel(chanID string) bool {
+	c := utils.LoadConfig()
+	for _, channel := range c.SubForCarmen.IgnoredChannels {
+		if chanID == channel {
+			return true
+		}
+	}
+	return false
 }

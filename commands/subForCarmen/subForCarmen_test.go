@@ -221,4 +221,44 @@ var _ = Describe("Subforcarmen", func() {
 			Expect(subforcarmen.ShouldTriggerNotification(6))
 		})
 	})
+
+	Context("IsIgnoredChannel()", func() {
+		It("Should detect an ignored channel", func() {
+			c := utils.Config{
+				Development: false,
+				SubForCarmen: struct {
+					CarmenID          string   "json:\"carmenId\""
+					CoolDown          int      "json:\"coolDown\""
+					GuildID           string   "json:\"guildID\""
+					MessageLimit      int      "json:\"messageLimit\""
+					SubscribersRoleID string   "json:\"subscribersRoleID\""
+					IgnoredChannels   []string "json:\"ignoredChannels\""
+				}{
+					IgnoredChannels: []string{"12345", "jflkdsjf"},
+				},
+			}
+			CreateMockConfig(utils.AppFs, c)
+
+			Expect(subforcarmen.IsIgnoredChannel("12345")).To(BeTrue())
+		})
+
+		It("Should detect an non ignored channel", func() {
+			c := utils.Config{
+				Development: false,
+				SubForCarmen: struct {
+					CarmenID          string   "json:\"carmenId\""
+					CoolDown          int      "json:\"coolDown\""
+					GuildID           string   "json:\"guildID\""
+					MessageLimit      int      "json:\"messageLimit\""
+					SubscribersRoleID string   "json:\"subscribersRoleID\""
+					IgnoredChannels   []string "json:\"ignoredChannels\""
+				}{
+					IgnoredChannels: []string{"12345", "jflkdsjf"},
+				},
+			}
+			CreateMockConfig(utils.AppFs, c)
+
+			Expect(subforcarmen.IsIgnoredChannel("jjjjj")).To(BeFalse())
+		})
+	})
 })
