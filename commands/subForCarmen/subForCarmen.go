@@ -77,8 +77,6 @@ func Listen(sess *discordgo.Session, mess *discordgo.Message) bool {
 	}
 
 	IncreaseCounter(mess) // if we have reached the message limit
-	// log.Println("Counter reset to 0")
-	// return false
 
 	if !ShouldTriggerNotification(c.SubForCarmen.MessageLimit) {
 		log.Println("Not enough messages to trigger a notification")
@@ -92,20 +90,6 @@ func Listen(sess *discordgo.Session, mess *discordgo.Message) bool {
 		return true
 	}
 
-	// if mess.Author.ID == authorID && // if it is the SubForCarmen author, in the correct guild
-	// mess.GuildID == guildID &&
-	// !IsCoolDown(mess, float64(c.SubForCarmen.CoolDown)) && // the message is not within cool down period
-	// IncreaseCounter(mess) { // If counter can be increased
-	// // ShouldTriggerNotification(c.SubForCarmen.MessageLimit) { // if it is time to trigger notification
-	// fmt.Println("Listen") // __AUTO_GENERATED_PRINTF__
-	// // send notification to use
-	// err := SendNotification(sess, mess.ChannelID, c.SubForCarmen.SubscribersRoleID)
-	// if err != nil {
-	// log.Fatal(err)
-	// }
-	// return true
-	// }
-	// return false
 }
 
 // IsValidMessage checks if this is a message we should be parsing
