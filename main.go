@@ -23,6 +23,7 @@ var dg *discordgo.Session
 
 // init reads config.json and sets global config variable
 func init() {
+	fmt.Println("init loading config") // __AUTO_GENERATED_PRINTF__
 	c = utils.LoadConfig()
 }
 
