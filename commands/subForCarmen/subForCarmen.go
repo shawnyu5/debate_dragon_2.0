@@ -11,14 +11,13 @@ import (
 )
 
 var CommandObj = commands.CommandStruct{
-	Name: "subforcarmen",
-	Obj:  obj,
-	CommandHandler: func(sess *discordgo.Session, i *discordgo.InteractionCreate) {
-	},
-	Components: []struct {
-		ComponentID      string
-		ComponentHandler commands.HandlerFunc
-	}{},
+	Name:           "subforcarmen",
+	Obj:            obj,
+	CommandHandler: handler,
+	// Components: []struct {
+	// ComponentID      string
+	// ComponentHandler commands.HandlerFunc
+	// }{},
 }
 
 type State struct {
@@ -55,6 +54,40 @@ func obj() *discordgo.ApplicationCommand {
 				Choices:      []*discordgo.ApplicationCommandOptionChoice{},
 			},
 		},
+	}
+}
+
+func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+	userOptions := utils.ParseUserOptions(sess, i)
+	fmt.Printf("handler userOptions['subscribe'].BoolValue(): %v\n", userOptions["subscribe"].BoolValue()) // __AUTO_GENERATED_PRINT_VAR__
+	c := utils.LoadConfig()
+	// if subscribe, give user sub role
+	if userOptions["subscribe"].BoolValue() {
+		sess.GuildMemberRoleAdd(i.GuildID, i.Member.User.ID, c.SubForCarmen.SubscribersRoleID)
+		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				TTS:     false,
+				Content: "You have subscribed for Carmen. Congrats!!!",
+			},
+		})
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	} else { // else remove sub role
+		sess.GuildMemberRoleRemove(i.GuildID, i.Member.User.ID, c.SubForCarmen.SubscribersRoleID)
+		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				TTS:     false,
+				Content: "You have unsubscribed for Carmen. Sorry to see you go...",
+			},
+		})
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
 }
 
