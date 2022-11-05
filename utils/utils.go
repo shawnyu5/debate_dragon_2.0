@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
+	"github.com/spf13/afero"
 )
+
+var AppFs = afero.NewOsFs()
 
 type Config struct {
 	Token       string `json:"token"`
@@ -25,13 +27,21 @@ type Config struct {
 			FileLocation string `json:"fileLocation"`
 		} `json:"emotes"`
 	} `json:"ivan"`
-	CarmenRambles struct {
-		CarmenID          string `json:"carmenId"`
-		CoolDown          int64  `json:"coolDown"`
-		GuildID           string `json:"guildID"`
-		MessageLimit      int64  `json:"messageLimit"`
+	SubForCarmen struct {
+		// if this feature is active or not
+		On bool `json:"on"`
+		// id of carmen user to track messages of
+		CarmenID string `json:"carmenId"`
+		// cool down, defined in minutes
+		CoolDown int `json:"coolDown"`
+		// the guild to keep track of carmen messages
+		GuildID string `json:"guildID"`
+		// number of messages before a notification is triggered
+		MessageLimit      int    `json:"messageLimit"`
 		SubscribersRoleID string `json:"subscribersRoleID"`
-	} `json:"carmenRambles"`
+		// channels to ignore
+		IgnoredChannels []string `json:"ignoredChannels"`
+	} `json:"subForCarmen"`
 }
 
 // RegisterCommands register an array of commands to a discord session.
@@ -92,7 +102,8 @@ func RemoveCommands(sess *discordgo.Session, registeredCommands []*discordgo.App
 	}
 }
 
-// ParseUserOptions parses the user option passed to a command, and returns a map of data options
+// ParseUserOptions parses the user option passed to a command
+// return: a map of data options
 func ParseUserOptions(sess *discordgo.Session, i *discordgo.InteractionCreate) map[string]*discordgo.ApplicationCommandInteractionDataOption {
 	options := i.ApplicationCommandData().Options
 	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
@@ -114,7 +125,7 @@ func DeferReply(sess *discordgo.Session, i *discordgo.Interaction) error {
 func LoadConfig() Config {
 	var c Config
 	// read json file
-	f, err := os.Open("config.json")
+	f, err := AppFs.Open("config.json")
 	if err != nil {
 		panic(err)
 	}

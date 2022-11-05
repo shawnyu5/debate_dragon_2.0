@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -12,6 +13,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
+	subforcarmen "github.com/shawnyu5/debate_dragon_2.0/commands/subForCarmen"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
 )
@@ -51,6 +53,7 @@ var (
 		ivan.CommandObj,
 		manageIvan.CommandObj,
 		rmp.CommandObj,
+		subforcarmen.CommandObj,
 	}
 
 	// array of slash command defs
@@ -85,9 +88,18 @@ func main() {
 	go func() {
 		generatedocs.Generate()
 	}()
+	dg.Identify.Intents |= discordgo.IntentGuildMessages
 	dg.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
+
+	if c.SubForCarmen.On {
+		dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
+			fmt.Println(mess.Content)
+			subforcarmen.Listen(sess, mess.Message)
+
+		})
+	}
 
 	err := dg.Open()
 	if err != nil {
@@ -103,6 +115,10 @@ func main() {
 	dg.AddHandler(func(sess *discordgo.Session, gld *discordgo.GuildCreate) {
 		log.Printf("Bot added to new guild: %v", gld.Name)
 		utils.RegisterCommands(dg, slashCommandDefs, registeredCommands)
+	})
+	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
+		fmt.Println(mess.Content)
+		subforcarmen.Listen(sess, mess.Message)
 	})
 
 	defer dg.Close()

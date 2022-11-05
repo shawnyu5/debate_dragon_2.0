@@ -7,6 +7,8 @@
    "guildID": "",
    // config for carmen rambles
    "carmenRambles": {
+      // toggle the feature on/off
+      "on": true,
       // id of carmen
       "carmenId": "",
       // the guild to keep track of Carmen's messages
@@ -16,7 +18,9 @@
       // the role ID to ping for notification
       "subscribersRoleID": "",
       // cool down in minutes
-      "coolDown": 60
+      "coolDown": 60,
+      // channels to ignore
+      "ignoredChannels": []
    },
    "ivan": {
       "emotes": [
@@ -61,4 +65,3 @@
    "logLevel": "debug",
    "development": true
 }
-
