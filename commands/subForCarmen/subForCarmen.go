@@ -62,6 +62,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	c := utils.LoadConfig()
 	// if subscribe, give user sub role
 	if userOptions["subscribe"].BoolValue() {
+		fmt.Printf("handler i.GuildID: %v\n", i.GuildID) // __AUTO_GENERATED_PRINT_VAR__
 		err := sess.GuildMemberRoleAdd(i.GuildID, i.Member.User.ID, c.SubForCarmen.SubscribersRoleID)
 		if err != nil {
 			log.Println(err)

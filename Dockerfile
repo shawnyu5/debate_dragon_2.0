@@ -10,9 +10,7 @@ COPY ./main.go ./main.go
 COPY ./config.json ./config.json
 COPY ./generate_docs/ ./generate_docs/
 
-# CMD ["ls"]
 RUN go build -o bot
-# RUN ls
 
 FROM golang:1.19.1-alpine3.16 AS prod
 
