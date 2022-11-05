@@ -188,8 +188,8 @@ func IncreaseCounter(mess *discordgo.Message) bool {
 	// increase counter if current message is sent within 5 mins of last message
 	if timeDiff.Minutes() <= float64(6) {
 		CarmenState.Counter++
-		CarmenState.LastMessageTime = mess.Timestamp
 	}
+	CarmenState.LastMessageTime = mess.Timestamp
 	// reset counter if counter has reached message limit
 	if CarmenState.Counter > c.SubForCarmen.MessageLimit {
 		CarmenState.Counter = 0
