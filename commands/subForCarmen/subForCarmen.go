@@ -62,8 +62,12 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	c := utils.LoadConfig()
 	// if subscribe, give user sub role
 	if userOptions["subscribe"].BoolValue() {
-		sess.GuildMemberRoleAdd(i.GuildID, i.Member.User.ID, c.SubForCarmen.SubscribersRoleID)
-		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		err := sess.GuildMemberRoleAdd(i.GuildID, i.Member.User.ID, c.SubForCarmen.SubscribersRoleID)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		err = sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				TTS:     false,
@@ -75,8 +79,12 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 			return
 		}
 	} else { // else remove sub role
-		sess.GuildMemberRoleRemove(i.GuildID, i.Member.User.ID, c.SubForCarmen.SubscribersRoleID)
-		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		err := sess.GuildMemberRoleRemove(i.GuildID, i.Member.User.ID, c.SubForCarmen.SubscribersRoleID)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		err = sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				TTS:     false,
