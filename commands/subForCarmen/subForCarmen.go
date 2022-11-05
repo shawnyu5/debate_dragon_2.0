@@ -59,7 +59,6 @@ func obj() *discordgo.ApplicationCommand {
 
 func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	userOptions := utils.ParseUserOptions(sess, i)
-	fmt.Printf("handler userOptions['subscribe'].BoolValue(): %v\n", userOptions["subscribe"].BoolValue()) // __AUTO_GENERATED_PRINT_VAR__
 	c := utils.LoadConfig()
 	// if subscribe, give user sub role
 	if userOptions["subscribe"].BoolValue() {
@@ -181,7 +180,6 @@ func IncreaseCounter(mess *discordgo.Message) bool {
 	if timeDiff.Minutes() <= float64(6) {
 		CarmenState.Counter++
 		CarmenState.LastMessageTime = mess.Timestamp
-		log.Println("Increasing counter")
 	}
 	// reset counter if counter has reached message limit
 	if CarmenState.Counter > c.SubForCarmen.MessageLimit {

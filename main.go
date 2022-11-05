@@ -88,9 +88,13 @@ func main() {
 	go func() {
 		generatedocs.Generate()
 	}()
-	// dg.Identify.Intents |= discordgo.IntentGuildMessages
+	dg.Identify.Intents |= discordgo.IntentGuildMessages
 	dg.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
+	})
+	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
+		fmt.Println(mess.Content)
+		subforcarmen.Listen(sess, mess.Message)
 	})
 
 	err := dg.Open()
