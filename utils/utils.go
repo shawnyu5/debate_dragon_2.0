@@ -28,7 +28,7 @@ type Config struct {
 		} `json:"emotes"`
 	} `json:"ivan"`
 	SubForCarmen struct {
-		// if this feature is active or not
+		// toggle this feature on and off
 		On bool `json:"on"`
 		// id of carmen user to track messages of
 		CarmenID string `json:"carmenId"`
