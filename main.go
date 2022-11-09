@@ -8,11 +8,6 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/dd"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/insult"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
 	subforcarmen "github.com/shawnyu5/debate_dragon_2.0/commands/subForCarmen"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
@@ -48,11 +43,11 @@ var (
 
 	// array of all slash commands in this bot
 	allCommands = []commands.CommandStruct{
-		dd.CommandObj,
-		insult.CommandObj,
-		ivan.CommandObj,
-		manageIvan.CommandObj,
-		rmp.CommandObj,
+		// dd.CommandObj,
+		// insult.CommandObj,
+		// ivan.CommandObj,
+		// manageIvan.CommandObj,
+		// rmp.CommandObj,
 		subforcarmen.CommandObj,
 	}
 
@@ -93,15 +88,18 @@ func main() {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 
-	if c.SubForCarmen.On {
-		dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
-			fmt.Println(mess.Content)
-			subforcarmen.Listen(sess, mess.Message)
+	removeHandler := dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
+		fmt.Println(mess.Content)
+		subforcarmen.Listen(sess, mess.Message)
+	})
 
-		})
+	if !c.SubForCarmen.On {
+		log.Println("removing handler")
+		removeHandler()
 	}
 
 	err := dg.Open()
+
 	if err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
 	}
@@ -116,10 +114,6 @@ func main() {
 		log.Printf("Bot added to new guild: %v", gld.Name)
 		utils.RegisterCommands(dg, slashCommandDefs, registeredCommands)
 	})
-	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
-		fmt.Println(mess.Content)
-		subforcarmen.Listen(sess, mess.Message)
-	})
 
 	defer dg.Close()
 
@@ -130,9 +124,9 @@ func main() {
 
 	// TODO: commands are not being deleted in my own server
 	// only remove commands in production
-	if !c.Development {
-		utils.RemoveCommands(dg, registeredCommands, c)
-	}
+	// if !c.Development {
+	utils.RemoveCommands(dg, registeredCommands, c)
+	// }
 
 	log.Println("Gracefully shutting down.")
 }
