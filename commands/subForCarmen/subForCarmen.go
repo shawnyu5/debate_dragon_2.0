@@ -117,24 +117,24 @@ func Listen(sess *discordgo.Session, mess *discordgo.Message) bool {
 		return false
 	}
 
-	IncreaseCounter(mess) // if we have reached the message limit
-	CarmenState.LastMessageTime = mess.Timestamp
+	IncreaseCounter(mess) // increase counter if all above condition is met
 
 	if !ShouldTriggerNotification(c.SubForCarmen.MessageLimit) {
 		log.Println("Not enough messages to trigger a notification")
 		return false
 	} else {
 		err := SendNotification(sess, mess.ChannelID, c.SubForCarmen.SubscribersRoleID)
+		// update last notification time
 		CarmenState.LastNotificationTime = time.Now()
 		// reset counter
 		CarmenState.Counter = 0
-		CarmenState.LastMessageTime = time.Now()
+		CarmenState.LastMessageTime = mess.Timestamp
 		if err != nil {
 			log.Println(err)
 			return false
 		}
-		return true
 	}
+	return true
 
 }
 
@@ -173,10 +173,11 @@ func IsCoolDown(mess *discordgo.Message) bool {
 	// get time difference between last notification time and current message time
 	timeDiff := mess.Timestamp.Sub(CarmenState.LastNotificationTime)
 
+	// return if time difference is within cool down period
 	return timeDiff.Minutes() <= float64(c.SubForCarmen.CoolDown)
 }
 
-// IncreaseCounter increases the message counter if the current message's time is within 5 mins of the last message. Else resets counter to 0
+// IncreaseCounter increases the message counter if the current message's time is within 5 mins of the last message
 // mess  : the current message
 // return: true if the counter is increased. False if counter is reset to 0
 func IncreaseCounter(mess *discordgo.Message) bool {
@@ -185,12 +186,13 @@ func IncreaseCounter(mess *discordgo.Message) bool {
 	timeDiff := mess.Timestamp.Sub(CarmenState.LastMessageTime)
 	fmt.Printf("IncreaseCounter timeDiff: %v\n", timeDiff) // __AUTO_GENERATED_PRINT_VAR__
 
-	// increase counter if current message is sent within 5 mins of last message
+	// increase counter if current message is sent within 6 mins of last message
 	if timeDiff.Minutes() <= float64(6) {
 		CarmenState.Counter++
 	}
+
 	// reset counter if counter has reached message limit
-	if CarmenState.Counter > c.SubForCarmen.MessageLimit {
+	if CarmenState.Counter >= c.SubForCarmen.MessageLimit {
 		CarmenState.Counter = 0
 		log.Println("Resetting counter")
 		return false
@@ -206,7 +208,7 @@ func ShouldTriggerNotification(messageLimit int) bool {
 	return CarmenState.Counter == messageLimit
 }
 
-// SendNotification sends a notification to a channel, and set the last notification time
+// SendNotification sends a notification to a channel
 // sess     : the discord session
 // channelID: the channel ID to send the notification to
 // subRoleID: the role to ping
