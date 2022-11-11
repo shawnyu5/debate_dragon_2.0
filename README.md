@@ -26,6 +26,6 @@ The user and guild which this command watches can be configured in `config.json`
 
 ## Development
 
-The bot requires a `config.json` to get environment variables. Refer to `config.example.jsonc` for all values needed in `config.json`.
+The bot requires a `config.json` to set environment variables. Refer to `config.example.jsonc` for all values needed in `config.json`.
 
 **Note** the actual config should be a json file. The `config.example.jsonc` is `jsonc` only to allow comments
