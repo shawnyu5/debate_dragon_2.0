@@ -84,7 +84,23 @@ func init() {
 			}
 		case discordgo.InteractionMessageComponent:
 			if handle, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
-				handle(sess, i)
+				cmdObj := commands.CommandStruct{
+					Handler: handle,
+					Components: []struct {
+						ComponentID      string
+						ComponentHandler commands.HandlerFunc
+					}{
+						{
+							ComponentID:      i.MessageComponentData().CustomID,
+							ComponentHandler: handle,
+						},
+					},
+				}
+				logger := middware.Logger{
+					Logger: log.New(os.Stdout, "", log.LstdFlags),
+					Next:   cmdObj,
+				}
+				logger.Handler(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")
 			}
@@ -137,9 +153,9 @@ func main() {
 
 	// TODO: commands are not being deleted in my own server
 	// only remove commands in production
-	// if !c.Development {
-	utils.RemoveCommands(dg, registeredCommands, c)
-	// }
+	if !c.Development {
+		utils.RemoveCommands(dg, registeredCommands, c)
+	}
 
 	log.Println("Gracefully shutting down.")
 }

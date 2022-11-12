@@ -8,6 +8,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
 )
 
+// Slash command handler logger
 type Logger struct {
 	Logger *log.Logger
 	Next   commands.CommandInter
