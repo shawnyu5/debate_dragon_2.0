@@ -9,6 +9,7 @@ COPY ./commands ./commands/
 COPY ./main.go ./main.go
 COPY ./config.json ./config.json
 COPY ./generate_docs/ ./generate_docs/
+COPY ./middware ./middware/
 
 RUN go build -o bot
 
