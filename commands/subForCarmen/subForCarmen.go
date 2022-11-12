@@ -13,7 +13,7 @@ import (
 var CommandObj = commands.CommandStruct{
 	Name:           "subforcarmen",
 	Obj:            obj,
-	CommandHandler: handler,
+	Handler: handler,
 	// Components: []struct {
 	// ComponentID      string
 	// ComponentHandler commands.HandlerFunc

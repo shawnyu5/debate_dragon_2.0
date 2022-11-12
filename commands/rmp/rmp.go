@@ -24,7 +24,7 @@ var rmpState = state{}
 var CommandObj = commands.CommandStruct{
 	Name:           "rmp",
 	Obj:            obj,
-	CommandHandler: handler,
+	Handler: handler,
 	Components: []struct {
 		ComponentID      string
 		ComponentHandler commands.HandlerFunc

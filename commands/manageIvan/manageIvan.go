@@ -29,7 +29,7 @@ var ivanBanState = state{}
 var CommandObj = commands.CommandStruct{
 	Name:           "manageivan",
 	Obj:            obj,
-	CommandHandler: commandHandler,
+	Handler: commandHandler,
 	Components: []struct {
 		ComponentID      string
 		ComponentHandler commands.HandlerFunc
