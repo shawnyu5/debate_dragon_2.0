@@ -27,9 +27,9 @@ var banJumpScareID = "ban_jump_scare"
 var ivanBanState = state{}
 
 var CommandObj = commands.CommandStruct{
-	Name:           "manageivan",
-	Obj:            obj,
-	CommandHandler: commandHandler,
+	Name:    "manageivan",
+	Obj:     obj,
+	Handler: commandHandler,
 	Components: []struct {
 		ComponentID      string
 		ComponentHandler commands.HandlerFunc
@@ -80,7 +80,7 @@ func obj() *discordgo.ApplicationCommand {
 }
 
 // commandHandler the commandHandler for `/manageivan` command
-func commandHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+func commandHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	optionsMap := utils.ParseUserOptions(sess, i)
 	countDown := optionsMap["countdown"]
 
@@ -116,10 +116,11 @@ func commandHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		utils.SendErrorMessage(sess, i, err.Error())
 		log.Println(err)
 	}
+	return "Select menu sent", nil
 }
 
 // startBanningIvan handles the interaction countdown to ban a user
-func StartBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+func StartBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	// change original ephemeral message to command executor
 	err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseUpdateMessage,
@@ -139,8 +140,7 @@ func StartBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	})
 
 	if err != nil {
-		log.Println(err)
-		return
+		return "", err
 	}
 
 	// keep track of all sent messages so we cant delete them later
@@ -151,19 +151,16 @@ func StartBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	for _, message := range messages {
 		mess, err := sess.ChannelMessageSend(i.ChannelID, message.message)
 		if err != nil {
-			log.Println(err)
-			return
+			return "", err
 		}
 		sentMessages = append(sentMessages, mess)
 		time.Sleep(message.countDownTime * time.Second)
 	}
 
 	if !config.Development {
-		fmt.Println("Banning user for real")
 		err = sess.GuildBanCreateWithReason(i.GuildID, ivanBanState.User.ID, "Ivan", 0)
 		if err != nil {
-			log.Println(err)
-			return
+			return "", err
 		}
 	}
 
@@ -188,10 +185,11 @@ func StartBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	time.Sleep(5 * time.Second)
 	// clean up all messages
 	utils.DeleteAllMessages(sess, i, sentMessages)
+	return fmt.Sprintf("<@%s> HAS BEEN BANNED", ivanBanState.User.ID), nil
 }
 
 // DontBanButton handle when the dont ban button is pushed
-func DontBanButton(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+func DontBanButton(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseUpdateMessage,
 		Data: &discordgo.InteractionResponseData{
@@ -209,13 +207,13 @@ func DontBanButton(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		},
 	})
 	if err != nil {
-		log.Println(err)
+		return "", err
 	}
-
+	return fmt.Sprintf("Okay, <@%s> will not be banned... :(", ivanBanState.User.ID), nil
 }
 
 // jumpScareBan handle with the jump scare button is pushed
-func jumpScareBan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+func jumpScareBan(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	// change original ephemeral message to command executor
 	err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseUpdateMessage,
@@ -234,8 +232,7 @@ func jumpScareBan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		},
 	})
 	if err != nil {
-		log.Println(err)
-		return
+		return "", err
 	}
 
 	// keep track of all sent messages so we cant delete them later
@@ -246,24 +243,21 @@ func jumpScareBan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	for _, message := range messages {
 		mess, err := sess.ChannelMessageSend(i.ChannelID, message.message)
 		if err != nil {
-			log.Println(err)
-			return
+			return "", err
 		}
 		sentMessages = append(sentMessages, mess)
 		time.Sleep(message.countDownTime * time.Second)
 	}
 	mess, err := sess.ChannelMessageSend(i.ChannelID, fmt.Sprintf("jk, we ain't that mean, you will not be banned <@%s>", ivanBanState.User.ID))
 	if err != nil {
-		fmt.Println(err)
-		return
+		return "", err
 	}
 	sentMessages = append(sentMessages, mess)
 	time.Sleep(5 * time.Second)
 
 	mess, err = sess.ChannelMessageSend(i.ChannelID, "Good bye now...")
 	if err != nil {
-		fmt.Println(err)
-		return
+		return "", err
 	}
 	sentMessages = append(sentMessages, mess)
 
@@ -271,6 +265,7 @@ func jumpScareBan(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	// clean up all messages
 	utils.DeleteAllMessages(sess, i, sentMessages)
+	return "Finished jumpscare ban", nil
 }
 
 // createBanButton create a ban button

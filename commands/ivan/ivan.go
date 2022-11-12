@@ -12,9 +12,9 @@ import (
 )
 
 var CommandObj = commands.CommandStruct{
-	Name:           "ivan",
-	Obj:            obj,
-	CommandHandler: handler,
+	Name:    "ivan",
+	Obj:     obj,
+	Handler: handler,
 }
 
 type Emote struct {
@@ -59,7 +59,7 @@ func obj() *discordgo.ApplicationCommand {
 	return obj
 }
 
-func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	utils.DeferReply(sess, i.Interaction)
 	optionMap := utils.ParseUserOptions(sess, i)
 
@@ -85,6 +85,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		if err != nil {
 			log.Fatal(err)
 		}
+		return FormatList(bans), nil
 	} else if optionMap["emote"] != nil {
 		emotes := GetAllEmotes()
 		chosenEmote := optionMap["emote"].StringValue()
@@ -115,6 +116,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 			utils.SendErrorMessage(sess, i, err.Error())
 			log.Fatal(err)
 		}
+		return "Sent emote", nil
 	} else {
 		content := "Ivan is the best"
 		_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
@@ -122,9 +124,10 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		})
 		if err != nil {
 			log.Println(err)
-			return
+			return "", err
 		}
 	}
+	return "emote sent", nil
 }
 
 // FormatList formats an array of GuildBans into a bullet list

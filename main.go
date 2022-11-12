@@ -15,6 +15,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
 	subforcarmen "github.com/shawnyu5/debate_dragon_2.0/commands/subForCarmen"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
+	"github.com/shawnyu5/debate_dragon_2.0/middware"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
@@ -65,13 +66,19 @@ var (
 )
 
 func init() {
-
 	dg.AddHandler(func(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		switch i.Type {
 		case discordgo.InteractionApplicationCommand:
 			if handle, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-				fmt.Printf("init i.ApplicationCommandData().Name: %v\n", i.ApplicationCommandData().Name) // __AUTO_GENERATED_PRINT_VAR__
-				handle(sess, i)
+				cmdObj := commands.CommandStruct{
+					Name:    i.ApplicationCommandData().Name,
+					Handler: handle,
+				}
+				logger := middware.Logger{
+					Logger: log.New(os.Stdout, "", log.LstdFlags),
+					Next:   cmdObj,
+				}
+				logger.Handler(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")
 			}

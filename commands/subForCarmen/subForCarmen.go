@@ -11,9 +11,9 @@ import (
 )
 
 var CommandObj = commands.CommandStruct{
-	Name:           "subforcarmen",
-	Obj:            obj,
-	CommandHandler: handler,
+	Name:    "subforcarmen",
+	Obj:     obj,
+	Handler: handler,
 	// Components: []struct {
 	// ComponentID      string
 	// ComponentHandler commands.HandlerFunc
@@ -57,7 +57,7 @@ func obj() *discordgo.ApplicationCommand {
 	}
 }
 
-func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	userOptions := utils.ParseUserOptions(sess, i)
 	c := utils.LoadConfig()
 	// if subscribe, give user sub role
@@ -65,38 +65,38 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		fmt.Printf("handler i.GuildID: %v\n", i.GuildID) // __AUTO_GENERATED_PRINT_VAR__
 		err := sess.GuildMemberRoleAdd(i.GuildID, i.Member.User.ID, c.SubForCarmen.SubscribersRoleID)
 		if err != nil {
-			log.Println(err)
-			return
+			return "", err
 		}
+		content := "You have subscribed for Carmen. Congrats!!!"
 		err = sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				TTS:     false,
-				Content: "You have subscribed for Carmen. Congrats!!!",
+				Content: content,
 			},
 		})
 		if err != nil {
-			log.Println(err)
-			return
+			return "", err
 		}
 	} else { // else remove sub role
 		err := sess.GuildMemberRoleRemove(i.GuildID, i.Member.User.ID, c.SubForCarmen.SubscribersRoleID)
 		if err != nil {
-			log.Println(err)
-			return
+			return "", err
 		}
+		content := "You have unsubscribed for Carmen. Sorry to see you go..."
 		err = sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				TTS:     false,
-				Content: "You have unsubscribed for Carmen. Sorry to see you go...",
+				Content: content,
 			},
 		})
 		if err != nil {
-			log.Println(err)
-			return
+			return "", err
 		}
+		return content, nil
 	}
+	return "", nil
 }
 
 // Listen Checks a discord message to see if it's SubForCarmen author. And does the needed actions if it is
@@ -107,13 +107,13 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 func Listen(sess *discordgo.Session, mess *discordgo.Message) bool {
 	c := utils.LoadConfig()
 	if !IsValidMessage(mess) { // If the message is not valid
-		log.Println("not a valid message")
+		log.Println("(subForCarmen)not a valid message")
 		return false
 	} else if IsIgnoredChannel(mess.ChannelID) {
-		log.Println("Channel in ignore list, ignoring")
+		log.Println("(subForCarmen)Channel in ignore list, ignoring")
 		return false
 	} else if IsCoolDown(mess) { // if we are within cool down period
-		log.Println("Within cool down period")
+		log.Println("(subForCarmen)Within cool down period")
 		return false
 	}
 

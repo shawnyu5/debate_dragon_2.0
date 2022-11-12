@@ -199,7 +199,7 @@ func GetCmdDefs(cmds []commands.CommandStruct) []*discordgo.ApplicationCommand {
 func GetCmdHandler(cmds []commands.CommandStruct) map[string]commands.HandlerFunc {
 	cmdHandlers := map[string]commands.HandlerFunc{}
 	for _, cmd := range cmds {
-		cmdHandlers[cmd.Name] = cmd.CommandHandler
+		cmdHandlers[cmd.GetName()] = cmd.GetHandler
 	}
 	return cmdHandlers
 }
