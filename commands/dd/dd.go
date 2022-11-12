@@ -6,22 +6,17 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/fogleman/gg"
+	"github.com/shawnyu5/debate_dragon_2.0/commands"
 )
 
-// var CommandObj = commands.CommandStruct{}
-
-type CommandObj struct{}
-
-var Obj = CommandObj{}
-
-// var CommandObj = commands.CommandStruct{
-// Name:           "dd",
-// Obj:            obj,
-// CommandHandler: handler,
-// }
+var CommandObj = commands.CommandStruct{
+	Name:           "dd",
+	Obj:            obj,
+	CommandHandler: handler,
+}
 
 // obj return a discord ApplicationCommand object defining this command
-func (c CommandObj) Obj() *discordgo.ApplicationCommand {
+func obj() *discordgo.ApplicationCommand {
 	obj := &discordgo.ApplicationCommand{
 		Name:        "dd",
 		Description: "summon a dragon to burn your debate floes to the ground.",
@@ -38,7 +33,7 @@ func (c CommandObj) Obj() *discordgo.ApplicationCommand {
 }
 
 // handler a handler function for debate dragon
-func (c CommandObj) Handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	options := i.ApplicationCommandData().Options
 	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
 	for _, opt := range options {
