@@ -9,9 +9,12 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/dd"
+	"github.com/shawnyu5/debate_dragon_2.0/commands/insult"
+	"github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
+	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
+	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
 	subforcarmen "github.com/shawnyu5/debate_dragon_2.0/commands/subForCarmen"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
-	"github.com/shawnyu5/debate_dragon_2.0/middware"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
@@ -44,13 +47,13 @@ var (
 	defaultMemberPermissions int64 = discordgo.PermissionManageServer
 
 	// array of all slash commands in this bot
-	allCommands = []commands.CommandInter{
-		dd.Obj,
-		// insult.CommandObj,
-		// ivan.CommandObj,
-		// manageIvan.CommandObj,
-		// rmp.CommandObj,
-		// subforcarmen.CommandObj,
+	allCommands = []commands.CommandStruct{
+		dd.CommandObj,
+		insult.CommandObj,
+		ivan.CommandObj,
+		manageIvan.CommandObj,
+		rmp.CommandObj,
+		subforcarmen.CommandObj,
 	}
 
 	// array of slash command defs
@@ -58,50 +61,26 @@ var (
 	// array of command handlers
 	commandHandlers = utils.GetCmdHandler(allCommands)
 	// array of component handlers
-	// TODO: fix this
-	// componentsHandlers = utils.GetComponentHandler(allCommands)
+	componentsHandlers = utils.GetComponentHandler(allCommands)
 )
 
 func init() {
+
 	dg.AddHandler(func(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		switch i.Type {
 		case discordgo.InteractionApplicationCommand:
 			if handle, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-				// we have:
-				// command name
-				// command handler function
-
-				// logger needs
-				// command name
-				// handler function
-				logger := log.New(os.Stdout, "", log.LstdFlags)
-				var obj commands.CommandInter
-				obj = dd.CommandObj{}
-				obj = middware.Logger{
-					Logger: logger,
-					Next: commands.CommandStruct{
-						Name:    i.ApplicationCommandData().Name,
-						Handler: handle,
-					},
-				}
-				obj.Handler(sess, i)
-				// cmd := commands.CommandStruct{
-				// Name:           i.ApplicationCommandData().Name,
-				// CommandHandler: handle,
-				// }
-				// mid := middware.Logger{
-				// Logger: log.New(os.Stdout, "", log.Ldate),
-				// Next:   cmd,
-				// }
+				fmt.Printf("init i.ApplicationCommandData().Name: %v\n", i.ApplicationCommandData().Name) // __AUTO_GENERATED_PRINT_VAR__
+				handle(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")
 			}
 		case discordgo.InteractionMessageComponent:
-			// if handle, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
-			// handle(sess, i)
-			// } else {
-			// utils.SendErrorMessage(sess, i, "")
-			// }
+			if handle, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
+				handle(sess, i)
+			} else {
+				utils.SendErrorMessage(sess, i, "")
+			}
 		}
 	})
 }
