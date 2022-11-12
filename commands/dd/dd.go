@@ -33,7 +33,7 @@ func obj() *discordgo.ApplicationCommand {
 }
 
 // handler a handler function for debate dragon
-func handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func handler(s *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	options := i.ApplicationCommandData().Options
 	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
 	for _, opt := range options {
@@ -90,6 +90,7 @@ func handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	return optionMap["text"].StringValue(), nil
 }
 
 // ShrinkFontSize shrink the font size passed in based on the length of user input and the maxCharacterSize

@@ -22,8 +22,8 @@ type state struct {
 var rmpState = state{}
 
 var CommandObj = commands.CommandStruct{
-	Name:           "rmp",
-	Obj:            obj,
+	Name:    "rmp",
+	Obj:     obj,
 	Handler: handler,
 	Components: []struct {
 		ComponentID      string
@@ -53,7 +53,7 @@ func obj() *discordgo.ApplicationCommand {
 	}
 }
 
-func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	options := utils.ParseUserOptions(sess, i)
 	profName := options["profname"].StringValue()
 	searchResult := SearchRmpProfByName(profName)
@@ -70,8 +70,9 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 			},
 		})
 		if err != nil {
-			panic(err)
+			return "", err
 		}
+		return fmt.Sprintf("No profs by the name `%s` is at Seneca...", profName), nil
 
 	} else if len(senecaProfs) > 1 {
 		// if there is more than 1 prof, respond with select menu
@@ -107,21 +108,24 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		})
 
 		if err != nil {
-			panic(err)
+			return "", err
 		}
+		return "Multi profs found, select menu sent", nil
 	} else {
 		// since there is only 1 prof, we just get the first element of the array
 		prof := rmpState.AllSenecaProfs[0]
+		rmpState.SelectedProf = prof
 		// respond with prof information
 		err := SendProfInformation(sess, i, prof)
 		if err != nil {
-			panic(err)
+			return "", err
 		}
+		return fmt.Sprintf("Prof %s information sent", rmpState.SelectedProf.fullName()), nil
 	}
 }
 
 // menuHandler handles when an option is selected in the select menu
-func menuHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+func menuHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	data := i.MessageComponentData()
 	// id of the prof selected by the user
 	selectedProfID := data.Values[0]
@@ -133,8 +137,9 @@ func menuHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 	err := SendProfInformation(sess, i, rmpState.SelectedProf)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
+	return fmt.Sprintf("Prof %s information sent", rmpState.SelectedProf.fullName()), nil
 }
 
 // createSelectMenu create a select menu containing the profs

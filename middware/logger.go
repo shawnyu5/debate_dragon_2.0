@@ -10,17 +10,15 @@ import (
 
 type Logger struct {
 	Logger *log.Logger
-	Next   commands.CommandStruct
+	Next   commands.CommandInter
 }
 
-func (l Logger) Obj() *discordgo.ApplicationCommand {
-	return l.Next.Obj()
-}
+// handler calls discord slash command handler with logging
+func (l Logger) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	output, err := l.Next.GetHandler(sess, i)
+	defer func(begin time.Time, output string) {
+		l.Logger.Printf("command=%s response='%s' err=%s took=%s", l.Next.GetName(), output, err, time.Since(begin))
+	}(time.Now(), output)
 
-// handler discord slash command handler with logging
-func (l Logger) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
-	defer func(begin time.Time) {
-		l.Logger.Printf("command=%s response=%s took=%s", l.Next.Obj().Name, "idk yet", time.Since(begin))
-	}(time.Now())
-	l.Next.Handler(sess, i)
+	return output, err
 }

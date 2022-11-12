@@ -12,8 +12,8 @@ import (
 )
 
 var CommandObj = commands.CommandStruct{
-	Name:           "insult",
-	Obj:            obj,
+	Name:    "insult",
+	Obj:     obj,
 	Handler: handler,
 }
 
@@ -42,7 +42,7 @@ func obj() *discordgo.ApplicationCommand {
 }
 
 // handler a handler function for insult command
-func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	optionsMap := utils.ParseUserOptions(sess, i)
 	user := optionsMap["user"].UserValue(sess)
 	if user.ID == "652511543845453855" {
@@ -77,6 +77,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 			},
 		})
 	}
+	return insult, nil
 }
 
 // GetInsult return an insult ping the user passed into the function
