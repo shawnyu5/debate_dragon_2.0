@@ -10,9 +10,9 @@ import (
 )
 
 var CommandObj = commands.CommandStruct{
-	Name:           "dd",
-	Obj:            obj,
-	CommandHandler: handler,
+	Name:    "dd",
+	Obj:     obj,
+	Handler: handler,
 }
 
 // obj return a discord ApplicationCommand object defining this command
