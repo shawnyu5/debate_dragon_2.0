@@ -13,6 +13,7 @@ import (
 
 var AppFs = afero.NewOsFs()
 
+// config object as defined in config.json
 type Config struct {
 	Token       string `json:"token"`
 	TokenDev    string `json:"token_dev"`

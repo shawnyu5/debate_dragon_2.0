@@ -69,14 +69,15 @@ func init() {
 	dg.AddHandler(func(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		switch i.Type {
 		case discordgo.InteractionApplicationCommand:
-			if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-				h(sess, i)
+			if handle, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+				fmt.Printf("init i.ApplicationCommandData().Name: %v\n", i.ApplicationCommandData().Name) // __AUTO_GENERATED_PRINT_VAR__
+				handle(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")
 			}
 		case discordgo.InteractionMessageComponent:
-			if h, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
-				h(sess, i)
+			if handle, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
+				handle(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")
 			}
