@@ -9,9 +9,9 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
 )
 
-type Cmd struct{}
+type cmd struct{}
 
-var CmdObj = Cmd{}
+var Cmd = cmd{}
 
 // var CommandObj = commands.CommandStruct{
 // Name:    "dd",
@@ -19,7 +19,7 @@ var CmdObj = Cmd{}
 // Handler: handler,
 // }
 
-func (c Cmd) Obj() *discordgo.ApplicationCommand {
+func (c cmd) Obj() *discordgo.ApplicationCommand {
 	obj := &discordgo.ApplicationCommand{
 		Name:        "dd",
 		Description: "summon a dragon to burn your debate floes to the ground.",
@@ -36,7 +36,7 @@ func (c Cmd) Obj() *discordgo.ApplicationCommand {
 }
 
 // handler a handler function for debate dragon
-func (c Cmd) CommandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+func (c cmd) CommandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	options := i.ApplicationCommandData().Options
 	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
 	for _, opt := range options {
@@ -97,8 +97,8 @@ func (c Cmd) CommandHandler(s *discordgo.Session, i *discordgo.InteractionCreate
 }
 
 // does not have components
-func (c Cmd) ComponentHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) ([]commands.ComponentHandler, error) {
-	return nil, nil
+func (c cmd) ComponentHandler() []commands.ComponentHandler {
+	return nil
 }
 
 // ShrinkFontSize shrink the font size passed in based on the length of user input and the maxCharacterSize

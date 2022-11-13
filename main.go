@@ -45,7 +45,7 @@ var (
 
 	// array of all slash commands in this bot
 	allCommands = []commands.CommandInter{
-		dd.CmdObj,
+		dd.Cmd,
 		// insult.CommandObj,
 		// ivan.CommandObj,
 		// manageIvan.CommandObj,
@@ -74,7 +74,7 @@ func init() {
 					Logger: log.New(os.Stdout, "", log.LstdFlags),
 					Next:   cmdObj,
 				}
-				logger.Handler(sess, i)
+				logger.Handle(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")
 			}
@@ -96,7 +96,7 @@ func init() {
 					Logger: log.New(os.Stdout, "", log.LstdFlags),
 					Next:   cmdObj,
 				}
-				logger.Handler(sess, i)
+				logger.Handle(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")
 			}

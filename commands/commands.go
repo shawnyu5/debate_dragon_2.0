@@ -13,8 +13,8 @@ type CommandInter interface {
 	Obj() *discordgo.ApplicationCommand
 	// slash command handler
 	CommandHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error)
-	// component handler
-	ComponentHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) ([]ComponentHandler, error)
+	// the component handler for this command
+	ComponentHandler() []ComponentHandler
 }
 
 type ComponentHandler struct {
