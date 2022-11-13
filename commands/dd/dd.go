@@ -9,14 +9,17 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
 )
 
-var CommandObj = commands.CommandStruct{
-	Name:    "dd",
-	Obj:     obj,
-	Handler: handler,
-}
+type Cmd struct{}
 
-// obj return a discord ApplicationCommand object defining this command
-func obj() *discordgo.ApplicationCommand {
+var CmdObj = Cmd{}
+
+// var CommandObj = commands.CommandStruct{
+// Name:    "dd",
+// Obj:     obj,
+// Handler: handler,
+// }
+
+func (c Cmd) Obj() *discordgo.ApplicationCommand {
 	obj := &discordgo.ApplicationCommand{
 		Name:        "dd",
 		Description: "summon a dragon to burn your debate floes to the ground.",
@@ -33,7 +36,7 @@ func obj() *discordgo.ApplicationCommand {
 }
 
 // handler a handler function for debate dragon
-func handler(s *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+func (c Cmd) CommandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	options := i.ApplicationCommandData().Options
 	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
 	for _, opt := range options {
@@ -91,6 +94,11 @@ func handler(s *discordgo.Session, i *discordgo.InteractionCreate) (string, erro
 		log.Fatalln(err)
 	}
 	return optionMap["text"].StringValue(), nil
+}
+
+// does not have components
+func (c Cmd) ComponentHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) ([]commands.ComponentHandler, error) {
+	return nil, nil
 }
 
 // ShrinkFontSize shrink the font size passed in based on the length of user input and the maxCharacterSize

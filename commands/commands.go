@@ -9,10 +9,19 @@ type HandlerFunc func(sess *discordgo.Session, i *discordgo.InteractionCreate) (
 
 // defines the interface for a slash command component
 type CommandInter interface {
-	// return the command handler to handle the slash command
-	GetHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error)
-	// return the name of the command
-	GetName() string
+	// the discordgo ApplicationCommand obj
+	Obj() *discordgo.ApplicationCommand
+	// slash command handler
+	CommandHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error)
+	// component handler
+	ComponentHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) ([]ComponentHandler, error)
+}
+
+type ComponentHandler struct {
+	// component custom ID
+	ComponentID string
+	// component handler for button clicking and such
+	ComponentHandler HandlerFunc
 }
 
 type CommandStruct struct {
@@ -31,19 +40,12 @@ type CommandStruct struct {
 	}
 }
 
-// GetHandler slash command handler
-func (c CommandStruct) GetHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
-	return c.Handler(sess, i)
-}
+// // GetHandler slash command handler
+// func (c CommandStruct) GetHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+// return c.Handler(sess, i)
+// }
 
-// GetName return the name of the command
-func (c CommandStruct) GetName() string {
-	return c.Name
-}
-
-type ComponentHandler struct {
-	// component custom ID
-	ComponentID string
-	// component handler for button clicking and such
-	ComponentHandler HandlerFunc
-}
+// // GetName return the name of the command
+// func (c CommandStruct) GetName() string {
+// return c.Name
+// }
