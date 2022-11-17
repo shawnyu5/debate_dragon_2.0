@@ -3,3 +3,5 @@ config.json
 tmp/
 out.png
 .do_tasks
+# local database
+db
