@@ -58,7 +58,7 @@ func RegisterCommands(sess *discordgo.Session, commands []*discordgo.Application
 			for _, role := range roles {
 				// if bot role is not at the top 2, dont register commmands here
 				if role.Name == "debate dragon alpha" && role.Position > 4 {
-					log.Printf("Bot role is not at the top 3, not registering commands in guild %v", gld.Name)
+					log.Printf("Bot role is not at the top 3. Bot position: %d, not registering commands in guild %v", role.Position, gld.Name)
 					ignoreGuilds = append(ignoreGuilds, *gld)
 				}
 			}
