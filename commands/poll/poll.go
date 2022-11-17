@@ -254,9 +254,9 @@ func addVote(votes VotesContainer, newVote int, user discordgo.User) VotesContai
 }
 
 // removeUserVotes removes all of a user's votes
-// votes  : the votes container
+// votes  : current votes
 // user   : the user's votes to remove
-// returns: the updated votes container
+// returns: the updated votes container, and if a vote was removed
 func removeUserVotes(votes VotesContainer, user discordgo.User) (VotesContainer, bool) {
 	filteredContainer := make(VotesContainer)
 	// if we encountered the user we are removing

@@ -1,4 +1,8 @@
 services:
    debate_dragon:
+      volumes:
+         - type: bind
+           source: ./db
+           target: /bot/db
       build: ./
       restart: "always"
