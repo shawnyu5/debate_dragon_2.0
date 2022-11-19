@@ -68,45 +68,46 @@ var _ = Describe("Subforcarmen", func() {
 	// })
 
 	Context("IsValidMessage()", func() {
-		It("Should recognize a carmen message", func() {
-			utils.AppFs = afero.NewMemMapFs()
-			c := utils.Config{
-				SubForCarmen: struct {
-					CarmenID          string   "json:\"carmenId\""
-					CoolDown          int      "json:\"coolDown\""
-					GuildID           string   "json:\"guildID\""
-					MessageLimit      int      "json:\"messageLimit\""
-					SubscribersRoleID string   "json:\"subscribersRoleID\""
-					IgnoredChannels   []string "json:\"ignoredChannels\""
-				}{CarmenID: "12345"},
-			}
-			CreateMockConfig(utils.AppFs, c)
-
-			mess := &discordgo.Message{
-				Author: &discordgo.User{
-					ID: c.SubForCarmen.CarmenID,
-				},
-			}
-
-			Expect(subforcarmen.IsValidMessage(mess)).To(BeTrue())
-		})
+		utils.AppFs = afero.NewMemMapFs()
+		// It("Should recognize a carmen message", func() {
+		// c := utils.Config{
+		// Token:       "",
+		// TokenDev:    "",
+		// ClientID:    "",
+		// GuildID:     "",
+		// LogLevel:    "",
+		// Development: false,
+		// Ivan: struct {
+		// Emotes []struct {
+		// Name         string "json:\"name\""
+		// FileLocation string "json:\"fileLocation\""
+		// } "json:\"emotes\""
+		// }{},
+		// SubForCarmen: struct {
+		// On                bool     "json:\"on\""
+		// CarmenID          string   "json:\"carmenId\""
+		// CoolDown          int      "json:\"coolDown\""
+		// GuildID           string   "json:\"guildID\""
+		// MessageLimit      int      "json:\"messageLimit\""
+		// SubscribersRoleID string   "json:\"subscribersRoleID\""
+		// IgnoredChannels   []string "json:\"ignoredChannels\""
+		// }{CarmenID: "12345"},
+		// }
+		// })
 
 	})
 	Context("IsCoolDown()", func() {
 		It("should return true if the message is within the cooldown period", func() {
 			c := utils.Config{
-				Development: false,
 				SubForCarmen: struct {
+					On                bool     "json:\"on\""
 					CarmenID          string   "json:\"carmenId\""
 					CoolDown          int      "json:\"coolDown\""
 					GuildID           string   "json:\"guildID\""
 					MessageLimit      int      "json:\"messageLimit\""
 					SubscribersRoleID string   "json:\"subscribersRoleID\""
 					IgnoredChannels   []string "json:\"ignoredChannels\""
-				}{
-					// cool down is 60 mins long
-					CoolDown: 60,
-				},
+				}{CoolDown: 60},
 			}
 			// last notification is sent 10 mins ago
 			subforcarmen.CarmenState.LastNotificationTime = time.Now().Add(time.Duration(-10) * time.Minute)
@@ -120,14 +121,12 @@ var _ = Describe("Subforcarmen", func() {
 
 			// cool down is 60 mins
 			Expect(subforcarmen.IsCoolDown(mess)).To(BeTrue())
-			// check if last message time stamp is updated
-			Expect(subforcarmen.CarmenState.LastMessageTime).To(BeIdenticalTo(mess.Timestamp))
 		})
 
 		It("should return false if the message is not within the cooldown period", func() {
 			c := utils.Config{
-				Development: false,
 				SubForCarmen: struct {
+					On                bool     "json:\"on\""
 					CarmenID          string   "json:\"carmenId\""
 					CoolDown          int      "json:\"coolDown\""
 					GuildID           string   "json:\"guildID\""
@@ -156,17 +155,15 @@ var _ = Describe("Subforcarmen", func() {
 	Context("IncreaseCounter()", func() {
 		It("Should increase counter when message is sent within 5 mins", func() {
 			c := utils.Config{
-				Development: false,
 				SubForCarmen: struct {
+					On                bool     "json:\"on\""
 					CarmenID          string   "json:\"carmenId\""
 					CoolDown          int      "json:\"coolDown\""
 					GuildID           string   "json:\"guildID\""
 					MessageLimit      int      "json:\"messageLimit\""
 					SubscribersRoleID string   "json:\"subscribersRoleID\""
 					IgnoredChannels   []string "json:\"ignoredChannels\""
-				}{
-					MessageLimit: 5,
-				},
+				}{MessageLimit: 5},
 			}
 			CreateMockConfig(utils.AppFs, c)
 
@@ -180,22 +177,19 @@ var _ = Describe("Subforcarmen", func() {
 
 			// counter should have increased by one
 			Expect(subforcarmen.CarmenState.Counter).To(Equal(1))
-			Expect(subforcarmen.CarmenState.LastMessageTime).To(BeIdenticalTo(mess.Timestamp))
 		})
 
 		It("Should reset counter to 0 when message is more than 5 mins ago", func() {
 			c := utils.Config{
-				Development: false,
 				SubForCarmen: struct {
+					On                bool     "json:\"on\""
 					CarmenID          string   "json:\"carmenId\""
 					CoolDown          int      "json:\"coolDown\""
 					GuildID           string   "json:\"guildID\""
 					MessageLimit      int      "json:\"messageLimit\""
 					SubscribersRoleID string   "json:\"subscribersRoleID\""
 					IgnoredChannels   []string "json:\"ignoredChannels\""
-				}{
-					MessageLimit: 5,
-				},
+				}{MessageLimit: 5},
 			}
 			CreateMockConfig(utils.AppFs, c)
 
@@ -225,8 +219,8 @@ var _ = Describe("Subforcarmen", func() {
 	Context("IsIgnoredChannel()", func() {
 		It("Should detect an ignored channel", func() {
 			c := utils.Config{
-				Development: false,
 				SubForCarmen: struct {
+					On                bool     "json:\"on\""
 					CarmenID          string   "json:\"carmenId\""
 					CoolDown          int      "json:\"coolDown\""
 					GuildID           string   "json:\"guildID\""
@@ -244,8 +238,8 @@ var _ = Describe("Subforcarmen", func() {
 
 		It("Should detect an non ignored channel", func() {
 			c := utils.Config{
-				Development: false,
 				SubForCarmen: struct {
+					On                bool     "json:\"on\""
 					CarmenID          string   "json:\"carmenId\""
 					CoolDown          int      "json:\"coolDown\""
 					GuildID           string   "json:\"guildID\""
