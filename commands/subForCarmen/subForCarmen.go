@@ -14,10 +14,10 @@ var CommandObj = commands.CommandStruct{
 	Name:    "subforcarmen",
 	Obj:     obj,
 	Handler: handler,
-	// Components: []struct {
-	// ComponentID      string
-	// ComponentHandler commands.HandlerFunc
-	// }{},
+	Components: []struct {
+		ComponentID      string
+		ComponentHandler commands.HandlerFunc
+	}{},
 }
 
 type State struct {
