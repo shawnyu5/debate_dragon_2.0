@@ -13,7 +13,7 @@ import (
 
 var AppFs = afero.NewOsFs()
 
-// config object as defined in config.json
+// config object as defined in config.json.
 type Config struct {
 	Token       string `json:"token"`
 	TokenDev    string `json:"token_dev"`
@@ -46,8 +46,10 @@ type Config struct {
 }
 
 // RegisterCommands register an array of commands to a discord session.
-// Receives an instance of discord session to store commands in. An array of discord application commands to keep track of the stored commands. And an array of commands to register
-// Will panic if registration of a command fails.
+// sess: discord session.
+// commands: array of discord commands to register.
+// registeredCommands: array of commands to keep track of registered commands.
+// this function will panic if registration of a command fails.
 func RegisterCommands(sess *discordgo.Session, commands []*discordgo.ApplicationCommand, registeredCommands []*discordgo.ApplicationCommand) {
 	c := LoadConfig()
 	ignoreGuilds := make([]discordgo.Guild, 0)
@@ -87,9 +89,10 @@ func RegisterCommands(sess *discordgo.Session, commands []*discordgo.Application
 	}
 }
 
-// RemoveCommands will delete all registered commands in all servers the discord bot is currently in
-// receives an instance of discord session to remove commands from. An array of discord application commands to remove
-func RemoveCommands(sess *discordgo.Session, registeredCommands []*discordgo.ApplicationCommand, c Config) {
+// RemoveCommands will delete all registered commands in all servers the discord bot is currently in.
+// sess: discord session.
+// registeredCommands: array of commands to remove.
+func RemoveCommands(sess *discordgo.Session, registeredCommands []*discordgo.ApplicationCommand) {
 	log.Println("Removing commands...")
 	for _, gld := range sess.State.Guilds {
 		for _, cmd := range registeredCommands {
@@ -103,8 +106,9 @@ func RemoveCommands(sess *discordgo.Session, registeredCommands []*discordgo.App
 	}
 }
 
-// ParseUserOptions parses the user option passed to a command
-// return: a map of data options
+// ParseUserOptions parses the user option passed to a command.
+// sess: discord session.
+// return: a map of input name : input value
 func ParseUserOptions(sess *discordgo.Session, i *discordgo.InteractionCreate) map[string]*discordgo.ApplicationCommandInteractionDataOption {
 	options := i.ApplicationCommandData().Options
 	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
@@ -114,7 +118,7 @@ func ParseUserOptions(sess *discordgo.Session, i *discordgo.InteractionCreate) m
 	return optionMap
 }
 
-// DeferReply defers a reply
+// DeferReply defers a reply.
 func DeferReply(sess *discordgo.Session, i *discordgo.Interaction) error {
 	err := sess.InteractionRespond(i, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
@@ -122,7 +126,8 @@ func DeferReply(sess *discordgo.Session, i *discordgo.Interaction) error {
 	return err
 }
 
-// LoadConfig loads the config file, and return the config in a struct
+// LoadConfig loads the config file
+// return: config object.
 func LoadConfig() Config {
 	var c Config
 	// read json file
@@ -140,7 +145,10 @@ func LoadConfig() Config {
 	return c
 }
 
-// SendErrorMessage send an empheral message notifying the user something went wrong with the command. With an optional error message
+// SendErrorMessage send an empheral message notifying the user something went wrong with the command. With an optional error message.
+// sess: discord session.
+// i   : discord interaction.
+// err : optional error message to send.
 func SendErrorMessage(sess *discordgo.Session, i *discordgo.InteractionCreate, err string) {
 	_, e := sess.FollowupMessageCreate(i.Interaction, false, &discordgo.WebhookParams{
 		Content: "Something went wrong... " + err,
@@ -153,10 +161,10 @@ func SendErrorMessage(sess *discordgo.Session, i *discordgo.InteractionCreate, e
 
 }
 
-// DeleteAllMessages Delete all messages in a channel
-// sess    : the discord session
-// i       : discord interaction
-// messages: array of discord messages to delete
+// DeleteAllMessages Delete all messages in a channel.
+// sess    : the discord session.
+// i       : discord interaction.
+// messages: array of discord messages to delete.
 func DeleteAllMessages(sess *discordgo.Session, i *discordgo.InteractionCreate, messages []*discordgo.Message) {
 	for _, message := range messages {
 		go func(mess *discordgo.Message) {
@@ -171,10 +179,10 @@ func DeleteAllMessages(sess *discordgo.Session, i *discordgo.InteractionCreate, 
 
 }
 
-// Contains checks if an array contains an element
-// arr : the array to check
-// elem: the element to check for
-// returns true if the array contains the element, false otherwise
+// Contains checks if an array contains an element.
+// arr : the array to check.
+// elem: the element to check for.
+// returns true if the array contains the element, false otherwise.
 func Contains(arr []discordgo.Guild, id string) bool {
 	for _, v := range arr {
 		if v.ID == id {
@@ -184,8 +192,8 @@ func Contains(arr []discordgo.Guild, id string) bool {
 	return false
 }
 
-// GetCmdDefs get all slash command definitions
-// returns: an array of slash command definitions
+// GetCmdDefs get all slash command definitions.
+// returns: an array of slash command definitions.
 func GetCmdDefs(cmds []commands.CommandStruct) []*discordgo.ApplicationCommand {
 	slashCmds := make([]*discordgo.ApplicationCommand, 0)
 	for _, cmd := range cmds {
@@ -194,8 +202,9 @@ func GetCmdDefs(cmds []commands.CommandStruct) []*discordgo.ApplicationCommand {
 	return slashCmds
 }
 
-// GetCmdHandler create a map of command name and their hander functions
-// returns: a map of command name and their hander functions
+// GetCmdHandler create a map of command name and their hander functions.
+// cmds: array of commands.
+// returns: a map of command name and their hander functions.
 func GetCmdHandler(cmds []commands.CommandStruct) map[string]commands.HandlerFunc {
 	cmdHandlers := map[string]commands.HandlerFunc{}
 	for _, cmd := range cmds {
@@ -204,8 +213,8 @@ func GetCmdHandler(cmds []commands.CommandStruct) map[string]commands.HandlerFun
 	return cmdHandlers
 }
 
-// GetComponentHandler creates a map of component name and the handler function
-// return: a map of component ID and the handler function
+// GetComponentHandler creates a map of component name and the handler function.
+// return: a map of component ID and the handler function.
 func GetComponentHandler(cmds []commands.CommandStruct) map[string]commands.HandlerFunc {
 	componentHandlers := map[string]commands.HandlerFunc{}
 	for _, cmd := range cmds {

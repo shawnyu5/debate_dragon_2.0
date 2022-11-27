@@ -156,7 +156,7 @@ func main() {
 	// TODO: commands are not being deleted in my own server
 	// only remove commands in production
 	if !c.Development {
-		utils.RemoveCommands(dg, registeredCommands, c)
+		utils.RemoveCommands(dg, registeredCommands)
 	}
 
 	log.Println("Gracefully shutting down.")
