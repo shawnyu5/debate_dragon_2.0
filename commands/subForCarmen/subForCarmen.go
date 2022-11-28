@@ -62,7 +62,6 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, e
 	c := utils.LoadConfig()
 	// if subscribe, give user sub role
 	if userOptions["subscribe"].BoolValue() {
-		fmt.Printf("handler i.GuildID: %v\n", i.GuildID) // __AUTO_GENERATED_PRINT_VAR__
 		err := sess.GuildMemberRoleAdd(i.GuildID, i.Member.User.ID, c.SubForCarmen.SubscribersRoleID)
 		if err != nil {
 			return "", err
@@ -106,21 +105,23 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, e
 // Return  : true if a notification is sent. False other wise
 func Listen(sess *discordgo.Session, mess *discordgo.Message) bool {
 	c := utils.LoadConfig()
-	if !IsValidMessage(mess) { // If the message is not valid
+	if !IsValidMessage(mess) { // check if it is a valid message
 		log.Println("(subForCarmen)not a valid message")
 		return false
 	} else if IsIgnoredChannel(mess.ChannelID) {
 		log.Println("(subForCarmen)Channel in ignore list, ignoring")
 		return false
 	} else if IsCoolDown(mess) { // if we are within cool down period
+		// if Carmen message is within cool down period, update the notification time so it will not trigger another notification
+		CarmenState.LastNotificationTime = time.Now()
 		log.Println("(subForCarmen)Within cool down period")
 		return false
 	}
 
-	IncreaseCounter(mess) // increase counter if all above condition is met
+	CarmenState.Counter++ // increase counter if all above condition is met
 
 	if !ShouldTriggerNotification(c.SubForCarmen.MessageLimit) {
-		log.Println("Not enough messages to trigger a notification")
+		log.Printf("Not enough messages to trigger a notification. Message counter: %d\n", CarmenState.Counter)
 		return false
 	} else {
 		err := SendNotification(sess, mess.ChannelID, c.SubForCarmen.SubscribersRoleID)
@@ -166,45 +167,22 @@ func IsValidMessage(mess *discordgo.Message) bool {
 // return        : true if the message is within cool down period, false other wise
 func IsCoolDown(mess *discordgo.Message) bool {
 	c := utils.LoadConfig()
-	// no cool down period in development
-	if c.Development {
-		return false
-	}
+	// // no cool down period in development
+	// if c.Development {
+	// return false
+	// }
 	// get time difference between last notification time and current message time
 	timeDiff := mess.Timestamp.Sub(CarmenState.LastNotificationTime)
+	fmt.Printf("IsCoolDown timeDiff: %v\n", timeDiff) // __AUTO_GENERATED_PRINT_VAR__
 
 	// return if time difference is within cool down period
 	return timeDiff.Minutes() <= float64(c.SubForCarmen.CoolDown)
-}
-
-// IncreaseCounter increases the message counter if the current message's time is within 5 mins of the last message
-// mess  : the current message
-// return: true if the counter is increased. False if counter is reset to 0
-func IncreaseCounter(mess *discordgo.Message) bool {
-	c := utils.LoadConfig()
-	// time difference between last message time and current message time
-	timeDiff := mess.Timestamp.Sub(CarmenState.LastMessageTime)
-	fmt.Printf("IncreaseCounter timeDiff: %v\n", timeDiff) // __AUTO_GENERATED_PRINT_VAR__
-
-	// increase counter if current message is sent within 6 mins of last message
-	if timeDiff.Minutes() <= float64(6) {
-		CarmenState.Counter++
-	}
-
-	// reset counter if counter has reached message limit
-	if CarmenState.Counter >= c.SubForCarmen.MessageLimit {
-		CarmenState.Counter = 0
-		log.Println("Resetting counter")
-		return false
-	}
-	return true
 }
 
 // ShouldTriggerNotification Checks if state counter has reached message limit
 // messageLimit: the message limit to trigger a notification
 // return      : true if state counter has reached messageLimit. False other wise
 func ShouldTriggerNotification(messageLimit int) bool {
-	fmt.Printf("ShouldTriggerNotification CarmenState.Counter: %v\n", CarmenState.Counter) // __AUTO_GENERATED_PRINT_VAR__
 	return CarmenState.Counter == messageLimit
 }
 
