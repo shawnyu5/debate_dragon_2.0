@@ -172,7 +172,6 @@ func IsCoolDown(mess *discordgo.Message) bool {
 	}
 	// get time difference between last notification time and current message time
 	timeDiff := mess.Timestamp.Sub(CarmenState.LastNotificationTime)
-	// hello
 
 	// return if time difference is within cool down period
 	return timeDiff.Minutes() <= float64(c.SubForCarmen.CoolDown)
@@ -190,6 +189,9 @@ func IncreaseCounter(mess *discordgo.Message) bool {
 	// increase counter if current message is sent within 6 mins of last message
 	if timeDiff.Minutes() <= float64(6) {
 		CarmenState.Counter++
+	} else {
+		// if messages are not in succession, reset counter to 0
+		CarmenState.Counter = 0
 	}
 
 	// reset counter if counter has reached message limit
