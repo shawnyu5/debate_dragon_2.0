@@ -8,11 +8,6 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/dd"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/insult"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/poll"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
 	subforcarmen "github.com/shawnyu5/debate_dragon_2.0/commands/subForCarmen"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
@@ -50,13 +45,13 @@ var (
 
 	// array of all slash commands in this bot
 	allCommands = []commands.CommandStruct{
-		poll.CommandObj,
-		dd.CommandObj,
-		insult.CommandObj,
-		ivan.CommandObj,
-		manageIvan.CommandObj,
+		// poll.CommandObj,
+		// dd.CommandObj,
+		// insult.CommandObj,
+		// ivan.CommandObj,
+		// manageIvan.CommandObj,
 		rmp.CommandObj,
-		subforcarmen.CommandObj,
+		// subforcarmen.CommandObj,
 	}
 
 	// array of slash command defs
@@ -88,15 +83,6 @@ func init() {
 			if handle, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
 				cmdObj := commands.CommandStruct{
 					Handler: handle,
-					Components: []struct {
-						ComponentID      string
-						ComponentHandler commands.HandlerFunc
-					}{
-						{
-							ComponentID:      i.MessageComponentData().CustomID,
-							ComponentHandler: handle,
-						},
-					},
 				}
 				logger := middware.Logger{
 					Logger: log.New(os.Stdout, "", log.LstdFlags),

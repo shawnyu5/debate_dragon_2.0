@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 
 	googleQuery "github.com/google/go-querystring/query"
 )
@@ -28,35 +27,38 @@ type query struct {
 	Text         string      `json:"text"`
 }
 
-// a single professor object from rmp
+// a single prof from rmp
 type ProfNode struct {
-	Typename      string  `json:"__typename"`
-	AvgDifficulty float64 `json:"avgDifficulty"`
-	AvgRating     float64 `json:"avgRating"`
-	Department    string  `json:"department"`
-	FirstName     string  `json:"firstName"`
-	ID            string  `json:"id"`
-	IsSaved       bool    `json:"isSaved"`
-	LastName      string  `json:"lastName"`
-	LegacyID      int64   `json:"legacyId"`
-	NumRatings    int64   `json:"numRatings"`
-	School        struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-	} `json:"school"`
-	WouldTakeAgainPercent float64 `json:"wouldTakeAgainPercent"`
+	Cursor string `json:"cursor"`
+	Node   struct {
+		Typename      string  `json:"__typename"`
+		AvgDifficulty float64 `json:"avgDifficulty"`
+		AvgRating     float64 `json:"avgRating"`
+		Department    string  `json:"department"`
+		FirstName     string  `json:"firstName"`
+		ID            string  `json:"id"`
+		IsSaved       bool    `json:"isSaved"`
+		LastName      string  `json:"lastName"`
+		LegacyID      int64   `json:"legacyId"`
+		NumRatings    int64   `json:"numRatings"`
+		School        struct {
+			ID   string `json:"id"`
+			Name string `json:"name"`
+		} `json:"school"`
+		WouldTakeAgainPercent float64 `json:"wouldTakeAgainPercent"`
+	} `json:"node"`
 }
 
 // profDescription generate a description the professor
 func (p *ProfNode) profDescription() string {
 	return fmt.Sprintf(`- **Average rating**: %f
 - **Average difficulty**: %f
-- **Would take again**: %f%%`, p.AvgRating, p.AvgDifficulty, p.WouldTakeAgainPercent)
+- **Would take again**: %f%%`, p.Node.AvgRating, p.Node.AvgDifficulty, p.Node.WouldTakeAgainPercent)
 }
 
 // fullName return a profs first and last name
 func (p *ProfNode) fullName() string {
-	return fmt.Sprintf("%s %s", p.FirstName, p.LastName)
+	return fmt.Sprintf("%s %s", p.Node.FirstName, p.Node.LastName)
 }
 
 // rmpURL generate a url for the current professor to their RMP page
@@ -64,7 +66,7 @@ func (p *ProfNode) rmpURL() string {
 	type Options struct {
 		Tid int64 `url:"tid"`
 	}
-	opt := Options{Tid: p.LegacyID}
+	opt := Options{Tid: p.Node.LegacyID}
 	v, _ := googleQuery.Values(opt)
 	return fmt.Sprintf("https://www.ratemyprofessors.com/professor?%s", v.Encode())
 }
@@ -74,28 +76,9 @@ type searchResponse struct {
 	Data struct {
 		Search struct {
 			Teachers struct {
-				DidFallback bool `json:"didFallback"`
-				Edges       []struct {
-					Cursor string `json:"cursor"`
-					Node   struct {
-						Typename      string  `json:"__typename"`
-						AvgDifficulty float64 `json:"avgDifficulty"`
-						AvgRating     float64 `json:"avgRating"`
-						Department    string  `json:"department"`
-						FirstName     string  `json:"firstName"`
-						ID            string  `json:"id"`
-						IsSaved       bool    `json:"isSaved"`
-						LastName      string  `json:"lastName"`
-						LegacyID      int64   `json:"legacyId"`
-						NumRatings    int64   `json:"numRatings"`
-						School        struct {
-							ID   string `json:"id"`
-							Name string `json:"name"`
-						} `json:"school"`
-						WouldTakeAgainPercent float64 `json:"wouldTakeAgainPercent"`
-					} `json:"node"`
-				} `json:"edges"`
-				Filters []struct {
+				DidFallback bool       `json:"didFallback"`
+				Edges       []ProfNode `json:"edges"`
+				Filters     []struct {
 					Field   string `json:"field"`
 					Options []struct {
 						ID    string `json:"id"`
@@ -131,11 +114,12 @@ func generateQuery(profName string) SearchQuery {
 			SchoolID string `json:"schoolID"`
 		}{
 			query: query{
-				Text:         profName,
-				Fallback:     true,
 				DepartmentID: nil,
+				Fallback:     true,
+				SchoolID:     "U2Nob29sLTE0OTc=",
+				Text:         profName,
 			},
-			SchoolID: "",
+			SchoolID: "U2Nob29sLTE0OTc=",
 		},
 	}
 }
@@ -173,14 +157,12 @@ func SearchRmpProfByName(name string) searchResponse {
 	return result
 }
 
-// FilterSenecaProfs returns only the profs from seneca college
-// Returns a list of professor nodes from Seneca only
-func FilterSenecaProfs(profs searchResponse) []ProfNode {
+// FilterProfNodes get prof nodes from search result.
+// return: list of prof nodes
+func FilterProfNodes(profs searchResponse) []ProfNode {
 	senecaProfs := []ProfNode{}
 	for _, prof := range profs.Data.Search.Teachers.Edges {
-		if strings.Contains(strings.ToLower(prof.Node.School.Name), "seneca") {
-			senecaProfs = append(senecaProfs, prof.Node)
-		}
+		senecaProfs = append(senecaProfs, prof)
 	}
 	return senecaProfs
 }
