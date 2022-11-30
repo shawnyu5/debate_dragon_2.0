@@ -77,10 +77,7 @@ func init() {
 					Name:    i.ApplicationCommandData().Name,
 					Handler: handle,
 				}
-				logger := middware.Logger{
-					Logger: log.New(os.Stdout, "", log.LstdFlags),
-					Next:   cmdObj,
-				}
+				logger := middware.NewLogger(log.New(os.Stdout, "", log.LstdFlags), cmdObj)
 				logger.Handler(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")
@@ -90,10 +87,8 @@ func init() {
 				cmdObj := commands.CommandStruct{
 					Handler: handle,
 				}
-				logger := middware.Logger{
-					Logger: log.New(os.Stdout, "", log.LstdFlags),
-					Next:   cmdObj,
-				}
+
+				logger := middware.NewLogger(log.New(os.Stdout, "", log.LstdFlags), cmdObj)
 				logger.Handler(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")

@@ -23,3 +23,10 @@ func (l Logger) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate)
 
 	return output, err
 }
+
+// NewLogger creates a new logger middware.
+// logger: logger to use.
+// next: next middware in chain.
+func NewLogger(logger *log.Logger, next commands.CommandStruct) Logger {
+	return Logger{Logger: logger, Next: next}
+}
