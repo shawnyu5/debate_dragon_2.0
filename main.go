@@ -70,7 +70,8 @@ var (
 func init() {
 	dg.AddHandler(func(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		switch i.Type {
-		case discordgo.InteractionApplicationCommand:
+		// handle slash command response and autocomplete requests the same way
+		case discordgo.InteractionApplicationCommand, discordgo.InteractionApplicationCommandAutocomplete:
 			if handle, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 				cmdObj := commands.CommandStruct{
 					Name:    i.ApplicationCommandData().Name,
@@ -88,15 +89,6 @@ func init() {
 			if handle, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
 				cmdObj := commands.CommandStruct{
 					Handler: handle,
-					Components: []struct {
-						ComponentID      string
-						ComponentHandler commands.HandlerFunc
-					}{
-						{
-							ComponentID:      i.MessageComponentData().CustomID,
-							ComponentHandler: handle,
-						},
-					},
 				}
 				logger := middware.Logger{
 					Logger: log.New(os.Stdout, "", log.LstdFlags),
