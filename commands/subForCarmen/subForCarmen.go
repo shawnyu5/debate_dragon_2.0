@@ -172,6 +172,7 @@ func IsCoolDown(mess *discordgo.Message) bool {
 	}
 	// get time difference between last notification time and current message time
 	timeDiff := mess.Timestamp.Sub(CarmenState.LastNotificationTime)
+	// hello
 
 	// return if time difference is within cool down period
 	return timeDiff.Minutes() <= float64(c.SubForCarmen.CoolDown)
