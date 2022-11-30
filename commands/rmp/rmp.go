@@ -38,90 +38,101 @@ var CommandObj = commands.CommandStruct{
 
 func obj() *discordgo.ApplicationCommand {
 	return &discordgo.ApplicationCommand{
-		Version:     "1.0.0",
 		Name:        "rmp",
+		Version:     "2.0.0",
 		Description: "Get reviews from rate my prof",
 		Options: []*discordgo.ApplicationCommandOption{
 			{
-				Type:         discordgo.ApplicationCommandOptionString,
 				Name:         "profname",
 				Description:  "name of the professor to look up",
+				Type:         discordgo.ApplicationCommandOptionString,
 				Required:     true,
-				Autocomplete: false,
+				Autocomplete: true,
 			},
 		},
 	}
 }
 
 func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
-	options := utils.ParseUserOptions(sess, i)
-	profName := options["profname"].StringValue()
-	searchResult := SearchRmpProfByName(profName)
-	profs := searchResult.Data.Search.Teachers.Edges
-	rmpState.AllSenecaProfs = profs
+	switch i.Type {
+	case discordgo.InteractionApplicationCommand:
+		options := utils.ParseUserOptions(sess, i)
+		profName := options["profname"].StringValue()
+		searchResult := SearchRmpProfByName(profName)
+		profs := searchResult.Data.Search.Teachers.Edges
+		rmpState.AllSenecaProfs = profs
 
-	// if not profs are found, return message
-	if len(profs) == 0 {
-		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Content: fmt.Sprintf("No profs by the name `%s` is at Seneca...", profName),
-				Flags:   discordgo.MessageFlagsEphemeral,
-			},
-		})
-		if err != nil {
-			return "", err
-		}
-		return fmt.Sprintf("No profs by the name `%s` is at Seneca...", profName), nil
-
-	} else if len(profs) > 1 {
-		// if there is more than 1 prof, respond with select menu
-		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Flags: 0,
-				Components: []discordgo.MessageComponent{
-					discordgo.ActionsRow{
-						Components: []discordgo.MessageComponent{
-							createSelectMenu(rmpState.AllSenecaProfs, false),
-						},
-					},
+		// if not profs are found, return message
+		if len(profs) == 0 {
+			err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: fmt.Sprintf("No profs by the name `%s` is at Seneca...", profName),
+					Flags:   discordgo.MessageFlagsEphemeral,
 				},
-			},
-		})
+			})
+			if err != nil {
+				return "", err
+			}
+			return fmt.Sprintf("No profs by the name `%s` is at Seneca...", profName), nil
 
-		// disable select menu after 2 mins
-		time.AfterFunc(2*time.Minute, func() {
-			_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
-				Content: new(string),
-				Components: &[]discordgo.MessageComponent{
-					discordgo.ActionsRow{
-						Components: []discordgo.MessageComponent{
-							createSelectMenu(rmpState.AllSenecaProfs, true),
+		} else if len(profs) > 1 {
+			// if there is more than 1 prof, respond with select menu
+			err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Flags: 0,
+					Components: []discordgo.MessageComponent{
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								createSelectMenu(rmpState.AllSenecaProfs, false),
+							},
 						},
 					},
 				},
 			})
-			if err != nil {
-				log.Fatal(err)
-			}
-		})
 
+			// disable select menu after 2 mins
+			time.AfterFunc(2*time.Minute, func() {
+				_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+					Content: new(string),
+					Components: &[]discordgo.MessageComponent{
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								createSelectMenu(rmpState.AllSenecaProfs, true),
+							},
+						},
+					},
+				})
+				if err != nil {
+					log.Fatal(err)
+				}
+			})
+
+			if err != nil {
+				return "", err
+			}
+			return "Multi profs found, select menu sent", nil
+		} else {
+			// since there is only 1 prof, we just get the first element of the array
+			prof := rmpState.AllSenecaProfs[0]
+			rmpState.SelectedProf = prof
+			// respond with prof information
+			err := SendProfInformation(sess, i, prof)
+			if err != nil {
+				return "", err
+			}
+			return "end of case", nil
+		}
+
+	case discordgo.InteractionApplicationCommandAutocomplete:
+		err := autoCompleteHandler(sess, i)
 		if err != nil {
 			return "", err
 		}
-		return "Multi profs found, select menu sent", nil
-	} else {
-		// since there is only 1 prof, we just get the first element of the array
-		prof := rmpState.AllSenecaProfs[0]
-		rmpState.SelectedProf = prof
-		// respond with prof information
-		err := SendProfInformation(sess, i, prof)
-		if err != nil {
-			return "", err
-		}
-		return fmt.Sprintf("Prof %s information sent", rmpState.SelectedProf.fullName()), nil
+		return "Filled in auto complete menu", nil
 	}
+	return "Filled in auto complete menu", nil
 }
 
 // menuHandler handles when an option is selected in the select menu
@@ -140,7 +151,6 @@ func menuHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) (strin
 		return "", err
 	}
 	return fmt.Sprintf("Prof %s information sent", rmpState.SelectedProf.fullName()), nil
-	// return "doing nothing for now", nil
 }
 
 // createSelectMenu create a select menu containing the profs.
@@ -160,7 +170,6 @@ func createSelectMenu(profs []ProfNode, disable bool) discordgo.SelectMenu {
 
 	// add all profs as an option to the select menu
 	for _, prof := range profs {
-		// convert id to a string, so we can search by the id later to get the rating of a prof
 		option := discordgo.SelectMenuOption{
 			Label:       prof.fullName(),
 			Value:       prof.Node.ID,
@@ -206,4 +215,41 @@ func SendProfInformation(sess *discordgo.Session, i *discordgo.InteractionCreate
 		},
 	})
 
+}
+
+// autoCompleteHandler handles filling the auto complete results
+// sess  : discord session.
+// i     : discord interaction.
+func autoCompleteHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) error {
+	options := utils.ParseUserOptions(sess, i)
+	profName := options["profname"].StringValue()
+	res := SearchRmpProfByName(profName)
+
+	choices := []*discordgo.ApplicationCommandOptionChoice{}
+
+	// add the choice the user is currently typing list as well
+	if profName != "" {
+		choices = append(choices, &discordgo.ApplicationCommandOptionChoice{
+			Name:  profName,
+			Value: profName,
+		})
+	}
+
+	for _, prof := range res.Data.Search.Teachers.Edges {
+		choices = append(choices, &discordgo.ApplicationCommandOptionChoice{
+			Name:  prof.fullName(),
+			Value: prof.fullName(),
+		})
+	}
+
+	err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+		Data: &discordgo.InteractionResponseData{
+			Choices: choices,
+		},
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -124,7 +124,7 @@ func generateQuery(profName string) SearchQuery {
 	}
 }
 
-// SearchRmpProfByName search for a professor by name on RMP, using the graphql api
+// SearchRmpProfByName search for a professor seneca professor by name on RMP, using the graphql api
 // name: the name of the professor to search for
 // Returns a `searchResponse` struct
 func SearchRmpProfByName(name string) searchResponse {
