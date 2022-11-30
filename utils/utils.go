@@ -194,10 +194,10 @@ func Contains(arr []discordgo.Guild, id string) bool {
 
 // GetCmdDefs get all slash command definitions.
 // returns: an array of slash command definitions.
-func GetCmdDefs(cmds []commands.CommandStruct) []*discordgo.ApplicationCommand {
+func GetCmdDefs(cmds []commands.Command) []*discordgo.ApplicationCommand {
 	slashCmds := make([]*discordgo.ApplicationCommand, 0)
 	for _, cmd := range cmds {
-		slashCmds = append(slashCmds, cmd.Obj())
+		slashCmds = append(slashCmds, cmd.Def())
 	}
 	return slashCmds
 }
@@ -205,20 +205,20 @@ func GetCmdDefs(cmds []commands.CommandStruct) []*discordgo.ApplicationCommand {
 // GetCmdHandler create a map of command name and their hander functions.
 // cmds: array of commands.
 // returns: a map of command name and their hander functions.
-func GetCmdHandler(cmds []commands.CommandStruct) map[string]commands.HandlerFunc {
+func GetCmdHandler(cmds []commands.Command) map[string]commands.HandlerFunc {
 	cmdHandlers := map[string]commands.HandlerFunc{}
 	for _, cmd := range cmds {
-		cmdHandlers[cmd.Name] = cmd.Handler
+		cmdHandlers[cmd.Def().Name] = cmd.Handler
 	}
 	return cmdHandlers
 }
 
 // GetComponentHandler creates a map of component name and the handler function.
 // return: a map of component ID and the handler function.
-func GetComponentHandler(cmds []commands.CommandStruct) map[string]commands.HandlerFunc {
+func GetComponentHandler(cmds []commands.Command) map[string]commands.HandlerFunc {
 	componentHandlers := map[string]commands.HandlerFunc{}
 	for _, cmd := range cmds {
-		for _, component := range cmd.Components {
+		for _, component := range cmd.Components() {
 			componentHandlers[component.ComponentID] = component.ComponentHandler
 		}
 	}

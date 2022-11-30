@@ -23,9 +23,15 @@ type CommandStruct struct {
 	}
 }
 
-type ComponentHandler struct {
-	// component custom ID
-	ComponentID string
-	// component handler for button clicking and such
+// A single discord component
+type Component struct {
+	ComponentID      string
 	ComponentHandler HandlerFunc
+}
+
+// A discord slash command
+type Command interface {
+	Def() *discordgo.ApplicationCommand
+	Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error)
+	Components() []Component
 }
