@@ -49,14 +49,14 @@ var (
 	defaultMemberPermissions int64 = discordgo.PermissionManageServer
 
 	// array of all slash commands in this bot
-	allCommands = []commands.CommandStruct{
-		poll.CommandObj,
-		dd.CommandObj,
-		insult.CommandObj,
-		ivan.CommandObj,
-		manageIvan.CommandObj,
-		rmp.CommandObj,
-		subforcarmen.CommandObj,
+	allCommands = []commands.Command{
+		manageIvan.ManageIvan{},
+		poll.Poll{},
+		dd.DD{},
+		insult.Insult{},
+		ivan.Ivan{},
+		rmp.Rmp{},
+		subforcarmen.SubForCarmen{},
 	}
 
 	// array of slash command defs

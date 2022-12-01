@@ -11,18 +11,15 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
-var CommandObj = commands.CommandStruct{
-	Name:    "ivan",
-	Obj:     obj,
-	Handler: handler,
+type Ivan struct{}
+
+// Components implements commands.Command
+func (Ivan) Components() []commands.Component {
+	return nil
 }
 
-type Emote struct {
-	Name         string `json:"name"`
-	FileLocation string `json:"fileLocation"`
-}
-
-func obj() *discordgo.ApplicationCommand {
+// Def implements commands.Command
+func (Ivan) Def() *discordgo.ApplicationCommand {
 	maxLength := float64(1000)
 	emotes := GetAllEmotes()
 	obj := &discordgo.ApplicationCommand{
@@ -59,7 +56,8 @@ func obj() *discordgo.ApplicationCommand {
 	return obj
 }
 
-func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+// Handler implements commands.Command
+func (Ivan) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	utils.DeferReply(sess, i.Interaction)
 	optionMap := utils.ParseUserOptions(sess, i)
 
@@ -128,6 +126,11 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, e
 		}
 	}
 	return "emote sent", nil
+}
+
+type Emote struct {
+	Name         string `json:"name"`
+	FileLocation string `json:"fileLocation"`
 }
 
 // FormatList formats an array of GuildBans into a bullet list

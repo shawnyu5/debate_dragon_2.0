@@ -26,36 +26,15 @@ var banJumpScareID = "ban_jump_scare"
 
 var ivanBanState = state{}
 
-var CommandObj = commands.CommandStruct{
-	Name:    "manageivan",
-	Obj:     obj,
-	Handler: commandHandler,
-	Components: []struct {
-		ComponentID      string
-		ComponentHandler commands.HandlerFunc
-	}{
-		{
-			ComponentID:      startBanProcessID,
-			ComponentHandler: StartBanningIvan,
-		},
-		{
-			ComponentID:      dontBanIvanID,
-			ComponentHandler: DontBanButton,
-		},
-		{
-			ComponentID:      banJumpScareID,
-			ComponentHandler: jumpScareBan,
-		},
-	},
-}
+type ManageIvan struct{}
 
-// obj returns the command object for `/manageivan` command
-func obj() *discordgo.ApplicationCommand {
+// Def implements commands.Command
+func (ManageIvan) Def() *discordgo.ApplicationCommand {
 	defaultManageMessagesPermission := int64(discordgo.PermissionManageMessages)
 	minValue := float64(5)
 
 	return &discordgo.ApplicationCommand{
-		Version:                  "1.1",
+		Version:                  "1.1.0",
 		Name:                     "manageivan",
 		DefaultMemberPermissions: &defaultManageMessagesPermission,
 		Description:              "Command to help the management of Ivan",
@@ -79,8 +58,26 @@ func obj() *discordgo.ApplicationCommand {
 	}
 }
 
-// commandHandler the commandHandler for `/manageivan` command
-func commandHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+// Components implements commands.Command
+func (ManageIvan) Components() []commands.Component {
+	return []commands.Component{
+		{
+			ComponentID:      startBanProcessID,
+			ComponentHandler: StartBanningIvan,
+		},
+		{
+			ComponentID:      dontBanIvanID,
+			ComponentHandler: DontBanButton,
+		},
+		{
+			ComponentID:      banJumpScareID,
+			ComponentHandler: jumpScareBan,
+		},
+	}
+}
+
+// Handler implements commands.Command
+func (m ManageIvan) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	optionsMap := utils.ParseUserOptions(sess, i)
 	countDown := optionsMap["countdown"]
 

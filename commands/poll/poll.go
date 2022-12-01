@@ -19,17 +19,10 @@ type VotesContainer = map[int][]discordgo.User
 // label which the data is stored in in db
 const DBLabel = "interviewVotes"
 
-var CommandObj = commands.CommandStruct{
-	Name:    "interview",
-	Obj:     obj,
-	Handler: handler,
-	Components: []struct {
-		ComponentID      string
-		ComponentHandler commands.HandlerFunc
-	}{},
-}
+type Poll struct{}
 
-func obj() *discordgo.ApplicationCommand {
+// Def implements commands.Command
+func (Poll) Def() *discordgo.ApplicationCommand {
 	var minValue = float64(0)
 	return &discordgo.ApplicationCommand{
 		Version:                  "1.0.0",
@@ -71,7 +64,8 @@ func obj() *discordgo.ApplicationCommand {
 	}
 }
 
-func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+// Handler implements commands.Command
+func (Poll) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	db := openDB()
 	defer db.Close()
 
@@ -201,6 +195,12 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, e
 		})
 		return "Default response", nil
 	}
+}
+
+// Components implements commands.Command.
+// no components for this command.
+func (Poll) Components() []commands.Component {
+	return []commands.Component{}
 }
 
 // openDB opens a connection to the local database

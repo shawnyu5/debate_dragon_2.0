@@ -9,14 +9,16 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
 )
 
-var CommandObj = commands.CommandStruct{
-	Name:    "dd",
-	Obj:     obj,
-	Handler: handler,
+type DD struct{}
+
+// Components implements commands.Command
+// this command does not have components
+func (DD) Components() []commands.Component {
+	return []commands.Component{}
 }
 
-// obj return a discord ApplicationCommand object defining this command
-func obj() *discordgo.ApplicationCommand {
+// Def implements commands.Command
+func (DD) Def() *discordgo.ApplicationCommand {
 	obj := &discordgo.ApplicationCommand{
 		Name:        "dd",
 		Description: "summon a dragon to burn your debate floes to the ground.",
@@ -32,8 +34,8 @@ func obj() *discordgo.ApplicationCommand {
 	return obj
 }
 
-// handler a handler function for debate dragon
-func handler(s *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+// Handler implements commands.Command
+func (DD) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	options := i.ApplicationCommandData().Options
 	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
 	for _, opt := range options {
@@ -75,7 +77,7 @@ func handler(s *discordgo.Session, i *discordgo.InteractionCreate) (string, erro
 		log.Fatalln(err)
 	}
 
-	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+	err = sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Files: []*discordgo.File{
