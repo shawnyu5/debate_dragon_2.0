@@ -12,6 +12,8 @@ import (
 
 const profSelectMenuID = "prof select menu"
 
+type Rmp struct{}
+
 type state struct {
 	// all seneca profs returned from RMP
 	AllSenecaProfs []ProfNode
@@ -21,22 +23,18 @@ type state struct {
 
 var rmpState = state{}
 
-var CommandObj = commands.CommandStruct{
-	Name:    "rmp",
-	Obj:     obj,
-	Handler: handler,
-	Components: []struct {
-		ComponentID      string
-		ComponentHandler commands.HandlerFunc
-	}{
+// Components implements commands.Command
+func (Rmp) Components() []commands.Component {
+	return []commands.Component{
 		{
 			ComponentID:      profSelectMenuID,
 			ComponentHandler: menuHandler,
 		},
-	},
+	}
 }
 
-func obj() *discordgo.ApplicationCommand {
+// Def implements commands.Command
+func (Rmp) Def() *discordgo.ApplicationCommand {
 	return &discordgo.ApplicationCommand{
 		Name:        "rmp",
 		Version:     "2.0.0",
@@ -53,7 +51,8 @@ func obj() *discordgo.ApplicationCommand {
 	}
 }
 
-func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+// Handler implements commands.Command
+func (Rmp) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	switch i.Type {
 	case discordgo.InteractionApplicationCommand:
 		options := utils.ParseUserOptions(sess, i)

@@ -11,13 +11,15 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
-var CommandObj = commands.CommandStruct{
-	Name:    "insult",
-	Obj:     obj,
-	Handler: handler,
+type Insult struct{}
+
+// Components implements commands.Command
+func (Insult) Components() []commands.Component {
+	return nil
 }
 
-func obj() *discordgo.ApplicationCommand {
+// Def implements commands.Command
+func (Insult) Def() *discordgo.ApplicationCommand {
 	obj := &discordgo.ApplicationCommand{
 		Name:        "insult",
 		Description: "Ping someone to deliver a gut wrenching insult",
@@ -41,8 +43,8 @@ func obj() *discordgo.ApplicationCommand {
 	return obj
 }
 
-// handler a handler function for insult command
-func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+// Handler implements commands.Command
+func (Insult) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	optionsMap := utils.ParseUserOptions(sess, i)
 	user := optionsMap["user"].UserValue(sess)
 	if user.ID == "652511543845453855" {
@@ -52,7 +54,7 @@ func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, e
 	insult := GetInsult(user)
 
 	// send a normal insult if nothing is passed in, or if anonymous flag is set to false
-	if optionsMap["anonymous"] == nil || optionsMap["anonymous"].BoolValue() == false {
+	if optionsMap["anonymous"] == nil || !optionsMap["anonymous"].BoolValue() {
 		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{

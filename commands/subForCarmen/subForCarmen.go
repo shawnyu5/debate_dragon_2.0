@@ -10,15 +10,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
-var CommandObj = commands.CommandStruct{
-	Name:    "subforcarmen",
-	Obj:     obj,
-	Handler: handler,
-	// Components: []struct {
-	// ComponentID      string
-	// ComponentHandler commands.HandlerFunc
-	// }{},
-}
+type SubForCarmen struct{}
 
 type State struct {
 	// time of the last notification
@@ -35,7 +27,13 @@ var CarmenState = State{
 	LastMessageTime:      time.Now(),
 }
 
-func obj() *discordgo.ApplicationCommand {
+// Components implements commands.Command
+func (SubForCarmen) Components() []commands.Component {
+	return nil
+}
+
+// Def implements commands.Command
+func (SubForCarmen) Def() *discordgo.ApplicationCommand {
 	c := utils.LoadConfig()
 	return &discordgo.ApplicationCommand{
 		GuildID:     c.SubForCarmen.GuildID,
@@ -57,12 +55,12 @@ func obj() *discordgo.ApplicationCommand {
 	}
 }
 
-func handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+// Handler implements commands.Command
+func (SubForCarmen) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	userOptions := utils.ParseUserOptions(sess, i)
 	c := utils.LoadConfig()
 	// if subscribe, give user sub role
 	if userOptions["subscribe"].BoolValue() {
-		fmt.Printf("handler i.GuildID: %v\n", i.GuildID) // __AUTO_GENERATED_PRINT_VAR__
 		err := sess.GuildMemberRoleAdd(i.GuildID, i.Member.User.ID, c.SubForCarmen.SubscribersRoleID)
 		if err != nil {
 			return "", err
