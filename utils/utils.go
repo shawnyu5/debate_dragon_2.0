@@ -55,15 +55,15 @@ func RegisterCommands(sess *discordgo.Session, commands []*discordgo.Application
 	ignoreGuilds := make([]discordgo.Guild, 0)
 	log.Println("Adding commands...")
 	for _, gld := range sess.State.Guilds {
-		roles := gld.Roles
-		for _, role := range roles {
-			// if bot role is not at the top 3, dont register commmands here
-			if role.Name == "debate_dragon" && role.Position > 4 {
-				log.Printf("Bot role is not at the top 3. Bot position: %d, not registering commands in guild %v", role.Position, gld.Name)
-				ignoreGuilds = append(ignoreGuilds, *gld)
-			}
+		// roles := gld.Roles
+		// for _, role := range roles {
+		// // if bot role is not at the top 3, dont register commmands here
+		// if role.Name == "debate_dragon" && role.Position > 4 {
+		// log.Printf("Bot role is not at the top 3. Bot position: %d, not registering commands in guild %v", role.Position, gld.Name)
+		// ignoreGuilds = append(ignoreGuilds, *gld)
+		// }
 
-		}
+		// }
 		for i, v := range commands {
 			if ignore := Contains(ignoreGuilds, gld.ID); ignore {
 				log.Printf("Ignoring guild %v", gld.Name)
