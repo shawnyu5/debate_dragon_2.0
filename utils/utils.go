@@ -51,26 +51,16 @@ type Config struct {
 // registeredCommands: array of commands to keep track of registered commands.
 // this function will panic if registration of a command fails.
 func RegisterCommands(sess *discordgo.Session, commands []*discordgo.ApplicationCommand, registeredCommands []*discordgo.ApplicationCommand) {
-	c := LoadConfig()
+	// c := LoadConfig()
 	ignoreGuilds := make([]discordgo.Guild, 0)
 	log.Println("Adding commands...")
 	for _, gld := range sess.State.Guilds {
 		roles := gld.Roles
-		if c.Development {
-			for _, role := range roles {
-				// if bot role is not at the top 2, dont register commmands here
-				if role.Name == "debate dragon alpha" && role.Position > 4 {
-					log.Printf("Bot role is not at the top 3. Bot position: %d, not registering commands in guild %v", role.Position, gld.Name)
-					ignoreGuilds = append(ignoreGuilds, *gld)
-				}
-			}
-		} else {
-			for _, role := range roles {
-				// if bot role is not at the top 2, dont register commmands here
-				if role.Name == "debate_dragon" && role.Position > 3 {
-					log.Printf("Bot role is not at the top 2, not registering commands in guild %v", gld.Name)
-					ignoreGuilds = append(ignoreGuilds, *gld)
-				}
+		for _, role := range roles {
+			// if bot role is not at the top 3, dont register commmands here
+			if role.Name == "debate_dragon" && role.Position > 4 {
+				log.Printf("Bot role is not at the top 3. Bot position: %d, not registering commands in guild %v", role.Position, gld.Name)
+				ignoreGuilds = append(ignoreGuilds, *gld)
 			}
 
 		}
