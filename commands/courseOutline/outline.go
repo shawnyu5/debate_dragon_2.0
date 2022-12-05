@@ -33,7 +33,7 @@ func (Outline) Components() []commands.Component {
 // Def implements commands.Command
 func (Outline) Def() *discordgo.ApplicationCommand {
 	return &discordgo.ApplicationCommand{
-		Version:     "1.0.0",
+		Version:     "1.0.1",
 		Type:        0,
 		Name:        "outline",
 		Description: "Find a course outline",
@@ -55,31 +55,34 @@ func (Outline) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) 
 	case discordgo.InteractionApplicationCommandAutocomplete:
 		return GenerateSubjectCodeCompletion(sess, i)
 	default:
+		utils.DeferReply(sess, i.Interaction)
 		url := GeneratewebPageURL(sess, i)
 		courseInfo := GetCourseInfo(url)
 		courseInfo.URL = url
-		sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Embeds: []*discordgo.MessageEmbed{
-					{
-						URL:         url,
-						Type:        discordgo.EmbedTypeArticle,
-						Title:       fmt.Sprintf("**%s**", courseInfo.Title),
-						Description: courseInfo.Description,
-						Timestamp:   "",
-						Color:       0,
-						// Footer:      &discordgo.MessageEmbedFooter{},
-						// Image:       &discordgo.MessageEmbedImage{},
-						// Thumbnail:   &discordgo.MessageEmbedThumbnail{},
-						// Video:       &discordgo.MessageEmbedVideo{},
-						// Provider:    &discordgo.MessageEmbedProvider{},
-						// Author:      &discordgo.MessageEmbedAuthor{},
-						// Fields:      []*discordgo.MessageEmbedField{},
-					},
+		sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+			Content:    new(string),
+			Components: &[]discordgo.MessageComponent{},
+			Embeds: &[]*discordgo.MessageEmbed{
+				{
+					URL:         url,
+					Type:        discordgo.EmbedTypeArticle,
+					Title:       fmt.Sprintf("**%s**", courseInfo.Title),
+					Description: courseInfo.Description,
+					Timestamp:   "",
+					Color:       0,
+					// Footer:      &discordgo.MessageEmbedFooter{},
+					// Image:       &discordgo.MessageEmbedImage{},
+					// Thumbnail:   &discordgo.MessageEmbedThumbnail{},
+					// Video:       &discordgo.MessageEmbedVideo{},
+					// Provider:    &discordgo.MessageEmbedProvider{},
+					// Author:      &discordgo.MessageEmbedAuthor{},
+					// Fields:      []*discordgo.MessageEmbedField{},
 				},
 			},
+			Files:           []*discordgo.File{},
+			AllowedMentions: &discordgo.MessageAllowedMentions{},
 		})
+
 	}
 	return "hello", nil
 }
