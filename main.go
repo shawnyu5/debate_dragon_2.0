@@ -15,6 +15,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/poll"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
+	"github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
 	subforcarmen "github.com/shawnyu5/debate_dragon_2.0/commands/subForCarmen"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
 	"github.com/shawnyu5/debate_dragon_2.0/middware"
@@ -108,9 +109,21 @@ func main() {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 
+	// TODO: cant get this to work
+	// dg.AddHandler(func(s *discordgo.Session, mess *discordgo.MessageDelete) {
+	// fmt.Printf("%+v", mess.Message)
+	// m, err := dg.ChannelMessage(mess.ChannelID, mess.ID)
+	// if err != nil {
+	// log.Println(err)
+	// }
+	// fmt.Printf("main m: %v\n", m) // __AUTO_GENERATED_PRINT_VAR__
+	// })
+
 	removeHandler := dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 		fmt.Println(mess.Content)
 		subforcarmen.Listen(sess, mess.Message)
+		snipe.Listen(mess)
+		fmt.Printf("main mess.Message: %v\n", mess.Content) // __AUTO_GENERATED_PRINT_VAR__
 	})
 
 	if !c.SubForCarmen.On {
