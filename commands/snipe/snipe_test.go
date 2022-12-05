@@ -22,7 +22,7 @@ var _ = Describe("Snipe", func() {
 
 	It("should not have more than 100 messages", func() {
 
-		for i := 0; i < 101; i++ {
+		for i := 0; i < 105; i++ {
 			mess := &discordgo.MessageCreate{
 				Message: &discordgo.Message{
 					ID:      strconv.Itoa(i),
@@ -33,5 +33,9 @@ var _ = Describe("Snipe", func() {
 			snipe.Listen(mess)
 		}
 		Expect(len(snipe.AllMessages["12345"])).To(Equal(100))
+	})
+
+	It("should remove the oldest message", func() {
+
 	})
 })
