@@ -35,13 +35,9 @@ func (Snipe) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (s
 	panic("unimplemented")
 }
 
-func Listen(mess *discordgo.MessageCreate) {
-	trackMessage(mess)
-}
-
-// trackMessage adds the message to allMessages map
+// trackMessage adds a message to allMessages map
 // mess: the message to track
-func trackMessage(mess *discordgo.MessageCreate) {
+func TrackMessage(mess *discordgo.MessageCreate) {
 	// if the map doesn't exist, initialize it
 	if AllMessages[mess.GuildID] == nil {
 		AllMessages[mess.GuildID] = map[string]discordgo.Message{}

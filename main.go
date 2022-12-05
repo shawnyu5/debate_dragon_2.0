@@ -122,7 +122,7 @@ func main() {
 	removeHandler := dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 		fmt.Println(mess.Content)
 		subforcarmen.Listen(sess, mess.Message)
-		snipe.Listen(mess)
+		snipe.TrackMessage(mess)
 		fmt.Printf("main mess.Message: %v\n", mess.Content) // __AUTO_GENERATED_PRINT_VAR__
 	})
 
