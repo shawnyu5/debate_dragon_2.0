@@ -60,6 +60,7 @@ var (
 		rmp.Rmp{},
 		subforcarmen.SubForCarmen{},
 		courseoutline.Outline{},
+		snipe.Snipe{},
 	}
 
 	// array of slash command defs
@@ -109,15 +110,9 @@ func main() {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 
-	// TODO: cant get this to work
-	// dg.AddHandler(func(s *discordgo.Session, mess *discordgo.MessageDelete) {
-	// fmt.Printf("%+v", mess.Message)
-	// m, err := dg.ChannelMessage(mess.ChannelID, mess.ID)
-	// if err != nil {
-	// log.Println(err)
-	// }
-	// fmt.Printf("main m: %v\n", m) // __AUTO_GENERATED_PRINT_VAR__
-	// })
+	dg.AddHandler(func(_ *discordgo.Session, mess *discordgo.MessageDelete) {
+		snipe.LastDeletedMessage = mess
+	})
 
 	removeHandler := dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 		fmt.Println(mess.Content)
