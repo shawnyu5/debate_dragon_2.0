@@ -15,6 +15,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/poll"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
+	"github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
 	subforcarmen "github.com/shawnyu5/debate_dragon_2.0/commands/subForCarmen"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
 	"github.com/shawnyu5/debate_dragon_2.0/middware"
@@ -59,6 +60,7 @@ var (
 		rmp.Rmp{},
 		subforcarmen.SubForCarmen{},
 		courseoutline.Outline{},
+		snipe.Snipe{},
 	}
 
 	// array of slash command defs
@@ -108,9 +110,15 @@ func main() {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 
+	dg.AddHandler(func(_ *discordgo.Session, mess *discordgo.MessageDelete) {
+		snipe.LastDeletedMessage = mess
+	})
+
 	removeHandler := dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 		fmt.Println(mess.Content)
 		subforcarmen.Listen(sess, mess.Message)
+		snipe.TrackMessage(mess)
+		fmt.Printf("main mess.Message: %v\n", mess.Content) // __AUTO_GENERATED_PRINT_VAR__
 	})
 
 	if !c.SubForCarmen.On {
