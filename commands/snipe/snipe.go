@@ -55,31 +55,65 @@ func (Snipe) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (s
 		}
 		return "No deleted message cached", nil
 	}
-	_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
-		Content:    new(string),
-		Components: &[]discordgo.MessageComponent{},
-		Embeds: &[]*discordgo.MessageEmbed{
-			{
-				URL:         "",
-				Type:        discordgo.EmbedTypeArticle,
-				Title:       "Snipe",
-				Description: fmt.Sprintf("%s - <@%s>", deletedMess.Content, deletedMess.Author.ID),
-				Timestamp:   "",
-				Color:       0,
-				Footer:      &discordgo.MessageEmbedFooter{},
-				Image: &discordgo.MessageEmbedImage{
-					URL: deletedMess.Attachments[0].URL,
+	webHookEdit := &discordgo.WebhookEdit{}
+
+	// if there is an image, send it
+	fmt.Printf("Handler len(deletedMess.Attachments): %v\n", len(deletedMess.Attachments)) // __AUTO_GENERATED_PRINT_VAR__
+	if len(deletedMess.Attachments) > 0 {
+		webHookEdit = &discordgo.WebhookEdit{
+			Content:    new(string),
+			Components: &[]discordgo.MessageComponent{},
+			Embeds: &[]*discordgo.MessageEmbed{
+				{
+					URL:         "",
+					Type:        discordgo.EmbedTypeArticle,
+					Title:       "Snipe",
+					Description: fmt.Sprintf("<@%s>", deletedMess.Author.ID),
+					Timestamp:   "",
+					Color:       0,
+					Footer:      &discordgo.MessageEmbedFooter{},
+					Image: &discordgo.MessageEmbedImage{
+						URL: deletedMess.Attachments[0].URL,
+					},
+					Thumbnail: &discordgo.MessageEmbedThumbnail{},
+					Video:     &discordgo.MessageEmbedVideo{},
+					Provider:  &discordgo.MessageEmbedProvider{},
+					Author:    &discordgo.MessageEmbedAuthor{},
+					Fields:    []*discordgo.MessageEmbedField{},
 				},
-				Thumbnail: &discordgo.MessageEmbedThumbnail{},
-				Video:     &discordgo.MessageEmbedVideo{},
-				Provider:  &discordgo.MessageEmbedProvider{},
-				Author:    &discordgo.MessageEmbedAuthor{},
-				Fields:    []*discordgo.MessageEmbedField{},
 			},
-		},
-		Files:           []*discordgo.File{},
-		AllowedMentions: &discordgo.MessageAllowedMentions{},
-	})
+			Files:           []*discordgo.File{},
+			AllowedMentions: &discordgo.MessageAllowedMentions{},
+		}
+
+	} else {
+		// otherwise send the message
+		webHookEdit = &discordgo.WebhookEdit{
+			Content:    new(string),
+			Components: &[]discordgo.MessageComponent{},
+			Embeds: &[]*discordgo.MessageEmbed{
+				{
+					URL:         "",
+					Type:        discordgo.EmbedTypeArticle,
+					Title:       "Snipe",
+					Description: fmt.Sprintf("%s - <@%s>", deletedMess.Content, deletedMess.Author.ID),
+					Timestamp:   "",
+					Color:       0,
+					Footer:      &discordgo.MessageEmbedFooter{},
+					Image:       &discordgo.MessageEmbedImage{},
+					Thumbnail:   &discordgo.MessageEmbedThumbnail{},
+					Video:       &discordgo.MessageEmbedVideo{},
+					Provider:    &discordgo.MessageEmbedProvider{},
+					Author:      &discordgo.MessageEmbedAuthor{},
+					Fields:      []*discordgo.MessageEmbedField{},
+				},
+			},
+			Files:           []*discordgo.File{},
+			AllowedMentions: &discordgo.MessageAllowedMentions{},
+		}
+
+	}
+	_, err := sess.InteractionResponseEdit(i.Interaction, webHookEdit)
 	if err != nil {
 		return "", err
 	}
