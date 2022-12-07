@@ -39,7 +39,7 @@ func (Snipe) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (s
 
 	deletedMess := GetMessageByID(LastDeletedMessage.GuildID, LastDeletedMessage.ID)
 	// if there are no deleted messages in cache, then send error response
-	if LastDeletedMessage == (&discordgo.MessageDelete{}) || deletedMess.Content == "" {
+	if deletedMess.Content == "" && len(deletedMess.Attachments) == 0 {
 		_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 			Embeds: &[]*discordgo.MessageEmbed{
 				{
@@ -56,11 +56,25 @@ func (Snipe) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (s
 		return "No deleted message cached", nil
 	}
 	_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+		Content:    new(string),
+		Components: &[]discordgo.MessageComponent{},
 		Embeds: &[]*discordgo.MessageEmbed{
 			{
+				URL:         "",
 				Type:        discordgo.EmbedTypeArticle,
 				Title:       "Snipe",
 				Description: fmt.Sprintf("%s - <@%s>", deletedMess.Content, deletedMess.Author.ID),
+				Timestamp:   "",
+				Color:       0,
+				Footer:      &discordgo.MessageEmbedFooter{},
+				Image: &discordgo.MessageEmbedImage{
+					URL: deletedMess.Attachments[0].URL,
+				},
+				Thumbnail: &discordgo.MessageEmbedThumbnail{},
+				Video:     &discordgo.MessageEmbedVideo{},
+				Provider:  &discordgo.MessageEmbedProvider{},
+				Author:    &discordgo.MessageEmbedAuthor{},
+				Fields:    []*discordgo.MessageEmbedField{},
 			},
 		},
 		Files:           []*discordgo.File{},

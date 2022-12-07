@@ -118,7 +118,6 @@ func main() {
 		fmt.Println(mess.Content)
 		subforcarmen.Listen(sess, mess.Message)
 		snipe.TrackMessage(mess)
-		fmt.Printf("main mess.Message: %v\n", mess.Content) // __AUTO_GENERATED_PRINT_VAR__
 	})
 
 	if !c.SubForCarmen.On {
