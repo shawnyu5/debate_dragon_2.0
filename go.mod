@@ -43,6 +43,7 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/google/go-querystring v1.1.0
 	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/lithammer/fuzzysearch v1.1.5
 	github.com/olekukonko/tablewriter v0.0.5
 	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa // indirect
 	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69 // indirect
