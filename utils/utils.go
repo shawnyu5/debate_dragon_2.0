@@ -22,6 +22,12 @@ type Config struct {
 	LogLevel    string `json:"logLevel"`
 	Development bool   `json:"development"`
 
+	Emotes []struct {
+		// name of emote
+		Name string `json:"name"`
+		// url to emote
+		URL string `json:"url"`
+	} `json:"emotes"`
 	Ivan struct {
 		Emotes []struct {
 			Name         string `json:"name"`
