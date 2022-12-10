@@ -17,7 +17,13 @@ func handleDontBan(sess *discordgo.Session, i *discordgo.InteractionCreate) (str
 			Content: fmt.Sprintf("Okay, <@%s> will not be banned... :(", ivanBanState.User.ID),
 			Flags:   discordgo.MessageFlagsEphemeral,
 			Components: []discordgo.MessageComponent{
-				CreateAllButtons(true),
+				discordgo.ActionsRow{
+					Components: []discordgo.MessageComponent{
+						createBanButton(true),
+						createDontBanButton(true),
+						createJumpScareButton(true),
+					},
+				},
 			},
 		},
 	})
@@ -36,7 +42,13 @@ func handleJumpScare(sess *discordgo.Session, i *discordgo.InteractionCreate) (s
 			Content: "Jump scare sequence initiated...",
 			Flags:   discordgo.MessageFlagsEphemeral,
 			Components: []discordgo.MessageComponent{
-				CreateAllButtons(true),
+				discordgo.ActionsRow{
+					Components: []discordgo.MessageComponent{
+						createBanButton(true),
+						createDontBanButton(true),
+						createJumpScareButton(true),
+					},
+				},
 			},
 		},
 	})
@@ -155,5 +167,33 @@ func handleKick(sess *discordgo.Session, i *discordgo.InteractionCreate) (string
 	if err != nil {
 		return "", err
 	}
+	// inviteURL URL
+	inviteURL, err := utils.CreateInvite(sess, i.GuildID)
+	if err != nil {
+		return "", err
+	}
+
+	channel, err := sess.UserChannelCreate(ivanBanState.User.ID)
+	message := fmt.Sprintf("<@%s>You will be kicked in a wee bit. Here is an invite link if you wantta come back. Pls come back %s", ivanBanState.User.ID, inviteURL)
+	// if unable to create a channel directly to the user, then send a ephemeral message before the user is kicked
+	if err != nil {
+		_, err := sess.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
+			Content: message,
+		})
+		if err != nil {
+			return "", err
+		}
+	}
+
+	_, err = sess.ChannelMessageSend(channel.ID, message)
+	if err != nil {
+		_, err := sess.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
+			Content: message,
+		})
+		if err != nil {
+			return "", err
+		}
+	}
+
 	return "it worked", nil
 }

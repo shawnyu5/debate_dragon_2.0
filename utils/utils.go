@@ -231,3 +231,15 @@ func GetComponentHandler(cmds []commands.Command) map[string]commands.HandlerFun
 	}
 	return componentHandlers
 }
+
+// CreateInvite create a invite to a guild.
+// guildID: the guild to create the invite for.
+// return: the invite URL.
+func CreateInvite(sess *discordgo.Session, guildID string) (string, error) {
+	invite, err := sess.GuildInvites(guildID)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("https://discord.gg/%s", invite[0].Code), nil
+}

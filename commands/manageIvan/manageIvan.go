@@ -76,6 +76,10 @@ func (ManageIvan) Components() []commands.Component {
 			ComponentID:      banJumpScareID,
 			ComponentHandler: handleJumpScare,
 		},
+		{
+			ComponentID:      kickID,
+			ComponentHandler: handleKick,
+		},
 	}
 }
 
