@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/joho/godotenv"
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
 	"github.com/spf13/afero"
 )
@@ -17,8 +19,6 @@ var AppFs = afero.NewOsFs()
 type Config struct {
 	Token       string `json:"token"`
 	TokenDev    string `json:"token_dev"`
-	ClientID    string `json:"clientID"`
-	GuildID     string `json:"guildID"`
 	LogLevel    string `json:"logLevel"`
 	Development bool   `json:"development"`
 
@@ -122,7 +122,7 @@ func DeferReply(sess *discordgo.Session, i *discordgo.Interaction) error {
 	return err
 }
 
-// LoadConfig loads the config file
+// LoadConfig loads config.json and .env.
 // return: config object.
 func LoadConfig() Config {
 	var c Config
@@ -138,6 +138,10 @@ func LoadConfig() Config {
 		panic(err)
 	}
 	json.Unmarshal(b, &c)
+
+	godotenv.Load()
+	c.Token = os.Getenv("TOKEN")
+	c.TokenDev = os.Getenv("TOKEN_DEV")
 	return c
 }
 

@@ -1,0 +1,135 @@
+{
+   "subForCarmen": {
+      "on": true,
+      "carmenId": "652511543845453855",
+      "guildID": "704149356101500999",
+      "messageLimit": 2,
+      "subscribersRoleID": "991000363408719953",
+      "coolDown": 1,
+      "ignoredChannels": []
+   },
+   "emotes": [
+      {
+         "name": "wtf",
+         "url": "https://cdn3.emoji.gg/emojis/5434-a-wtf.png"
+      },
+      {
+         "name": "rip chat",
+         "url": "https://cdn3.emoji.gg/emojis/8427-rip-chat.png"
+      },
+      {
+         "name": "cry emoji",
+         "url": "https://cdn3.emoji.gg/emojis/5974-cry-emoji.png"
+      },
+      {
+         "name": "pog",
+         "url": "https://cdn3.emoji.gg/emojis/2753-pog.png"
+      },
+      {
+         "name": "very tired",
+         "url": "https://cdn3.emoji.gg/emojis/4955-verytired.png"
+      },
+      {
+         "name": "no sleep",
+         "url": "https://cdn3.emoji.gg/emojis/5402-nosleep.png"
+      },
+      {
+         "name": "YO WHAT",
+         "url": "https://cdn3.emoji.gg/emojis/1565-yo-what.png"
+      },
+      {
+         "name": "are you sure...",
+         "url": "https://cdn3.emoji.gg/emojis/5955-areyousure.png"
+      },
+      {
+         "name": "silent fury",
+         "url": "https://cdn3.emoji.gg/emojis/7287-silentfury.png"
+      },
+      {
+         "name": "skull eyebrow raise",
+         "url": "https://cdn3.emoji.gg/emojis/4689-skull-eyebrowraise.png"
+      },
+      {
+         "name": "dead woozy face",
+         "url": "https://cdn3.emoji.gg/emojis/9909-deadwoozyface.png"
+      },
+      {
+         "name": "so close to loosing it",
+         "url": "https://cdn3.emoji.gg/emojis/2564-emoji-soclosetolosingit.png"
+      },
+      {
+         "name": "annoyed",
+         "url": "https://cdn3.emoji.gg/emojis/4438-annoyed.png"
+      },
+      {
+         "name": "pepe sus fbi",
+         "url": "https://cdn3.emoji.gg/emojis/2907-pepe-sus-fbi.png"
+      },
+      {
+         "name": "pepe cursed",
+         "url": "https://cdn3.emoji.gg/emojis/4125-pepe-overcursed.png"
+      },
+      {
+         "name": "pepe looking into soul",
+         "url": "https://cdn3.emoji.gg/emojis/7068-pepe-looking-in-my-soul.png"
+      },
+      {
+         "name": "pepe polics",
+         "url": "https://cdn3.emoji.gg/emojis/4256-pepe-police.png"
+      },
+      {
+         "name": "pepe hell police",
+         "url": "https://cdn3.emoji.gg/emojis/4988-pepe-hell-police.png"
+      },
+      {
+         "name": "pepe no time",
+         "url": "https://cdn3.emoji.gg/emojis/9610-pepe-no-time.png"
+      },
+      {
+         "name": "pepe sherlock",
+         "url": "https://cdn3.emoji.gg/emojis/8881-pepe-sherlock.png"
+      }
+   ],
+   "ivan": {
+      "emotes": [
+         {
+            "name": "I always come back Ivan",
+            "fileLocation": "media/ivan/Evil Ivan meme.png"
+         },
+         {
+            "name": "reverse normal Ivan",
+            "fileLocation": "media/ivan/Reverse Ivan.png"
+         },
+         {
+            "name": "reverse ivan 2",
+            "fileLocation": "media/ivan/Reverse Ivan 2.png"
+         },
+         {
+            "name": "reverse ivan with suit",
+            "fileLocation": "media/ivan/Reverse Ivan 3.png"
+         },
+         {
+            "name": "Withered ivan",
+            "fileLocation": "media/ivan/Withered Ivan.png"
+         },
+         {
+            "name": "Withered black and white Ivan",
+            "fileLocation": "media/ivan/Withered Wojak Ivan.png"
+         },
+         {
+            "name": "Reverse Ivan flashes",
+            "fileLocation": "media/ivan/reverse_flashes.png"
+         },
+         {
+            "name": "Deep fried ivan",
+            "fileLocation": "media/ivan/DeepfriedIvan.png"
+         },
+         {
+            "name": "Ivan ping",
+            "fileLocation": "media/ivan/IvanPing.png"
+         }
+      ]
+   },
+   "logLevel": "debug",
+   "development": true
+}

@@ -1,4 +1,4 @@
-config.json
+.env
 .air.toml
 tmp/
 out.png
