@@ -142,6 +142,13 @@ func LoadConfig() Config {
 	godotenv.Load()
 	c.Token = os.Getenv("TOKEN")
 	c.TokenDev = os.Getenv("TOKEN_DEV")
+
+	dev := os.Getenv("DEVELOPMENT")
+	if dev == "true" {
+		c.Development = true
+	} else {
+		c.Development = false
+	}
 	return c
 }
 
