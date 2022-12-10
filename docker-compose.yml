@@ -6,3 +6,5 @@ services:
            target: /bot/db
       build: ./
       restart: "always"
+      env_file:
+         - .env
