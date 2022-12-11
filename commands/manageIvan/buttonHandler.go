@@ -175,7 +175,7 @@ func handleKick(sess *discordgo.Session, i *discordgo.InteractionCreate) (string
 
 	channel, err := sess.UserChannelCreate(ivanBanState.User.ID)
 	message := fmt.Sprintf("<@%s>You will be kicked in a wee bit. Here is an invite link if you wantta come back. Pls come back %s", ivanBanState.User.ID, inviteURL)
-	// if unable to create a channel directly to the user, then send a ephemeral message before the user is kicked
+	// if unable to create a channel directly to the user, then send a message in chat before the user is kicked
 	if err != nil {
 		_, err := sess.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
 			Content: message,
@@ -186,6 +186,7 @@ func handleKick(sess *discordgo.Session, i *discordgo.InteractionCreate) (string
 	}
 
 	_, err = sess.ChannelMessageSend(channel.ID, message)
+	// if unable to send message directly to user, then send a message in chat before the user is kicked
 	if err != nil {
 		_, err := sess.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
 			Content: message,
@@ -195,5 +196,41 @@ func handleKick(sess *discordgo.Session, i *discordgo.InteractionCreate) (string
 		}
 	}
 
-	return "it worked", nil
+	var sentMessages []*discordgo.Message
+	messages := GenerateMessages(ivanBanState.CountDownTime)
+	for _, message := range messages {
+		mess, err := sess.ChannelMessageSend(i.ChannelID, message.message)
+		if err != nil {
+			return "", err
+		}
+		sentMessages = append(sentMessages, mess)
+		time.Sleep(message.countDownTime * time.Second)
+	}
+
+	if !config.Development {
+		err = sess.GuildBanCreateWithReason(i.GuildID, ivanBanState.User.ID, "Ivan", 0)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	// send embed that user has been banned
+	_, err = sess.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
+		Content: "",
+		Embed: &discordgo.MessageEmbed{
+			URL:         "",
+			Type:        "",
+			Title:       "Ivan Ban",
+			Description: fmt.Sprintf("<@%s> HAS BEEN KICKED", ivanBanState.User.ID),
+			Timestamp:   "",
+			Color:       0,
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+
+	utils.DeleteAllMessages(sess, i, sentMessages)
+
+	return fmt.Sprintf("<@%s> HAS BEEN KICKED", ivanBanState.User.ID), nil
 }
