@@ -4,7 +4,6 @@ A blazingly fast discord bot written in Go to burn your debate foes to the groun
 
 ## Commands
 
-
 `/dd text:<text>` - generate a dragon drawing, with `text` imposed into the speech bubble
 
 <img src="media/img/dragon_drawing.png" alt="dragon drawing" width="300">
@@ -23,9 +22,6 @@ The user and guild which this command watches can be configured in `config.json`
 
 `subForCarmen.on` can be used to toggle notifications
 
-
 ## Development
 
-The bot requires a `config.json` to set environment variables. Refer to `config.example.jsonc` for all values needed in `config.json`.
-
-**Note** the actual config should be a json file. The `config.example.jsonc` is `jsonc` only to allow comments
+The bot requires a `.env` for environment variable definitions. Refer to `env.example` for reference.
