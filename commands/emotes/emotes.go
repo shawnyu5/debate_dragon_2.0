@@ -23,7 +23,7 @@ func (Emotes) Def() *discordgo.ApplicationCommand {
 	def := &discordgo.ApplicationCommand{
 		Version:     "1.0.0",
 		Name:        "emote",
-		Description: "Send custom emotes",
+		Description: "Send custom emotes for the poor that cant afford nitro",
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Type:         discordgo.ApplicationCommandOptionString,
