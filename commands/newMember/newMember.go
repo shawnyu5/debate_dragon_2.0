@@ -200,7 +200,7 @@ func Greet(sess *discordgo.Session, user *discordgo.GuildMemberAdd) (string, err
 		return "", err
 	}
 
-	return "", nil
+	return "Greeting sent", nil
 }
 
 // openDB opens the database.
