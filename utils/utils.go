@@ -38,6 +38,7 @@ type Config struct {
 			ServerName string `json:"serverName"`
 			RoleID     string `json:"roleID"`
 			ServerID   string `json:"serverID"`
+			ChannelID  string `json:"channelID"`
 		} `json:"config"`
 	} `json:"newMemberGreeting"`
 	Ivan struct {

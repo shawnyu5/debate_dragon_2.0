@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
@@ -121,7 +122,10 @@ func main() {
 	})
 
 	dg.AddHandler(func(sess *discordgo.Session, user *discordgo.GuildMemberAdd) {
-		fmt.Printf("main user: %v\n", user.User.Username) // __AUTO_GENERATED_PRINT_VAR__
+		fmt.Println("new user entered the guild") // __AUTO_GENERATED_PRINTF__
+		time.AfterFunc(5*time.Second, func() {
+			newmember.Greet(sess, user)
+		})
 	})
 
 	if !c.SubForCarmen.On {

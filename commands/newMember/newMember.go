@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/rand"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/dgraph-io/badger"
@@ -152,6 +154,40 @@ func (NewMember) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate
 
 		return fmt.Sprintf("%s removed as a greeter", i.Member.User.Username), err
 	}
+}
+
+// Greet greets a new members to a discord server.
+// sess: the discord session.
+// user: the user that joined the server.
+// return: string, and error for logging
+func Greet(sess *discordgo.Session, user *discordgo.GuildMemberAdd) (string, error) {
+	db, err := openDB()
+	if err != nil {
+		return "", err
+	}
+	rand.Seed(time.Now().UnixNano())
+	min := 0
+	if err != nil {
+		return "", err
+	}
+	greeters, err := GetGreeters(db, user.GuildID)
+	guildGreeters := greeters[user.GuildID]
+	max := len(guildGreeters) - 1
+	randomInt := (rand.Intn(max-min+1) + min)
+
+	c := utils.LoadConfig()
+	channelID := ""
+	for _, server := range c.NewMemberGreeting.Config {
+		if server.ServerID == user.GuildID {
+			channelID = server.ChannelID
+		}
+	}
+	_, err = sess.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
+		Content: fmt.Sprintf("Hi <@%s>, welcome to <@%s>'s server!", user.User.ID, guildGreeters[randomInt].ID),
+	})
+
+	fmt.Printf("Greet err: %v\n", err) // __AUTO_GENERATED_PRINT_VAR__
+	return "", nil
 }
 
 // openDB opens the database.
