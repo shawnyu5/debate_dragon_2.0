@@ -161,21 +161,32 @@ func (NewMember) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate
 // user: the user that joined the server.
 // return: string, and error for logging
 func Greet(sess *discordgo.Session, user *discordgo.GuildMemberAdd) (string, error) {
+	c := utils.LoadConfig()
+	// check if greeting is enabled for this server
+	for _, guild := range c.NewMemberGreeting.Config {
+		if guild.ServerID == user.GuildID && !guild.Enable {
+			return "greeting not enabled for this server...", nil
+		}
+	}
+
 	db, err := openDB()
 	if err != nil {
 		return "", err
 	}
-	rand.Seed(time.Now().UnixNano())
-	min := 0
+
+	greeters, err := GetGreeters(db, user.GuildID)
 	if err != nil {
 		return "", err
 	}
-	greeters, err := GetGreeters(db, user.GuildID)
+
 	guildGreeters := greeters[user.GuildID]
+
+	// generate random number
+	rand.Seed(time.Now().UnixNano())
+	min := 0
 	max := len(guildGreeters) - 1
 	randomInt := (rand.Intn(max-min+1) + min)
 
-	c := utils.LoadConfig()
 	channelID := ""
 	for _, server := range c.NewMemberGreeting.Config {
 		if server.ServerID == user.GuildID {
@@ -185,8 +196,10 @@ func Greet(sess *discordgo.Session, user *discordgo.GuildMemberAdd) (string, err
 	_, err = sess.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
 		Content: fmt.Sprintf("Hi <@%s>, welcome to <@%s>'s server!", user.User.ID, guildGreeters[randomInt].ID),
 	})
+	if err != nil {
+		return "", err
+	}
 
-	fmt.Printf("Greet err: %v\n", err) // __AUTO_GENERATED_PRINT_VAR__
 	return "", nil
 }
 

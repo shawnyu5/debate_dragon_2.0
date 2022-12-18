@@ -10,9 +10,9 @@
    },
    "dbPath": "./db",
    "newMemberGreeting": {
-      "on": true,
       "config": [
          {
+            "enable": true,
             "serverName": "the magic guy's server",
             "serverID": "704149356101500999",
             "roleID": "991000363408719953",
