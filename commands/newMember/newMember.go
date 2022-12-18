@@ -105,7 +105,6 @@ func (NewMember) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate
 						Author:      &discordgo.MessageEmbedAuthor{},
 					},
 				},
-				Flags: discordgo.MessageFlagsEphemeral,
 			},
 		})
 		return fmt.Sprintf("%s saved as a new greeter", i.Member.User.Username), err
@@ -148,7 +147,6 @@ func (NewMember) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate
 						Author:      &discordgo.MessageEmbedAuthor{},
 					},
 				},
-				Flags: discordgo.MessageFlagsEphemeral,
 			},
 		})
 
