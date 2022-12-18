@@ -180,6 +180,9 @@ func Greet(sess *discordgo.Session, user *discordgo.GuildMemberAdd) (string, err
 	}
 
 	guildGreeters := greeters[user.GuildID]
+	if len(guildGreeters) == 0 {
+		return "", errors.New("no greeters found for this server")
+	}
 
 	// generate random number
 	rand.Seed(time.Now().UnixNano())
