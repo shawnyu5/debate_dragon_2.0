@@ -205,8 +205,9 @@ func (Poll) Components() []commands.Component {
 
 // openDB opens a connection to the local database
 func openDB() *badger.DB {
+	c := utils.LoadConfig()
 	// openDB opens a connection to the local database
-	opts := badger.DefaultOptions("./db")
+	opts := badger.DefaultOptions(c.DbPath)
 	opts.Logger = nil
 
 	db, err := badger.Open(opts)

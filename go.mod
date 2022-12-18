@@ -44,7 +44,6 @@ require (
 	github.com/google/go-querystring v1.1.0
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/joho/godotenv v1.4.0
-	github.com/lithammer/fuzzysearch v1.1.5
 	github.com/olekukonko/tablewriter v0.0.5
 	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa // indirect
 	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69 // indirect

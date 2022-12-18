@@ -8,6 +8,17 @@
       "coolDown": 1,
       "ignoredChannels": []
    },
+   "dbPath": "./db",
+   "newMemberGreeting": {
+      "on": true,
+      "config": [
+         {
+            "serverName": "the magic guy's server",
+            "serverID": "704149356101500999",
+            "roleID": "991000363408719953"
+         }
+      ]
+   },
    "emotes": [
       {
          "name": "wtf",
