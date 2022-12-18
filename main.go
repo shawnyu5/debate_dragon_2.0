@@ -11,7 +11,6 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
 	newmember "github.com/shawnyu5/debate_dragon_2.0/commands/newMember"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
-	subforcarmen "github.com/shawnyu5/debate_dragon_2.0/commands/subForCarmen"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
 	"github.com/shawnyu5/debate_dragon_2.0/middware"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
@@ -117,7 +116,7 @@ func main() {
 
 	removeHandler := dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 		fmt.Println(mess.Content)
-		subforcarmen.Listen(sess, mess.Message)
+		// subforcarmen.Listen(sess, mess.Message)
 		snipe.TrackMessage(mess)
 	})
 
