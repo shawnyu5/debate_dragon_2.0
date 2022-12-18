@@ -16,11 +16,14 @@ import (
 var AppFs = afero.NewOsFs()
 
 // config object as defined in config.json.
+// do not json martial sensitive fields such as discord token
 type Config struct {
-	Token       string `json:"token"`
-	TokenDev    string `json:"token_dev"`
+	Token       string `json:"-"`
+	TokenDev    string `json:"-"`
 	LogLevel    string `json:"logLevel"`
-	Development bool   `json:"development"`
+	Development bool   `json:"-"`
+	// path to the local db
+	DbPath string `json:"dbPath"`
 
 	Emotes []struct {
 		// name of emote
@@ -28,6 +31,16 @@ type Config struct {
 		// url to emote
 		URL string `json:"url"`
 	} `json:"emotes"`
+	// config for new member greetings
+	NewMemberGreeting struct {
+		Config []struct {
+			ServerName string `json:"serverName"`
+			RoleID     string `json:"roleID"`
+			ServerID   string `json:"serverID"`
+			ChannelID  string `json:"channelID"`
+			Enable     bool   `json:"enable"`
+		} `json:"config"`
+	} `json:"newMemberGreeting"`
 	Ivan struct {
 		Emotes []struct {
 			Name         string `json:"name"`
@@ -230,4 +243,53 @@ func GetComponentHandler(cmds []commands.Command) map[string]commands.HandlerFun
 		}
 	}
 	return componentHandlers
+}
+
+// GetMembersWithRole get all members from a guild with a specif role.
+// guildID: the guild ID to fetch members from.
+// roleID : the role ID to fetch.
+// return: an array of members with the role, and any errors that arise
+func GetMembersWithRole(sess *discordgo.Session, guildID, roleID string) ([]*discordgo.Member, error) {
+	// checks if an array of members contains a member.
+	contains := func(arr []string, id string) bool {
+		for _, v := range arr {
+			if v == id {
+				return true
+			}
+		}
+		return false
+	}
+	// all members in the guild
+	membersCollection := make([]*discordgo.Member, 0)
+	for {
+		members := make([]*discordgo.Member, 0)
+		var err error
+		// the first request should get as many members as possible
+		if len(membersCollection) == 0 {
+			members, err = sess.GuildMembers(guildID, "", 1000)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			// get members after the last member in the collection
+			members, err = sess.GuildMembers(guildID, membersCollection[len(membersCollection)-1].User.ID, 1000)
+			if err != nil {
+				return nil, err
+			}
+		}
+		// keep requesting members from the API till we get nothing back
+		if len(members) == 0 {
+			break
+		}
+		membersCollection = append(membersCollection, members...)
+	}
+
+	membersWithRole := make([]*discordgo.Member, 0)
+	for _, member := range membersCollection {
+		// if a member does have the role we are looking for, then keep track of it
+		if contains(member.Roles, roleID) {
+			membersWithRole = append(membersWithRole, member)
+		}
+	}
+	return membersWithRole, nil
 }

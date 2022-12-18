@@ -8,6 +8,32 @@
       "coolDown": 1,
       "ignoredChannels": []
    },
+   "dbPath": "./db",
+   "newMemberGreeting": {
+      "config": [
+         {
+            "enable": true,
+            "serverName": "the magic guy's server",
+            "serverID": "704149356101500999",
+            "roleID": "991000363408719953",
+            "channelID": "704149356101501002"
+         },
+         {
+            "enable": false,
+            "serverName": "Seneca college - computer programming",
+            "serverID": "798173796812062751",
+            "roleID": "991000363408719953",
+            "channelID": "704149356101501002"
+         },
+         {
+            "enable": true,
+            "serverName": "Computer programming Seneca",
+            "serverID": "755477320864890890",
+            "roleID": "1053890842454134946",
+            "channelID": "755477320864890896"
+         }
+      ]
+   },
    "emotes": [
       {
          "name": "wtf",

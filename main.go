@@ -5,19 +5,12 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
-	courseoutline "github.com/shawnyu5/debate_dragon_2.0/commands/courseOutline"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/dd"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/emotes"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/insult"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/poll"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
+	newmember "github.com/shawnyu5/debate_dragon_2.0/commands/newMember"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
-	subforcarmen "github.com/shawnyu5/debate_dragon_2.0/commands/subForCarmen"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
 	"github.com/shawnyu5/debate_dragon_2.0/middware"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
@@ -53,16 +46,17 @@ var (
 
 	// array of all slash commands in this bot
 	allCommands = []commands.Command{
-		manageIvan.ManageIvan{},
-		poll.Poll{},
-		dd.DD{},
-		insult.Insult{},
-		ivan.Ivan{},
-		rmp.Rmp{},
-		subforcarmen.SubForCarmen{},
-		courseoutline.Outline{},
-		snipe.Snipe{},
-		emotes.Emotes{},
+		// manageIvan.ManageIvan{},
+		// poll.Poll{},
+		// dd.DD{},
+		// insult.Insult{},
+		// ivan.Ivan{},
+		// rmp.Rmp{},
+		// subforcarmen.SubForCarmen{},
+		// courseoutline.Outline{},
+		// snipe.Snipe{},
+		// emotes.Emotes{},
+		newmember.NewMember{},
 	}
 
 	// array of slash command defs
@@ -107,7 +101,11 @@ func main() {
 	go func() {
 		generatedocs.Generate()
 	}()
+	// create database dir
+	os.Mkdir(c.DbPath, 0755)
+
 	dg.Identify.Intents |= discordgo.IntentGuildMessages
+	dg.Identify.Intents |= discordgo.IntentGuildMembers
 	dg.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
@@ -118,8 +116,15 @@ func main() {
 
 	removeHandler := dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 		fmt.Println(mess.Content)
-		subforcarmen.Listen(sess, mess.Message)
+		// subforcarmen.Listen(sess, mess.Message)
 		snipe.TrackMessage(mess)
+	})
+
+	dg.AddHandler(func(sess *discordgo.Session, user *discordgo.GuildMemberAdd) {
+		fmt.Println("new user entered the guild") // __AUTO_GENERATED_PRINTF__
+		time.AfterFunc(5*time.Second, func() {
+			newmember.Greet(sess, user)
+		})
 	})
 
 	if !c.SubForCarmen.On {
