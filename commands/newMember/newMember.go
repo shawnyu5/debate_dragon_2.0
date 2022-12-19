@@ -70,17 +70,6 @@ func (NewMember) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate
 			return "", err
 		}
 
-		// add roleID to user
-		roleID, err := getGuildRole(i.GuildID)
-		if err != nil {
-			return "", err
-		}
-
-		err = sess.GuildMemberRoleAdd(i.GuildID, i.Member.User.ID, roleID)
-		if err != nil {
-			return "", err
-		}
-
 		// get current guild information
 		guild, err := sess.Guild(i.GuildID)
 		if err != nil {
@@ -194,6 +183,22 @@ func Greet(sess *discordgo.Session, user *discordgo.GuildMemberAdd) (string, err
 			channelID = server.ChannelID
 		}
 	}
+
+	// add roleID to user
+	roleID, err := getGuildRole(user.GuildID)
+	if err != nil {
+		return "", err
+	}
+
+	err = removeAllRole(sess, user.GuildID, roleID, guildGreeters)
+	if err != nil {
+		return "", err
+	}
+
+	err = sess.GuildMemberRoleAdd(user.GuildID, guildGreeters[randomInt].ID, roleID)
+	if err != nil {
+		return "", err
+	}
 	_, err = sess.ChannelMessageSendComplex(channelID, &discordgo.MessageSend{
 		Content: fmt.Sprintf("Hi <@%s>, welcome to <@%s>'s server!", user.User.ID, guildGreeters[randomInt].ID),
 	})
@@ -291,8 +296,8 @@ func AddGreeterToGuild(guildGreeters GuildGreeters, user *discordgo.User, guildI
 }
 
 // getGuildRole gets server owner role for a guild
-// guildID: the guild to retrieve role from
-// return: the role id of the server owner role. An error if the role is not set in config.json
+// guildID: the guild to retrieve role for
+// return: the role id of the server owner role for a guild. An error if the role is not set in config.json
 func getGuildRole(guildID string) (string, error) {
 	c := utils.LoadConfig()
 	for _, guild := range c.NewMemberGreeting.Config {
@@ -301,4 +306,20 @@ func getGuildRole(guildID string) (string, error) {
 		}
 	}
 	return "", errors.New("no role set for this server")
+}
+
+// removeAllRole removes all server owner role from all greeters in a server.
+// sess: the discord session.
+// guildID: the guild to remove user roles from.
+// roleID: the role to remove.
+// users: the users to remove the role from.
+// return: an error if any.
+func removeAllRole(sess *discordgo.Session, guildID, roleID string, users []discordgo.User) error {
+	for _, user := range users {
+		err := sess.GuildMemberRoleRemove(guildID, user.ID, roleID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
