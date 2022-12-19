@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -124,13 +123,13 @@ func main() {
 	})
 
 	removeHandler := dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
-		fmt.Println(mess.Content)
+		// fmt.Println(mess.Content)
 		// subforcarmen.Listen(sess, mess.Message)
 		snipe.TrackMessage(mess)
 	})
 
 	dg.AddHandler(func(sess *discordgo.Session, user *discordgo.GuildMemberAdd) {
-		fmt.Println("new user entered the guild") // __AUTO_GENERATED_PRINTF__
+		log.Println("new user entered the guild")
 		time.AfterFunc(5*time.Second, func() {
 			newmember.Greet(sess, user)
 		})
