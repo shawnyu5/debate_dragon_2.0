@@ -30,6 +30,7 @@ jobs:
               # debug: true
               # password: ${{ secrets.SSH_PASSWORD }}
               script: |
+                 docker system prune --force
                  cd debate_dragon_2.0
                  git pull -f
                  docker compose up -d --build
