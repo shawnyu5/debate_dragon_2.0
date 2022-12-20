@@ -7,6 +7,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/fogleman/gg"
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
+	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
 type DD struct{}
@@ -36,11 +37,7 @@ func (DD) Def() *discordgo.ApplicationCommand {
 
 // Handler implements commands.Command
 func (DD) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
-	options := i.ApplicationCommandData().Options
-	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
-	for _, opt := range options {
-		optionMap[opt.Name] = opt
-	}
+	userOptions := utils.ParseUserOptions(sess, i)
 
 	img, err := gg.LoadImage("./media/img/dragon_drawing.png")
 	if err != nil {
@@ -49,7 +46,7 @@ func (DD) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (stri
 	// CanvasSize := 1024
 	const CanvasSize = 1024
 	fontSize := 70
-	fontSize = ShrinkFontSize(fontSize, optionMap["text"].StringValue(), 7)
+	fontSize = ShrinkFontSize(fontSize, userOptions["text"].StringValue(), 7)
 
 	ctx := gg.NewContext(CanvasSize, CanvasSize)
 	ctx.SetRGB(1, 1, 1)
@@ -67,7 +64,7 @@ func (DD) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (stri
 	// text. Use ax=0.5, ay=0.5 to center the text at the specified point
 	x := 20
 	y := 0.1
-	ctx.DrawStringWrapped(optionMap["text"].StringValue(), float64(CanvasSize/2), float64(CanvasSize/2), float64(x), float64(y), 15, 1, gg.AlignCenter)
+	ctx.DrawStringWrapped(userOptions["text"].StringValue(), float64(CanvasSize/2), float64(CanvasSize/2), float64(x), float64(y), 15, 1, gg.AlignCenter)
 	ctx.Clip()
 	ctx.SavePNG("out.png")
 
@@ -92,7 +89,7 @@ func (DD) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (stri
 	if err != nil {
 		log.Fatalln(err)
 	}
-	return optionMap["text"].StringValue(), nil
+	return userOptions["text"].StringValue(), nil
 }
 
 // ShrinkFontSize shrink the font size passed in based on the length of user input and the maxCharacterSize
