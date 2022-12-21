@@ -131,7 +131,11 @@ func main() {
 	dg.AddHandler(func(sess *discordgo.Session, user *discordgo.GuildMemberAdd) {
 		log.Println("new user entered the guild")
 		time.AfterFunc(5*time.Second, func() {
-			newmember.Greet(sess, user)
+			res, err := newmember.Greet(sess, user)
+			if err != nil {
+				log.Println(err)
+			}
+			log.Println(res)
 		})
 	})
 
