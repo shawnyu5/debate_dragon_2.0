@@ -102,6 +102,7 @@ func main() {
 	go func() {
 		generatedocs.Generate()
 	}()
+	mock.GenMeme()
 	// create database dir
 	os.Mkdir(c.DbPath, 0755)
 

@@ -43,7 +43,6 @@ func (DD) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (stri
 	if err != nil {
 		log.Fatalln(err)
 	}
-	// CanvasSize := 1024
 	const CanvasSize = 1024
 	fontSize := 70
 	fontSize = ShrinkFontSize(fontSize, userOptions["text"].StringValue(), 7)
