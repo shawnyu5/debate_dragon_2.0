@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image/color"
 	"log"
+	"os"
 	"unicode"
 
 	"github.com/bwmarrin/discordgo"
@@ -46,12 +47,43 @@ func (Mock) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (st
 		return "", err
 	}
 
-	err = GenMeme(fmt.Sprintf("%s: %s", user.Username, MockText(mess.Content)))
+	err = GenMeme(fmt.Sprintf("@%s: %s", user.Username, MockText(mess.Content)))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return "user mocked", nil
+	out, err := os.Open("out.png")
+	if err != nil {
+		return "", err
+	}
+
+	defer out.Close()
+	_, err = sess.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
+		Files: []*discordgo.File{
+			{
+				Name:        "out.png",
+				ContentType: "image/png",
+				Reader:      out,
+			},
+		},
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	err = sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: fmt.Sprintf("<@%s> mocked", user.ID),
+			Flags:   discordgo.MessageFlagsEphemeral,
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s mocked", user.Username), nil
 }
 
 func GenMeme(text string) error {
@@ -61,7 +93,7 @@ func GenMeme(text string) error {
 	}
 	const CanvasWidth = 502
 	const CanvasHeight = 353
-	fontSize := 25
+	fontSize := 30
 	fontSize = utils.ShrinkFontSize(fontSize, text, CanvasWidth-10)
 
 	ctx := gg.NewContext(CanvasWidth, CanvasHeight)
