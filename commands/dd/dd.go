@@ -43,10 +43,9 @@ func (DD) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (stri
 	if err != nil {
 		log.Fatalln(err)
 	}
-	// CanvasSize := 1024
 	const CanvasSize = 1024
 	fontSize := 70
-	fontSize = ShrinkFontSize(fontSize, userOptions["text"].StringValue(), 7)
+	fontSize = utils.ShrinkFontSize(fontSize, userOptions["text"].StringValue(), 7)
 
 	ctx := gg.NewContext(CanvasSize, CanvasSize)
 	ctx.SetRGB(1, 1, 1)
@@ -90,14 +89,4 @@ func (DD) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (stri
 		log.Fatalln(err)
 	}
 	return userOptions["text"].StringValue(), nil
-}
-
-// ShrinkFontSize shrink the font size passed in based on the length of user input and the maxCharacterSize
-// Returns the new font size
-func ShrinkFontSize(fontSize int, userInput string, maxCharacterSize int) int {
-	// 7 is the max character at current size
-	if len(userInput) > maxCharacterSize {
-		return ShrinkFontSize(fontSize-5, userInput, maxCharacterSize+5)
-	}
-	return fontSize
 }

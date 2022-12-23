@@ -14,6 +14,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands/insult"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
+	"github.com/shawnyu5/debate_dragon_2.0/commands/memes/mock"
 	newmember "github.com/shawnyu5/debate_dragon_2.0/commands/newMember"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/poll"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
@@ -65,6 +66,7 @@ var (
 		snipe.Snipe{},
 		emotes.Emotes{},
 		newmember.NewMember{},
+		mock.Mock{},
 	}
 
 	// array of slash command defs
