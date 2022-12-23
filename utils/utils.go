@@ -293,3 +293,15 @@ func GetMembersWithRole(sess *discordgo.Session, guildID, roleID string) ([]*dis
 	}
 	return membersWithRole, nil
 }
+
+// ShrinkFontSize shrink the font size passed in based on the length of user input and the max length of character.
+// fontSize: the initial font size.
+// maxCharacterSize: the max length of character.
+// Returns the new font size.
+func ShrinkFontSize(fontSize int, userInput string, maxCharacterSize int) int {
+	// 7 is the max character at current size
+	if len(userInput) > maxCharacterSize {
+		return ShrinkFontSize(fontSize-5, userInput, maxCharacterSize+5)
+	}
+	return fontSize
+}

@@ -8,7 +8,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/memes/mock"
+	"github.com/shawnyu5/debate_dragon_2.0/commands/dd"
 	newmember "github.com/shawnyu5/debate_dragon_2.0/commands/newMember"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
@@ -48,7 +48,7 @@ var (
 	allCommands = []commands.Command{
 		// manageIvan.ManageIvan{},
 		// poll.Poll{},
-		// dd.DD{},
+		dd.DD{},
 		// insult.Insult{},
 		// ivan.Ivan{},
 		// rmp.Rmp{},
@@ -57,7 +57,7 @@ var (
 		// snipe.Snipe{},
 		// emotes.Emotes{},
 		// newmember.NewMember{},
-		mock.Mock{},
+		// mock.Mock{},
 	}
 
 	// array of slash command defs
@@ -102,7 +102,6 @@ func main() {
 	go func() {
 		generatedocs.Generate()
 	}()
-	mock.GenMeme()
 	// create database dir
 	os.Mkdir(c.DbPath, 0755)
 

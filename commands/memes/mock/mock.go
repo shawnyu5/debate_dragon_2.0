@@ -1,11 +1,16 @@
 package mock
 
 import (
+	"errors"
+	"fmt"
+	"image/color"
 	"log"
+	"unicode"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/fogleman/gg"
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
+	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
 type Mock struct{}
@@ -34,21 +39,31 @@ func (Mock) Def() *discordgo.ApplicationCommand {
 
 // Handler implements commands.Command
 func (Mock) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
-	err := GenMeme()
+	userOptions := utils.ParseUserOptions(sess, i)
+	user := userOptions["user"].UserValue(sess)
+	mess, err := GetUserLastMessage(sess, userOptions["user"].UserValue(sess), i.ChannelID)
+	if err != nil {
+		return "", err
+	}
+
+	err = GenMeme(fmt.Sprintf("%s: %s", user.Username, MockText(mess.Content)))
 	if err != nil {
 		log.Fatal(err)
 	}
-	return "mock", nil
+
+	return "user mocked", nil
 }
 
-func GenMeme() error {
+func GenMeme(text string) error {
 	img, err := gg.LoadImage("./media/img/mocking_spongebob.jpg")
 	if err != nil {
 		return err
 	}
 	const CanvasWidth = 502
 	const CanvasHeight = 353
-	const fontSize = 30
+	fontSize := 25
+	fontSize = utils.ShrinkFontSize(fontSize, text, CanvasWidth-10)
+
 	ctx := gg.NewContext(CanvasWidth, CanvasHeight)
 	ctx.SetRGB(0, 0, 0)
 
@@ -59,10 +74,52 @@ func GenMeme() error {
 	// make a rectangle and put the image on to it
 	ctx.DrawRoundedRectangle(0, 0, 400, 400, 0)
 	ctx.DrawImage(img, 0, 0)
+
+	ctx.SetColor(color.White)
 	// center "Literally no one" at the top of the image
 	ctx.DrawStringAnchored("Literally no one:", CanvasWidth/2, 12, 0.5, 0.5)
 
+	ctx.DrawStringWrapped(text, CanvasWidth-500, CanvasHeight-70, 0, 0, CanvasWidth, 2, gg.AlignCenter)
 	ctx.Clip()
 	ctx.SavePNG("out.png")
 	return nil
+}
+
+// GetUserLastMessage gets the last message sent by a user in a channel.
+// sess: discord session.
+// user: the user to get the message of.
+// channel: the channel to get the message from.
+// return: a discord message and any errors
+func GetUserLastMessage(sess *discordgo.Session, user *discordgo.User, channelID string) (*discordgo.Message, error) {
+	// get all messages in channel
+	messages, err := sess.ChannelMessages(channelID, 100, "", "", "")
+	if err != nil {
+		return nil, err
+	}
+
+	// find the last message sent by user
+	for _, message := range messages {
+		if message.Author.ID == user.ID {
+			return message, nil
+		}
+	}
+	return nil, errors.New("no user message in channel")
+}
+
+// MockText mock a string by turning over other letter upper case.
+// text: the text to mock.
+// return: the mocked text.
+func MockText(text string) string {
+	runes := make([]rune, 0, len(text))
+	var upper bool
+	for _, c := range text {
+		if unicode.IsLetter(c) {
+			upper = !upper
+			if upper {
+				c = unicode.ToUpper(c)
+			}
+		}
+		runes = append(runes, c)
+	}
+	return string(runes)
 }
