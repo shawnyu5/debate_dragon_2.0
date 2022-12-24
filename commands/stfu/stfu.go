@@ -1,6 +1,7 @@
 package stfu
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -87,6 +88,9 @@ func (Stfu) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (st
 		}
 
 		State.Length = duration
+	}
+	if userOptions["user"].UserValue(sess).ID == "903372725605785761" {
+		return "", errors.New("can not tell the bot to stfu")
 	}
 
 	State.User = userOptions["user"].UserValue(sess)
