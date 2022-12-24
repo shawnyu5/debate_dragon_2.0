@@ -49,10 +49,6 @@ func init() {
 type handlerFunc func(sess *discordgo.Session, i *discordgo.InteractionCreate)
 
 var (
-	integerOptionMinValue          = 1.0
-	dmPermission                   = false
-	defaultMemberPermissions int64 = discordgo.PermissionManageServer
-
 	// array of all slash commands in this bot
 	allCommands = []commands.Command{
 		manageIvan.ManageIvan{},
@@ -124,7 +120,7 @@ func main() {
 		snipe.LastDeletedMessage = mess
 	})
 
-	removeHandler := dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
+	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 		// fmt.Println(mess.Content)
 		// subforcarmen.Listen(sess, mess.Message)
 		snipe.TrackMessage(mess)
@@ -140,11 +136,6 @@ func main() {
 			log.Println(res)
 		})
 	})
-
-	if !c.SubForCarmen.On {
-		log.Println("removing handler")
-		removeHandler()
-	}
 
 	err := dg.Open()
 
