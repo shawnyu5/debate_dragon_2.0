@@ -3,6 +3,7 @@ package stfu
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -46,7 +47,7 @@ func (Stfu) Components() []commands.Component {
 
 // Def implements commands.Command
 func (Stfu) Def() *discordgo.ApplicationCommand {
-	minLengthValue := float64(0)
+	minLengthValue := float64(5)
 	return &discordgo.ApplicationCommand{
 		Version:     "1.0.0",
 		Type:        0,
@@ -80,9 +81,9 @@ func (Stfu) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (st
 	userOptions := utils.ParseUserOptions(sess, i)
 	// if a user set a custom length, use that
 	if val, ok := userOptions["length"]; ok {
-		length := val.StringValue()
+		length := val.IntValue()
 		// parse duration into seconds
-		duration, err := time.ParseDuration(length + "s")
+		duration, err := time.ParseDuration(strconv.Itoa(int(length)) + "s")
 		if err != nil {
 			return "", err
 		}
