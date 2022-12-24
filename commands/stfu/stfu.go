@@ -68,7 +68,7 @@ func (Stfu) Def() *discordgo.ApplicationCommand {
 				Autocomplete: false,
 				Choices:      []*discordgo.ApplicationCommandOptionChoice{},
 				MinValue:     &minLengthValue,
-				MaxValue:     30,
+				MaxValue:     60,
 			},
 		},
 	}
@@ -100,7 +100,6 @@ func (Stfu) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (st
 					{
 						Title:       "stfu",
 						Description: fmt.Sprintf("<@%s> will be told to stfu for %s seconds", State.User.ID, State.Length.String()),
-						Timestamp:   "",
 					},
 				},
 			},
