@@ -90,6 +90,17 @@ func (Stfu) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (st
 		State.Length = duration
 	}
 	if userOptions["user"].UserValue(sess).ID == "903372725605785761" {
+		sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Embeds: []*discordgo.MessageEmbed{
+					{
+						Title:       "stfu",
+						Description: "Can not tell the bot to stfu",
+					},
+				},
+			},
+		})
 		return "", errors.New("can not tell the bot to stfu")
 	}
 
