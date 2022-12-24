@@ -69,8 +69,6 @@ func (Stfu) Def() *discordgo.ApplicationCommand {
 				Choices:      []*discordgo.ApplicationCommandOptionChoice{},
 				MinValue:     &minLengthValue,
 				MaxValue:     30,
-				MinLength:    new(int),
-				MaxLength:    0,
 			},
 		},
 	}
@@ -94,14 +92,42 @@ func (Stfu) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (st
 	State.User = userOptions["user"].UserValue(sess)
 	State.Enable = true
 
-	return "stfu sequence initiated", nil
+	if !State.IsCoolDown {
+		sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Embeds: []*discordgo.MessageEmbed{
+					{
+						Title:       "stfu",
+						Description: fmt.Sprintf("<@%s> will be told to stfu for %s seconds", State.User.ID, State.Length.String()),
+						Timestamp:   "",
+					},
+				},
+			},
+		})
+		return "stfu sequence initiated", nil
+	} else {
+		sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Embeds: []*discordgo.MessageEmbed{
+					{
+						Title:       "stfu",
+						Description: "Within cool down period...",
+						Timestamp:   "",
+					},
+				},
+			},
+		})
+		return "stfu is in cool down", nil
+	}
 }
 
 // TellUser tell a user to stfu on every message they send.
 // sess: discord session.
 // mess: the message to check.
 func TellUser(sess *discordgo.Session, mess *discordgo.MessageCreate) {
-	if !State.Enable {
+	if !State.Enable && !State.IsCoolDown {
 		log.Println("stfu is not enabled")
 		return
 	} else if mess.Author.ID != State.User.ID {
@@ -116,5 +142,11 @@ func TellUser(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 	// after the stfu length, reset the state and disable telling user to stfu
 	time.AfterFunc(State.Length, func() {
 		State = NewState()
+		State.IsCoolDown = true
+
+		// after the cooldown period, re enable command
+		time.AfterFunc(State.CoolDownLength, func() {
+			State.IsCoolDown = false
+		})
 	})
 }
