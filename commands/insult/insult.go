@@ -11,6 +11,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
+// generate an insult directed at a user
 type Insult struct{}
 
 // Components implements commands.Command

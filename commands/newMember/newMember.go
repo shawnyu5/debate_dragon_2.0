@@ -23,6 +23,7 @@ type GuildGreeters map[string][]discordgo.User
 // User    []discordgo.User
 // }
 
+// greet new members
 type NewMember struct{}
 
 // Components implements commands.Command

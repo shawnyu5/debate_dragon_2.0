@@ -6,6 +6,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
+// send some custom emotes
 type Emotes struct{}
 
 type emotesMapType map[string]string

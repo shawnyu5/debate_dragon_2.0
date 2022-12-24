@@ -26,6 +26,7 @@ var banJumpScareID = "ban_jump_scare"
 
 var ivanBanState = state{}
 
+// bans ivan accounts with a countdown
 type ManageIvan struct{}
 
 // Def implements commands.Command

@@ -10,6 +10,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
+// summon a dragon with text
 type DD struct{}
 
 // Components implements commands.Command

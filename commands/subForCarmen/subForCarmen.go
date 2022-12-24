@@ -10,6 +10,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
+// subscribe to carmen rambling
 type SubForCarmen struct{}
 
 type State struct {

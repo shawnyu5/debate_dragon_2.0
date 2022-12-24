@@ -11,6 +11,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
+// all ivan related commands
 type Ivan struct{}
 
 // Components implements commands.Command

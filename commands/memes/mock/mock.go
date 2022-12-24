@@ -14,6 +14,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
+// make fun of a user's last message
 type Mock struct{}
 
 // Components implements commands.Command

@@ -14,7 +14,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
-// get a course outline
+// fetch the outline for a course at Seneca
 type Outline struct{}
 
 type CourseInfo struct {

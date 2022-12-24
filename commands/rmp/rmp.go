@@ -12,6 +12,7 @@ import (
 
 const profSelectMenuID = "prof select menu"
 
+// fetch professor reviews from rmp
 type Rmp struct{}
 
 type state struct {

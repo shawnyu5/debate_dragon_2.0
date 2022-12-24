@@ -19,6 +19,7 @@ type VotesContainer = map[int][]discordgo.User
 // label which the data is stored in in db
 const DBLabel = "interviewVotes"
 
+// poll command to track number of interviews people got during their search for co op
 type Poll struct{}
 
 // Def implements commands.Command
