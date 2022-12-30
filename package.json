@@ -15,6 +15,7 @@
    "devDependencies": {
       "semantic-release": "^19.0.5"
    },
+   "private": true,
    "release": {
       "branches": [
          "master",
