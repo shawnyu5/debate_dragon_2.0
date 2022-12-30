@@ -1,0 +1,27 @@
+{
+   "name": "debate_dragon_2.0",
+   "version": "1.0.0",
+   "description": "A blazingly fast discord bot written in Go to burn your debate foes to the ground",
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/shawnyu5/debate_dragon_2.0.git"
+   },
+   "author": "Shawn Yu",
+   "license": "ISC",
+   "bugs": {
+      "url": "https://github.com/shawnyu5/debate_dragon_2.0/issues"
+   },
+   "homepage": "https://github.com/shawnyu5/debate_dragon_2.0#readme",
+   "devDependencies": {
+      "semantic-release": "^19.0.5"
+   },
+   "release": {
+      "branches": [
+         "master",
+         {
+            "name": "release-candidates",
+            "prerelease": "rc"
+         }
+      ]
+   }
+}

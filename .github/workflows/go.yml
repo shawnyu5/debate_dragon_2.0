@@ -31,7 +31,7 @@ jobs:
            with:
               node-version: 16
          - name: Generate release
-           run: npx sematic-release
+           run: npx semantic-release
    Deploy:
       runs-on: ubuntu-latest
       needs:
