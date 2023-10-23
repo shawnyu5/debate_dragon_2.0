@@ -13,11 +13,13 @@ A blazingly fast discord bot written in Go to burn your debate foes to the groun
 
 `/rmp profname: <name>`: search for a professor by name from Seneca college. If more than 1 professor by that name at Seneca, a select menu will be displayed to prompt to select the prof to display the ratings of. Other wise, the prof's ratings will be displayed.
 
-`/subforcarmen subscribe: true` - Give the user the subscriber role
 
-`/subforcarmen subscribe: false` - Remove the subscriber role from the user
+## Development
 
-This is a command that will ping a subscriber role, if a selected user is talking too much, for everyone to witness the drama that is happening right now.
+The bot requires a `config.json` to set environment variables. Refer to `config.example.jsonc` for all values needed in `config.json`.
+
+**Note** the actual config should be a json file. The `config.example.jsonc` is `jsonc` only to allow comments
+e drama that is happening right now.
 
 The user and guild which this command watches can be configured in `config.json`, under `subForCarmen.carmenID`, and `subForCarmen.guildID`. The subscriber role is under `subForCarmen.subscriberRoleID`
 

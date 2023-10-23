@@ -20,7 +20,6 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/stfu"
-	subforcarmen "github.com/shawnyu5/debate_dragon_2.0/commands/subForCarmen"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
 	"github.com/shawnyu5/debate_dragon_2.0/middware"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
@@ -58,7 +57,6 @@ var (
 		insult.Insult{},
 		ivan.Ivan{},
 		rmp.Rmp{},
-		subforcarmen.SubForCarmen{},
 		courseoutline.Outline{},
 		snipe.Snipe{},
 		emotes.Emotes{},
