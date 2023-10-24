@@ -24,8 +24,8 @@ type StfuState struct {
 	CoolDownLength time.Duration
 	// the user to stfu
 	User *discordgo.User
-	// if the command is enabled
-	Enable bool
+	// if the command is in use right now
+	InUse bool
 }
 
 // NewState creates a new stfu state with default values
@@ -34,7 +34,7 @@ func NewState() StfuState {
 		Length:         10 * time.Second,
 		IsCoolDown:     false,
 		User:           &discordgo.User{},
-		Enable:         false,
+		InUse:          false,
 		CoolDownLength: 30 * time.Second,
 	}
 }
@@ -105,7 +105,7 @@ func (Stfu) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (st
 	}
 
 	State.User = userOptions["user"].UserValue(sess)
-	State.Enable = true
+	State.InUse = true
 
 	if !State.IsCoolDown {
 		sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -141,8 +141,8 @@ func (Stfu) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (st
 // sess: discord session.
 // mess: the message to check.
 func TellUser(sess *discordgo.Session, mess *discordgo.MessageCreate) {
-	if !State.Enable && !State.IsCoolDown {
-		log.Println("stfu is not enabled")
+	if !State.InUse && !State.IsCoolDown {
+		log.Println("stfu is not in use right now")
 		return
 	} else if mess.Author.ID != State.User.ID {
 		log.Println("not the user to stfu to")
