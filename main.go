@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/commands"
@@ -15,7 +14,6 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/memes/mock"
-	newmember "github.com/shawnyu5/debate_dragon_2.0/commands/newMember"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/poll"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
@@ -60,7 +58,6 @@ var (
 		courseoutline.Outline{},
 		snipe.Snipe{},
 		emotes.Emotes{},
-		newmember.NewMember{},
 		mock.Mock{},
 		stfu.Stfu{},
 	}
@@ -127,17 +124,6 @@ func main() {
 		stfu.TellUser(sess, mess)
 	})
 
-	dg.AddHandler(func(sess *discordgo.Session, user *discordgo.GuildMemberAdd) {
-		log.Println("new user entered the guild")
-		time.AfterFunc(5*time.Second, func() {
-			res, err := newmember.Greet(sess, user)
-			if err != nil {
-				log.Println(err)
-			}
-			log.Println(res)
-		})
-	})
-
 	err := dg.Open()
 
 	if err != nil {
@@ -145,9 +131,6 @@ func main() {
 	}
 
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(slashCommandDefs))
-
-	// remove old commands before adding new ones
-	// utils.RemoveCommands(dg, registeredCommands)
 
 	utils.RegisterCommands(dg, slashCommandDefs, registeredCommands)
 	dg.AddHandler(func(sess *discordgo.Session, gld *discordgo.GuildCreate) {
