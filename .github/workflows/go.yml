@@ -42,8 +42,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Checkout flyctl
+      - name: Install flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Create .env
+        run: echo "TOKEN=${{ secrets.DISCORD_TOKEN }}" > .env
 
       - name: Deploy application
         run: flyctl deploy --remote-only
