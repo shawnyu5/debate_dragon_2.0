@@ -1,13 +1,4 @@
 {
-   "subForCarmen": {
-      "on": true,
-      "carmenId": "652511543845453855",
-      "guildID": "704149356101500999",
-      "messageLimit": 2,
-      "subscribersRoleID": "991000363408719953",
-      "coolDown": 1,
-      "ignoredChannels": []
-   },
    "dbPath": "./db",
    "newMemberGreeting": {
       "config": [
