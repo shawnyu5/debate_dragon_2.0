@@ -57,6 +57,8 @@ github.com/bwmarrin/discordgo v0.26.2-0.20221023230326-afab84009be8 h1:6lx/t5dYj
 github.com/bwmarrin/discordgo v0.26.2-0.20221023230326-afab84009be8/go.mod h1:NJZpH+1AfhIcyQsPeuBKsUtYrRnjkyu0kIVMCHkZtRY=
 github.com/bwmarrin/discordgo v0.26.2-0.20221217201609-8a5201aae635 h1:YWR2HPT5pnp4QgCoq3y92Y0iKjCl6qMI8briEs9ftDA=
 github.com/bwmarrin/discordgo v0.26.2-0.20221217201609-8a5201aae635/go.mod h1:NJZpH+1AfhIcyQsPeuBKsUtYrRnjkyu0kIVMCHkZtRY=
+github.com/bwmarrin/discordgo v0.27.1 h1:ib9AIc/dom1E/fSIulrBwnez0CToJE113ZGt4HoliGY=
+github.com/bwmarrin/discordgo v0.27.1/go.mod h1:NJZpH+1AfhIcyQsPeuBKsUtYrRnjkyu0kIVMCHkZtRY=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cespare/xxhash v1.1.0 h1:a6HrQnmkObjyL+Gs60czilIUGqrzKutQD6XZog3p+ko=
 github.com/cespare/xxhash v1.1.0/go.mod h1:XrSqR1VqqWfGrhpAt58auRo0WTKS1nRRg3ghfAqPWnc=
