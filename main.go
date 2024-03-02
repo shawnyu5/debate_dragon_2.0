@@ -15,6 +15,7 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/memes/mock"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/poll"
+	"github.com/shawnyu5/debate_dragon_2.0/commands/reddit"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/stfu"
@@ -49,6 +50,7 @@ type handlerFunc func(sess *discordgo.Session, i *discordgo.InteractionCreate)
 var (
 	// array of all slash commands in this bot
 	allCommands = []commands.Command{
+		reddit.Reddit{},
 		manageIvan.ManageIvan{},
 		poll.Poll{},
 		dd.DD{},

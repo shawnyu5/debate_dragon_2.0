@@ -92,7 +92,7 @@ func RegisterCommands(sess *discordgo.Session, commands []*discordgo.Application
 			if err != nil {
 				log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 			}
-			fmt.Printf("Registering /%s in guild %v", cmd.Name, gld.Name) // __AUTO_GENERATED_PRINT_VAR__
+			fmt.Printf("Registering /%s in guild %v\n", cmd.Name, gld.Name) // __AUTO_GENERATED_PRINT_VAR__
 			registeredCommands[i] = cmd
 		}
 	}
