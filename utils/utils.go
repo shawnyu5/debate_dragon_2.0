@@ -18,10 +18,14 @@ var AppFs = afero.NewOsFs()
 // config object as defined in config.json.
 // do not json martial sensitive fields such as discord token
 type Config struct {
-	Token       string `json:"-"`
-	TokenDev    string `json:"-"`
-	LogLevel    string `json:"logLevel"`
-	Development bool   `json:"-"`
+	Token          string `json:"-"`
+	TokenDev       string `json:"-"`
+	RedditUserName string `json:"-"`
+	RedditClientId string `json:"-"`
+	RedditSecret   string `json:"-"`
+	RedditPassword string `json:"-"`
+	LogLevel       string `json:"logLevel"`
+	Development    bool   `json:"-"`
 	// path to the local db
 	DbPath string `json:"dbPath"`
 
@@ -155,6 +159,10 @@ func LoadConfig() Config {
 	godotenv.Load()
 	c.Token = os.Getenv("TOKEN")
 	c.TokenDev = os.Getenv("TOKEN_DEV")
+	c.RedditUserName = os.Getenv("REDDIT_USERNAME")
+	c.RedditClientId = os.Getenv("REDDIT_CLIENT_ID")
+	c.RedditSecret = os.Getenv("REDDIT_SECRET")
+	c.RedditPassword = os.Getenv("REDDIT_PASSWORD")
 
 	dev := os.Getenv("DEVELOPMENT")
 	if dev == "true" {

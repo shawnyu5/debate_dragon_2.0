@@ -52,7 +52,15 @@ func (Reddit) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (
 
 // getRandomRedditPost get a random post from r/Seneca
 func getRandomRedditPost() (*reddit.Post, error) {
-	client, err := reddit.NewReadonlyClient()
+	config := utils.LoadConfig()
+	credentials := reddit.Credentials{
+		ID:       config.RedditClientId,
+		Secret:   config.RedditSecret,
+		Username: config.RedditUserName,
+		Password: config.RedditPassword,
+	}
+
+	client, err := reddit.NewClient(credentials)
 	if err != nil {
 		log.Fatal(err)
 	}
