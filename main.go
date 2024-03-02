@@ -109,7 +109,7 @@ func main() {
 
 	dg.Identify.Intents |= discordgo.IntentGuildMessages
 	dg.Identify.Intents |= discordgo.IntentGuildMembers
-	dg.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+	dg.AddHandler(func(s *discordgo.Session, _ *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 
@@ -133,7 +133,7 @@ func main() {
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(slashCommandDefs))
 
 	utils.RegisterCommands(dg, slashCommandDefs, registeredCommands)
-	dg.AddHandler(func(sess *discordgo.Session, gld *discordgo.GuildCreate) {
+	dg.AddHandler(func(_ *discordgo.Session, gld *discordgo.GuildCreate) {
 		log.Printf("Bot added to new guild: %v", gld.Name)
 		utils.RegisterCommands(dg, slashCommandDefs, registeredCommands)
 	})
