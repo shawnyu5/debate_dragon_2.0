@@ -1,4 +1,4 @@
-FROM golang:1.19.1-alpine3.16 AS build
+FROM golang:1.22.0-alpine3.19 AS build
 
 WORKDIR /bot
 
@@ -13,7 +13,7 @@ COPY ./middware ./middware/
 
 RUN go build -o bot
 
-FROM golang:1.19.1-alpine3.16 AS prod
+FROM golang:1.22.0-alpine3.19 AS prod
 
 WORKDIR /bot
 COPY --from=build /bot/bot ./bot
