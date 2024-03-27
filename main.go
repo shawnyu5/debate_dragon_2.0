@@ -6,19 +6,19 @@ import (
 	"os/signal"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/shawnyu5/debate_dragon_2.0/commands"
-	courseoutline "github.com/shawnyu5/debate_dragon_2.0/commands/courseOutline"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/dd"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/emotes"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/insult"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/memes/mock"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/poll"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/reddit"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
+	"github.com/shawnyu5/debate_dragon_2.0/command"
+	_ "github.com/shawnyu5/debate_dragon_2.0/commands/courseOutline"
+	_ "github.com/shawnyu5/debate_dragon_2.0/commands/dd"
+	_ "github.com/shawnyu5/debate_dragon_2.0/commands/emotes"
+	_ "github.com/shawnyu5/debate_dragon_2.0/commands/insult"
+	_ "github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
+	_ "github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
+	_ "github.com/shawnyu5/debate_dragon_2.0/commands/memes/mock"
+	_ "github.com/shawnyu5/debate_dragon_2.0/commands/reddit"
+	_ "github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/stfu"
+	_ "github.com/shawnyu5/debate_dragon_2.0/commands/stfu"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
 	"github.com/shawnyu5/debate_dragon_2.0/middware"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
@@ -48,53 +48,57 @@ func init() {
 type handlerFunc func(sess *discordgo.Session, i *discordgo.InteractionCreate)
 
 var (
-	// array of all slash commands in this bot
-	allCommands = []commands.Command{
-		reddit.Reddit{},
-		manageIvan.ManageIvan{},
-		poll.Poll{},
-		dd.DD{},
-		insult.Insult{},
-		ivan.Ivan{},
-		rmp.Rmp{},
-		courseoutline.Outline{},
-		snipe.Snipe{},
-		emotes.Emotes{},
-		mock.Mock{},
-		stfu.Stfu{},
-	}
+	// // array of all slash commands in this bot
+	// allCommands = []commands.Command{
+	//    snipe.Snipe{},
+	// }
 
-	// array of slash command defs
-	slashCommandDefs = utils.GetCmdDefs(allCommands)
+	// array of slash command definitions
+	slashCommandDefs = command.GetCmdDefs()
 	// array of command handlers
-	commandHandlers = utils.GetCmdHandler(allCommands)
+	commandHandlers = command.GetCmdHandler()
 	// array of component handlers
-	componentsHandlers = utils.GetComponentHandler(allCommands)
+	componentsHandlers = command.GetComponentHandler()
 )
 
 func init() {
 	dg.AddHandler(func(sess *discordgo.Session, i *discordgo.InteractionCreate) {
 		switch i.Type {
 		// handle slash command response and autocomplete requests the same way
-		case discordgo.InteractionApplicationCommand, discordgo.InteractionApplicationCommandAutocomplete:
-			if handle, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-				cmdObj := commands.CommandStruct{
-					Name:    i.ApplicationCommandData().Name,
-					Handler: handle,
+		case discordgo.InteractionApplicationCommand:
+			if cmd, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+				// command := command.Command{
+				//    EditInteractionResponse: cmd.EditInteractionResponse,
+				//    HandlerFunc:             cmd.HandlerFunc,
+				//    InteractionApplicationCommandAutocomplete: cmd.InteractionApplicationCommandAutocomplete,
+				// }
+				logger := middware.NewLogger(log.New(os.Stdout, "", log.LstdFlags), cmd)
+				if cmd.EditInteractionResponse != nil {
+					logger.EditIteractionResponse(sess, i)
+				} else if cmd.HandlerFunc != nil {
+					logger.HandlerFunc(sess, i)
 				}
-				logger := middware.NewLogger(log.New(os.Stdout, "", log.LstdFlags), cmdObj)
-				logger.Handler(sess, i)
+			} else {
+				utils.SendErrorMessage(sess, i, "")
+			}
+		case discordgo.InteractionApplicationCommandAutocomplete:
+			if cmd, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+				// command := command.Command{
+				//    EditInteractionResponse: handlerFunc,
+				// }
+				logger := middware.NewLogger(log.New(os.Stdout, "", log.LstdFlags), cmd)
+				logger.InteractionApplicationCommandAutocomplete(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")
 			}
 		case discordgo.InteractionMessageComponent:
-			if handle, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
-				cmdObj := commands.CommandStruct{
-					Handler: handle,
+			if handlerFunc, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
+				command := command.Command{
+					EditInteractionResponse: handlerFunc,
 				}
 
-				logger := middware.NewLogger(log.New(os.Stdout, "", log.LstdFlags), cmdObj)
-				logger.Handler(sess, i)
+				logger := middware.NewLogger(log.New(os.Stdout, "", log.LstdFlags), command)
+				logger.EditIteractionResponse(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")
 			}
@@ -132,13 +136,16 @@ func main() {
 		log.Fatalf("Cannot open the session: %v", err)
 	}
 
-	registeredCommands := make([]*discordgo.ApplicationCommand, len(slashCommandDefs))
+	// utils.RegisterCommands(dg, slashCommandDefs, registeredCommands)
+	registeredCommands := command.RegisterCommands(dg)
 
-	utils.RegisterCommands(dg, slashCommandDefs, registeredCommands)
 	dg.AddHandler(func(_ *discordgo.Session, gld *discordgo.GuildCreate) {
 		log.Printf("Bot added to new guild: %v", gld.Name)
-		utils.RegisterCommands(dg, slashCommandDefs, registeredCommands)
+		// utils.RegisterCommands(dg, slashCommandDefs, registeredCommands)
+		command.RegisterCommands(dg)
 	})
+
+	// command.DiscoverCommands()
 
 	defer dg.Close()
 
@@ -149,9 +156,10 @@ func main() {
 
 	// TODO: commands are not being deleted in my own server
 	// only remove commands in production
-	if !c.Development {
-		utils.RemoveCommands(dg, registeredCommands)
-	}
+	// if !c.Development {
+	// utils.RemoveCommands(dg, registeredCommands)
+	command.RemoveCommands(dg, registeredCommands)
+	// }
 
 	log.Println("Gracefully shutting down.")
 }

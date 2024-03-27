@@ -7,126 +7,118 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/shawnyu5/debate_dragon_2.0/commands"
+	"github.com/shawnyu5/debate_dragon_2.0/command"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
-// all ivan related commands
-type Ivan struct{}
-
-// Components implements commands.Command
-func (Ivan) Components() []commands.Component {
-	return nil
-}
-
-// Def implements commands.Command
-func (Ivan) Def() *discordgo.ApplicationCommand {
-	maxLength := float64(1000)
-	emotes := GetAllEmotes()
-	obj := &discordgo.ApplicationCommand{
-		Version:     "1.0",
-		Name:        "ivan",
-		Description: "A command for all things Ivan",
-		Options: []*discordgo.ApplicationCommandOption{
-			{
-				Type:        discordgo.ApplicationCommandOptionInteger,
-				Name:        "list",
-				Description: "Length of the list of Ivan acocounts that has been banned",
-				MaxValue:    maxLength,
-				Required:    false,
-			},
-		},
-	}
-
-	// dynamically add new custom ivan emotes option
-	newOption := discordgo.ApplicationCommandOption{
-		Type:        discordgo.ApplicationCommandOptionString,
-		Name:        "emote",
-		Description: "Send custom Ivan emotes",
-		Required:    false,
-		Choices:     []*discordgo.ApplicationCommandOptionChoice{},
-	}
-	// add the emote names based on the names defined in config.json
-	for name := range emotes {
-		newOption.Choices = append(newOption.Choices, &discordgo.ApplicationCommandOptionChoice{
-			Name:  name,
-			Value: name,
-		})
-	}
-	obj.Options = append(obj.Options, &newOption)
-	return obj
-}
-
-// Handler implements commands.Command
-func (Ivan) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
-	utils.DeferReply(sess, i.Interaction)
-	optionMap := utils.ParseUserOptions(sess, i)
-
-	if optionMap["list"] != nil {
-		listLength := optionMap["list"]
-		bans, err := sess.GuildBans(i.GuildID, 500, "", "")
-		bans = FilterIvanBans(bans, listLength.IntValue())
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		_, err = sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
-			Embeds: &[]*discordgo.MessageEmbed{
-				{
-					Title:       "All banned ivan users",
-					Description: FormatList(bans),
-					Color:       0,
-				},
-			},
-		},
-		)
-		if err != nil {
-			log.Fatal(err)
-		}
-		return FormatList(bans), nil
-	} else if optionMap["emote"] != nil {
+var ivan = command.Command{
+	Name: "ivan",
+	ApplicationCommand: func() *discordgo.ApplicationCommand {
+		maxLength := float64(1000)
 		emotes := GetAllEmotes()
-		chosenEmote := optionMap["emote"].StringValue()
-
-		// if the chosen emote does not exist, send error
-		if emotes[chosenEmote] == "" {
-			utils.SendErrorMessage(sess, i, "Your chosen emote does not exist...")
-		}
-
-		f, err := os.Open(emotes[chosenEmote])
-
-		if err != nil {
-			utils.SendErrorMessage(sess, i, err.Error())
-			log.Fatal(err)
-		}
-
-		_, err = sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
-			Files: []*discordgo.File{
+		obj := &discordgo.ApplicationCommand{
+			Version:     "1.0",
+			Name:        "ivan",
+			Description: "A command for all things Ivan",
+			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Name:        chosenEmote + ".png",
-					ContentType: "image/png",
-					Reader:      f,
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "list",
+					Description: "Length of the list of Ivan acocounts that has been banned",
+					MaxValue:    maxLength,
+					Required:    false,
 				},
 			},
-		})
+		}
 
-		if err != nil {
-			utils.SendErrorMessage(sess, i, err.Error())
-			log.Fatal(err)
+		// dynamically add new custom ivan emotes option
+		newOption := discordgo.ApplicationCommandOption{
+			Type:        discordgo.ApplicationCommandOptionString,
+			Name:        "emote",
+			Description: "Send custom Ivan emotes",
+			Required:    false,
+			Choices:     []*discordgo.ApplicationCommandOptionChoice{},
 		}
-		return "Sent emote", nil
-	} else {
-		content := "Ivan is the best"
-		_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
-			Content: &content,
-		})
-		if err != nil {
-			log.Println(err)
-			return "", err
+		// add the emote names based on the names defined in config.json
+		for name := range emotes {
+			newOption.Choices = append(newOption.Choices, &discordgo.ApplicationCommandOptionChoice{
+				Name:  name,
+				Value: name,
+			})
 		}
-	}
-	return "emote sent", nil
+		obj.Options = append(obj.Options, &newOption)
+		return obj
+	},
+	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+		utils.DeferReply(sess, i.Interaction)
+		optionMap := utils.ParseUserOptions(sess, i)
+
+		if optionMap["list"] != nil {
+			listLength := optionMap["list"]
+			bans, err := sess.GuildBans(i.GuildID, 500, "", "")
+			bans = FilterIvanBans(bans, listLength.IntValue())
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			_, err = sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+				Embeds: &[]*discordgo.MessageEmbed{
+					{
+						Title:       "All banned ivan users",
+						Description: FormatList(bans),
+						Color:       0,
+					},
+				},
+			},
+			)
+			if err != nil {
+				log.Fatal(err)
+			}
+			return FormatList(bans), nil
+		} else if optionMap["emote"] != nil {
+			emotes := GetAllEmotes()
+			chosenEmote := optionMap["emote"].StringValue()
+
+			// if the chosen emote does not exist, send error
+			if emotes[chosenEmote] == "" {
+				utils.SendErrorMessage(sess, i, "Your chosen emote does not exist...")
+			}
+
+			f, err := os.Open(emotes[chosenEmote])
+
+			if err != nil {
+				utils.SendErrorMessage(sess, i, err.Error())
+				log.Fatal(err)
+			}
+
+			_, err = sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+				Files: []*discordgo.File{
+					{
+						Name:        chosenEmote + ".png",
+						ContentType: "image/png",
+						Reader:      f,
+					},
+				},
+			})
+
+			if err != nil {
+				utils.SendErrorMessage(sess, i, err.Error())
+				log.Fatal(err)
+			}
+			return "Sent emote", nil
+		} else {
+			content := "Ivan is the best"
+			_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+				Content: &content,
+			})
+			if err != nil {
+				log.Println(err)
+				return "", err
+			}
+		}
+		return "emote sent", nil
+	},
 }
 
 type Emote struct {
@@ -175,4 +167,8 @@ func GetAllEmotes() map[string]string {
 		emotes[emote.Name] = emote.FileLocation
 	}
 	return emotes
+}
+
+func init() {
+	command.Register(ivan)
 }

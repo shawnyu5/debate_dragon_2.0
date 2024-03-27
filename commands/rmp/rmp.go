@@ -6,56 +6,31 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/shawnyu5/debate_dragon_2.0/commands"
+	"github.com/shawnyu5/debate_dragon_2.0/command"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
 const profSelectMenuID = "prof select menu"
 
-// fetch professor reviews from rmp
-type Rmp struct{}
-
-type state struct {
-	// all seneca profs returned from RMP
-	AllSenecaProfs []ProfNode
-	// user selected prof node
-	SelectedProf ProfNode
-}
-
-var rmpState = state{}
-
-// Components implements commands.Command
-func (Rmp) Components() []commands.Component {
-	return []commands.Component{
-		{
-			ComponentID:      profSelectMenuID,
-			ComponentHandler: menuHandler,
-		},
-	}
-}
-
-// Def implements commands.Command
-func (Rmp) Def() *discordgo.ApplicationCommand {
-	return &discordgo.ApplicationCommand{
-		Name:        "rmp",
-		Version:     "2.0.0",
-		Description: "Get reviews from rate my prof",
-		Options: []*discordgo.ApplicationCommandOption{
-			{
-				Name:         "profname",
-				Description:  "name of the professor to look up",
-				Type:         discordgo.ApplicationCommandOptionString,
-				Required:     true,
-				Autocomplete: true,
+var rmp = command.Command{
+	Name: "rmp",
+	ApplicationCommand: func() *discordgo.ApplicationCommand {
+		return &discordgo.ApplicationCommand{
+			Name:        "rmp",
+			Version:     "2.0.0",
+			Description: "Get reviews from rate my prof",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Name:         "profname",
+					Description:  "name of the professor to look up",
+					Type:         discordgo.ApplicationCommandOptionString,
+					Required:     true,
+					Autocomplete: true,
+				},
 			},
-		},
-	}
-}
-
-// Handler implements commands.Command
-func (Rmp) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
-	switch i.Type {
-	case discordgo.InteractionApplicationCommand:
+		}
+	},
+	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		options := utils.ParseUserOptions(sess, i)
 		profName := options["profname"].StringValue()
 		searchResult := SearchRmpProfByName(profName)
@@ -125,15 +100,34 @@ func (Rmp) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (str
 			return "end of case", nil
 		}
 
-	case discordgo.InteractionApplicationCommandAutocomplete:
+	},
+	InteractionApplicationCommandAutocomplete: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		err := autoCompleteHandler(sess, i)
 		if err != nil {
 			return "", err
 		}
 		return "Filled in auto complete menu", nil
-	}
-	return "Filled in auto complete menu", nil
+	},
+
+	Components: []struct {
+		ComponentID      string
+		ComponentHandler command.HandlerFunc
+	}{
+		{
+			ComponentID:      profSelectMenuID,
+			ComponentHandler: menuHandler,
+		},
+	},
 }
+
+type state struct {
+	// all seneca profs returned from RMP
+	AllSenecaProfs []ProfNode
+	// user selected prof node
+	SelectedProf ProfNode
+}
+
+var rmpState = state{}
 
 // menuHandler handles when an option is selected in the select menu
 func menuHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
@@ -252,4 +246,8 @@ func autoCompleteHandler(sess *discordgo.Session, i *discordgo.InteractionCreate
 		return err
 	}
 	return nil
+}
+
+func init() {
+	command.Register(rmp)
 }

@@ -6,31 +6,21 @@ import (
 	"math/rand/v2"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/shawnyu5/debate_dragon_2.0/commands"
+	"github.com/shawnyu5/debate_dragon_2.0/command"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 	"github.com/vartanbeno/go-reddit/v2/reddit"
 )
 
-type Reddit struct{}
-
-// Components implements commands.Command.
-func (Reddit) Components() []commands.Component {
-	return []commands.Component{}
-}
-
-// Def implements commands.Command.
-func (Reddit) Def() *discordgo.ApplicationCommand {
-	return &discordgo.ApplicationCommand{
-		Version:     "1.0.0",
-		Name:        "reddit",
-		Description: "Get a random Reddit post from r/Seneca",
-	}
-}
-
-// Handler implements commands.Command.
-func (Reddit) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
-	switch i.Type {
-	case discordgo.InteractionApplicationCommand:
+var redditCmd = command.Command{
+	Name: "reddit",
+	ApplicationCommand: func() *discordgo.ApplicationCommand {
+		return &discordgo.ApplicationCommand{
+			Version:     "1.0.0",
+			Name:        "reddit",
+			Description: "Get a random Reddit post from r/Seneca",
+		}
+	},
+	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		err := utils.DeferReply(sess, i.Interaction)
 		if err != nil {
 			return "", err
@@ -46,8 +36,8 @@ func (Reddit) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (
 		if err != nil {
 			return "", err
 		}
-	}
-	return "Send r/Seneca reddit post", nil
+		return "Send r/Seneca reddit post", nil
+	},
 }
 
 // getRandomRedditPost get a random post from r/Seneca
@@ -79,4 +69,8 @@ func getRandomRedditPost() (*reddit.Post, error) {
 	randomNumber := rand.IntN(30)
 	return posts[randomNumber], nil
 
+}
+
+func init() {
+	command.Register(redditCmd)
 }

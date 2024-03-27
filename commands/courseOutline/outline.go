@@ -10,51 +10,30 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/gocolly/colly"
-	"github.com/shawnyu5/debate_dragon_2.0/commands"
+	"github.com/shawnyu5/debate_dragon_2.0/command"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
-// fetch the outline for a course at Seneca
-type Outline struct{}
-
-type CourseInfo struct {
-	// title of course
-	Title string
-	// course description
-	Description string
-	URL         string
-}
-
-// Components implements commands.Command
-func (Outline) Components() []commands.Component {
-	return nil
-}
-
-// Def implements commands.Command
-func (Outline) Def() *discordgo.ApplicationCommand {
-	return &discordgo.ApplicationCommand{
-		Version:     "1.0.1",
-		Type:        0,
-		Name:        "outline",
-		Description: "Find a course outline",
-		Options: []*discordgo.ApplicationCommandOption{
-			{
-				Type:         discordgo.ApplicationCommandOptionString,
-				Name:         "course_code",
-				Description:  "course code",
-				Required:     true,
-				Autocomplete: true,
+var outline = command.Command{
+	Name: "outline",
+	ApplicationCommand: func() *discordgo.ApplicationCommand {
+		return &discordgo.ApplicationCommand{
+			Version:     "1.0.1",
+			Type:        0,
+			Name:        "outline",
+			Description: "Find a course outline",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "course_code",
+					Description:  "course code",
+					Required:     true,
+					Autocomplete: true,
+				},
 			},
-		},
-	}
-}
-
-// Handler implements commands.Command
-func (Outline) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
-	switch i.Type {
-	case discordgo.InteractionApplicationCommandAutocomplete:
-		return GenerateSubjectCodeCompletion(sess, i)
-	default:
+		}
+	},
+	EditInteractionResponse: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		utils.DeferReply(sess, i.Interaction)
 		url := GeneratewebPageURL(sess, i)
 		courseInfo := GetCourseInfo(url)
@@ -70,21 +49,25 @@ func (Outline) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) 
 					Description: courseInfo.Description,
 					Timestamp:   "",
 					Color:       0,
-					// Footer:      &discordgo.MessageEmbedFooter{},
-					// Image:       &discordgo.MessageEmbedImage{},
-					// Thumbnail:   &discordgo.MessageEmbedThumbnail{},
-					// Video:       &discordgo.MessageEmbedVideo{},
-					// Provider:    &discordgo.MessageEmbedProvider{},
-					// Author:      &discordgo.MessageEmbedAuthor{},
-					// Fields:      []*discordgo.MessageEmbedField{},
 				},
 			},
 			Files:           []*discordgo.File{},
 			AllowedMentions: &discordgo.MessageAllowedMentions{},
 		})
 
-	}
-	return "hello", nil
+		return fmt.Sprintf("Send course outline for `%s`", courseInfo.Title), nil
+	},
+	InteractionApplicationCommandAutocomplete: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+		return GenerateSubjectCodeCompletion(sess, i)
+	},
+}
+
+type CourseInfo struct {
+	// title of course
+	Title string
+	// course description
+	Description string
+	URL         string
 }
 
 // GenerateSubjectCodeCompletion get the subject codes to fill in for autocompletion based on current user input
@@ -254,4 +237,8 @@ func CreateSchoolMenu(sess *discordgo.Session, i *discordgo.InteractionCreate) (
 	}
 	// sess.InteractionRespond(i.Interaction, response)
 	return "Filled out school for Autocomplete", nil
+}
+
+func init() {
+	command.Register(outline)
 }
