@@ -65,9 +65,9 @@ func constructEmbed(msgs []discordgo.Message) *discordgo.MessageEmbed {
 	for _, msg := range msgs {
 		timeStamp, err := discordgo.SnowflakeTimestamp(msg.ID)
 		if err != nil {
-			log.Printf("Failed to calculate time stamp for message %s", msg.Content)
-			// timeStamp = msg.Timestamp
-			continue
+			log.Printf("Failed to calculate time stamp from message ID %s for message %s", msg.ID, msg.Content)
+			timeStamp = msg.Timestamp
+			// continue
 		}
 
 		embed.Description = fmt.Sprintf("%s\n- %s (sent on %s)", embed.Description, msg.Content, timeStamp.Format("2006-01-02"))
