@@ -7,6 +7,8 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
+	_ "github.com/shawnyu5/debate_dragon_2.0/commands/blackmail"
+
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/courseOutline"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/dd"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/emotes"
@@ -18,7 +20,8 @@ import (
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/stfu"
-	_ "github.com/shawnyu5/debate_dragon_2.0/commands/stfu"
+
+	// "github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
 	"github.com/shawnyu5/debate_dragon_2.0/middware"
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
@@ -67,11 +70,6 @@ func init() {
 		// handle slash command response and autocomplete requests the same way
 		case discordgo.InteractionApplicationCommand:
 			if cmd, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-				// command := command.Command{
-				//    EditInteractionResponse: cmd.EditInteractionResponse,
-				//    HandlerFunc:             cmd.HandlerFunc,
-				//    InteractionApplicationCommandAutocomplete: cmd.InteractionApplicationCommandAutocomplete,
-				// }
 				logger := middware.NewLogger(log.New(os.Stdout, "", log.LstdFlags), cmd)
 				if cmd.EditInteractionResponse != nil {
 					logger.EditIteractionResponse(sess, i)
@@ -120,7 +118,9 @@ func main() {
 	})
 
 	dg.AddHandler(func(_ *discordgo.Session, mess *discordgo.MessageDelete) {
-		snipe.LastDeletedMessage = mess
+		// fmt.Printf("deleted message id: %+v", mess.ID)
+		snipe.LastDeletedMessage = *mess
+		snipe.TrackDeletedMessage(*mess)
 	})
 
 	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {

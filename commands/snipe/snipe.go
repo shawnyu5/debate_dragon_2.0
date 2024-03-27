@@ -9,16 +9,25 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
+// map of guild id to message id to discord message
+var AllMessages = make(map[string]map[string]discordgo.Message)
+var LastDeletedMessage = discordgo.MessageDelete{
+	Message: &discordgo.Message{
+		GuildID: "",
+		ID:      "",
+	},
+}
+
+// List of deleted message IDs
+var DeletedMessages []discordgo.MessageDelete
+
 var snipe = command.Command{
 	Name: "snipe",
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		return &discordgo.ApplicationCommand{
-			Version:                  "1.0.0",
-			Type:                     0,
-			Name:                     "snipe",
-			Description:              "Get the contents of the last deleted message",
-			DescriptionLocalizations: &map[discordgo.Locale]string{},
-			Options:                  []*discordgo.ApplicationCommandOption{},
+			Version:     "1.0.0",
+			Name:        "snipe",
+			Description: "Get the contents of the last deleted message",
 		}
 	},
 	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
@@ -32,7 +41,7 @@ var snipe = command.Command{
 					{
 						Type:        discordgo.EmbedTypeArticle,
 						Title:       "Last Deleted Message",
-						Description: "No deleted message",
+						Description: "No one has deleted a message in a while...",
 					},
 				},
 			})
@@ -45,58 +54,31 @@ var snipe = command.Command{
 		webHookEdit := &discordgo.WebhookEdit{}
 
 		// if there is an image, send it
-		fmt.Printf("Handler len(deletedMess.Attachments): %v\n", len(deletedMess.Attachments)) // __AUTO_GENERATED_PRINT_VAR__
 		if len(deletedMess.Attachments) > 0 {
 			webHookEdit = &discordgo.WebhookEdit{
-				Content:    new(string),
-				Components: &[]discordgo.MessageComponent{},
 				Embeds: &[]*discordgo.MessageEmbed{
 					{
-						URL:         "",
 						Type:        discordgo.EmbedTypeArticle,
-						Title:       "Snipe",
+						Title:       "Sniped",
 						Description: fmt.Sprintf("<@%s>", deletedMess.Author.ID),
-						Timestamp:   "",
-						Color:       0,
-						Footer:      &discordgo.MessageEmbedFooter{},
 						Image: &discordgo.MessageEmbedImage{
 							URL: deletedMess.Attachments[0].URL,
 						},
-						Thumbnail: &discordgo.MessageEmbedThumbnail{},
-						Video:     &discordgo.MessageEmbedVideo{},
-						Provider:  &discordgo.MessageEmbedProvider{},
-						Author:    &discordgo.MessageEmbedAuthor{},
-						Fields:    []*discordgo.MessageEmbedField{},
 					},
 				},
-				Files:           []*discordgo.File{},
-				AllowedMentions: &discordgo.MessageAllowedMentions{},
 			}
 
 		} else {
 			// otherwise send the message
 			webHookEdit = &discordgo.WebhookEdit{
-				Content:    new(string),
-				Components: &[]discordgo.MessageComponent{},
 				Embeds: &[]*discordgo.MessageEmbed{
 					{
 						URL:         "",
 						Type:        discordgo.EmbedTypeArticle,
 						Title:       "Snipe",
 						Description: fmt.Sprintf("%s - <@%s>", deletedMess.Content, deletedMess.Author.ID),
-						Timestamp:   "",
-						Color:       0,
-						Footer:      &discordgo.MessageEmbedFooter{},
-						Image:       &discordgo.MessageEmbedImage{},
-						Thumbnail:   &discordgo.MessageEmbedThumbnail{},
-						Video:       &discordgo.MessageEmbedVideo{},
-						Provider:    &discordgo.MessageEmbedProvider{},
-						Author:      &discordgo.MessageEmbedAuthor{},
-						Fields:      []*discordgo.MessageEmbedField{},
 					},
 				},
-				Files:           []*discordgo.File{},
-				AllowedMentions: &discordgo.MessageAllowedMentions{},
 			}
 
 		}
@@ -108,17 +90,15 @@ var snipe = command.Command{
 	},
 }
 
-// map of guild id: { message id : discord message }
-var AllMessages = make(map[string]map[string]discordgo.Message)
-var LastDeletedMessage = &discordgo.MessageDelete{}
-
-// trackMessage adds a message to allMessages map
-// mess: the message to track
+// TrackMessage adds a message to allMessages map.
+//
+// We will only keep track of 1000 messages per guild. When we reach the 1000 message limit, delete the oldest message
 func TrackMessage(mess *discordgo.MessageCreate) {
 	// if the map doesn't exist, initialize it
 	if AllMessages[mess.GuildID] == nil {
 		AllMessages[mess.GuildID] = map[string]discordgo.Message{}
 	}
+
 	// add message to map
 	AllMessages[mess.GuildID][mess.ID] = *mess.Message
 
@@ -126,8 +106,8 @@ func TrackMessage(mess *discordgo.MessageCreate) {
 	oldestMessage := discordgo.Message{}
 	oldestTimeDuration := time.Duration(0)
 
-	// if we have more than 100 messages stored for this guild, then remove the oldest message
-	if len(AllMessages[mess.GuildID]) > 100 {
+	// if we have more than 1000 messages stored for this guild, then remove the oldest message
+	if len(AllMessages[mess.GuildID]) > 1000 {
 		for _, message := range AllMessages[mess.GuildID] {
 			timeDiff := time.Since(message.Timestamp.UTC())
 			if oldestTimeDuration < timeDiff {
@@ -137,6 +117,16 @@ func TrackMessage(mess *discordgo.MessageCreate) {
 		}
 		delete(AllMessages[mess.GuildID], oldestMessage.ID)
 	}
+}
+
+// TrackDeletedMessage tracks the last 10 deleted messages, excluding their content.
+//
+// When there are 10 messages, the oldest message will be deleted.
+func TrackDeletedMessage(mess discordgo.MessageDelete) {
+	if len(DeletedMessages) == 10 {
+		DeletedMessages = DeletedMessages[1:]
+	}
+	DeletedMessages = append(DeletedMessages, mess)
 }
 
 // GetMessageByID returns the message with the given id from the given guild.
