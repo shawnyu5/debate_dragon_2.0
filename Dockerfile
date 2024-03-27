@@ -18,7 +18,7 @@ FROM golang:1.22.0-alpine3.19 AS prod
 
 WORKDIR /bot
 COPY . .
-# COPY --from=build /bot/bot ./bot
+COPY --from=build /bot/bot ./bot
 # COPY --from=build /bot/commands/ ./commands/
 # COPY --from=build /bot/config.json ./config.json
 # COPY --from=build /bot/media ./media
