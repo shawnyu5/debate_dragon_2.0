@@ -1,3 +1,6 @@
 .git
 .air.toml
 .gitignore
+.env
+fly.toml
+LICENSE
