@@ -8,9 +8,100 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/shawnyu5/debate_dragon_2.0/commands"
+	"github.com/shawnyu5/debate_dragon_2.0/command"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
+
+var stfu = command.Command{
+	Name: "stfu",
+	ApplicationCommand: func() *discordgo.ApplicationCommand {
+		minLengthValue := float64(5)
+		return &discordgo.ApplicationCommand{
+			Version:     "1.0.0",
+			Type:        0,
+			Name:        "stfu",
+			Description: "tell a user to stfu for a selected period of time",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "the user to tell stfu to",
+					Required:    true,
+				},
+				{
+					Type:         discordgo.ApplicationCommandOptionInteger,
+					Name:         "length",
+					Description:  "the length of time to do this for",
+					ChannelTypes: []discordgo.ChannelType{},
+					Autocomplete: false,
+					Choices:      []*discordgo.ApplicationCommandOptionChoice{},
+					MinValue:     &minLengthValue,
+					MaxValue:     60,
+				},
+			},
+		}
+	},
+	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+		userOptions := utils.ParseUserOptions(sess, i)
+		// if a user set a custom length, use that
+		if val, ok := userOptions["length"]; ok {
+			length := val.IntValue()
+			// parse duration into seconds
+			duration, err := time.ParseDuration(strconv.Itoa(int(length)) + "s")
+			if err != nil {
+				return "", err
+			}
+
+			State.Length = duration
+		}
+		if userOptions["user"].UserValue(sess).ID == "903372725605785761" {
+			sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Embeds: []*discordgo.MessageEmbed{
+						{
+							Title:       "stfu",
+							Description: "Can not tell the bot to stfu",
+						},
+					},
+				},
+			})
+			return "", errors.New("can not tell the bot to stfu")
+		}
+
+		State.User = userOptions["user"].UserValue(sess)
+		State.InUse = true
+
+		if !State.IsCoolDown {
+			sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Embeds: []*discordgo.MessageEmbed{
+						{
+							Title:       "stfu",
+							Description: fmt.Sprintf("<@%s> will be told to stfu for %s seconds", State.User.ID, State.Length.String()),
+						},
+					},
+				},
+			})
+			return "stfu sequence initiated", nil
+		} else {
+			sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Embeds: []*discordgo.MessageEmbed{
+						{
+							Title:       "stfu",
+							Description: "Within cool down period...",
+							Timestamp:   "",
+						},
+					},
+				},
+			})
+			return "stfu is in cool down", nil
+		}
+	},
+}
 
 // tell a user to stfu for a selected period of time
 type Stfu struct{}
@@ -41,102 +132,6 @@ func NewState() StfuState {
 
 var State = NewState()
 
-// Components implements commands.Command
-func (Stfu) Components() []commands.Component {
-	return nil
-}
-
-// Def implements commands.Command
-func (Stfu) Def() *discordgo.ApplicationCommand {
-	minLengthValue := float64(5)
-	return &discordgo.ApplicationCommand{
-		Version:     "1.0.0",
-		Type:        0,
-		Name:        "stfu",
-		Description: "tell a user to stfu for a selected period of time",
-		Options: []*discordgo.ApplicationCommandOption{
-			{
-				Type:        discordgo.ApplicationCommandOptionUser,
-				Name:        "user",
-				Description: "the user to tell stfu to",
-				Required:    true,
-			},
-			{
-				Type:         discordgo.ApplicationCommandOptionInteger,
-				Name:         "length",
-				Description:  "the length of time to do this for",
-				ChannelTypes: []discordgo.ChannelType{},
-				Autocomplete: false,
-				Choices:      []*discordgo.ApplicationCommandOptionChoice{},
-				MinValue:     &minLengthValue,
-				MaxValue:     60,
-			},
-		},
-	}
-}
-
-// Handler implements commands.Command
-func (Stfu) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
-	userOptions := utils.ParseUserOptions(sess, i)
-	// if a user set a custom length, use that
-	if val, ok := userOptions["length"]; ok {
-		length := val.IntValue()
-		// parse duration into seconds
-		duration, err := time.ParseDuration(strconv.Itoa(int(length)) + "s")
-		if err != nil {
-			return "", err
-		}
-
-		State.Length = duration
-	}
-	if userOptions["user"].UserValue(sess).ID == "903372725605785761" {
-		sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Embeds: []*discordgo.MessageEmbed{
-					{
-						Title:       "stfu",
-						Description: "Can not tell the bot to stfu",
-					},
-				},
-			},
-		})
-		return "", errors.New("can not tell the bot to stfu")
-	}
-
-	State.User = userOptions["user"].UserValue(sess)
-	State.InUse = true
-
-	if !State.IsCoolDown {
-		sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Embeds: []*discordgo.MessageEmbed{
-					{
-						Title:       "stfu",
-						Description: fmt.Sprintf("<@%s> will be told to stfu for %s seconds", State.User.ID, State.Length.String()),
-					},
-				},
-			},
-		})
-		return "stfu sequence initiated", nil
-	} else {
-		sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Embeds: []*discordgo.MessageEmbed{
-					{
-						Title:       "stfu",
-						Description: "Within cool down period...",
-						Timestamp:   "",
-					},
-				},
-			},
-		})
-		return "stfu is in cool down", nil
-	}
-}
-
 // TellUser tell a user to stfu on every message they send.
 // sess: discord session.
 // mess: the message to check.
@@ -163,4 +158,8 @@ func TellUser(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 			State.IsCoolDown = false
 		})
 	})
+}
+
+func init() {
+	command.Register(stfu)
 }

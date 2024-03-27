@@ -10,81 +10,73 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/fogleman/gg"
-	"github.com/shawnyu5/debate_dragon_2.0/commands"
+	"github.com/shawnyu5/debate_dragon_2.0/command"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
-// make fun of a user's last message
-type Mock struct{}
-
-// Components implements commands.Command
-func (Mock) Components() []commands.Component {
-	return nil
-}
-
-// Def implements commands.Command
-func (Mock) Def() *discordgo.ApplicationCommand {
-	return &discordgo.ApplicationCommand{
-		Version:     "1.0.0",
-		Name:        "mock",
-		Description: "Mock a user using the sponge bob meme",
-		Options: []*discordgo.ApplicationCommandOption{
-			{
-				Type:        discordgo.ApplicationCommandOptionUser,
-				Name:        "user",
-				Description: "The user to mock",
-				Required:    true,
+var mock = command.Command{
+	Name: "mock",
+	ApplicationCommand: func() *discordgo.ApplicationCommand {
+		return &discordgo.ApplicationCommand{
+			Version:     "1.0.0",
+			Name:        "mock",
+			Description: "Mock a user using the sponge bob meme",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "The user to mock",
+					Required:    true,
+				},
 			},
-		},
-	}
-}
+		}
+	},
+	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+		userOptions := utils.ParseUserOptions(sess, i)
+		user := userOptions["user"].UserValue(sess)
+		mess, err := GetUserLastMessage(sess, userOptions["user"].UserValue(sess), i.ChannelID)
+		if err != nil {
+			return "", err
+		}
 
-// Handler implements commands.Command
-func (Mock) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
-	userOptions := utils.ParseUserOptions(sess, i)
-	user := userOptions["user"].UserValue(sess)
-	mess, err := GetUserLastMessage(sess, userOptions["user"].UserValue(sess), i.ChannelID)
-	if err != nil {
-		return "", err
-	}
+		err = GenMeme(fmt.Sprintf("@%s: %s", user.Username, MockText(mess.Content)))
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	err = GenMeme(fmt.Sprintf("@%s: %s", user.Username, MockText(mess.Content)))
-	if err != nil {
-		log.Fatal(err)
-	}
+		out, err := os.Open("out.png")
+		if err != nil {
+			return "", err
+		}
 
-	out, err := os.Open("out.png")
-	if err != nil {
-		return "", err
-	}
-
-	defer out.Close()
-	_, err = sess.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
-		Files: []*discordgo.File{
-			{
-				Name:        "out.png",
-				ContentType: "image/png",
-				Reader:      out,
+		defer out.Close()
+		_, err = sess.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
+			Files: []*discordgo.File{
+				{
+					Name:        "out.png",
+					ContentType: "image/png",
+					Reader:      out,
+				},
 			},
-		},
-	})
+		})
 
-	if err != nil {
-		return "", err
-	}
+		if err != nil {
+			return "", err
+		}
 
-	err = sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Content: fmt.Sprintf("<@%s> mocked", user.ID),
-			Flags:   discordgo.MessageFlagsEphemeral,
-		},
-	})
-	if err != nil {
-		return "", err
-	}
+		err = sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: fmt.Sprintf("<@%s> mocked", user.ID),
+				Flags:   discordgo.MessageFlagsEphemeral,
+			},
+		})
+		if err != nil {
+			return "", err
+		}
 
-	return fmt.Sprintf("%s mocked", user.Username), nil
+		return fmt.Sprintf("%s mocked", user.Username), nil
+	},
 }
 
 func GenMeme(text string) error {
@@ -155,4 +147,8 @@ func MockText(text string) string {
 		runes = append(runes, c)
 	}
 	return string(runes)
+}
+
+func init() {
+	command.Register(mock)
 }

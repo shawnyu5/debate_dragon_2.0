@@ -7,80 +7,71 @@ import (
 	"net/http"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/shawnyu5/debate_dragon_2.0/commands"
+	"github.com/shawnyu5/debate_dragon_2.0/command"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
-// generate an insult directed at a user
-type Insult struct{}
-
-// Components implements commands.Command
-func (Insult) Components() []commands.Component {
-	return nil
-}
-
-// Def implements commands.Command
-func (Insult) Def() *discordgo.ApplicationCommand {
-	obj := &discordgo.ApplicationCommand{
-		Name:        "insult",
-		Description: "Ping someone to deliver a gut wrenching insult",
-		Options: []*discordgo.ApplicationCommandOption{
-			// get the user to insult
-			{
-				Name:        "user",
-				Description: "user to insult",
-				Type:        discordgo.ApplicationCommandOptionUser,
-				Required:    true,
+var insult = command.Command{
+	Name: "insult",
+	ApplicationCommand: func() *discordgo.ApplicationCommand {
+		return &discordgo.ApplicationCommand{
+			Name:        "insult",
+			Description: "Ping someone to deliver a gut wrenching insult",
+			Options: []*discordgo.ApplicationCommandOption{
+				// get the user to insult
+				{
+					Name:        "user",
+					Description: "user to insult",
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Required:    true,
+				},
+				// have the option to send insult anonymously
+				{
+					Name:        "anonymous",
+					Description: "whether or not to send the insult anonymously",
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Required:    false,
+				},
 			},
-			// have the option to send insult anonymously
-			{
-				Name:        "anonymous",
-				Description: "whether or not to send the insult anonymously",
-				Type:        discordgo.ApplicationCommandOptionBoolean,
-				Required:    false,
-			},
-		},
-	}
-	return obj
-}
-
-// Handler implements commands.Command
-func (Insult) Handler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
-	optionsMap := utils.ParseUserOptions(sess, i)
-	user := optionsMap["user"].UserValue(sess)
-	if user.ID == "652511543845453855" {
-		user = i.Member.User
-		log.Println("I am being insulted. This will not fly. Insult this user instead", user)
-	}
-	insult := GetInsult(user)
-
-	// send a normal insult if nothing is passed in, or if anonymous flag is set to false
-	if optionsMap["anonymous"] == nil || !optionsMap["anonymous"].BoolValue() {
-		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Content: insult,
-			},
-		})
-		if err != nil {
-			log.Fatalln(err)
 		}
-	} else {
-		// send an anonymous insult
-		_, err := sess.ChannelMessageSend(i.ChannelID, insult)
-		if err != nil {
-			log.Fatalln(err)
+	},
+	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+		optionsMap := utils.ParseUserOptions(sess, i)
+		user := optionsMap["user"].UserValue(sess)
+		if user.ID == "652511543845453855" {
+			user = i.Member.User
+			log.Println("I am being insulted. This will not fly. Insult this user instead", user)
 		}
+		insult := GetInsult(user)
 
-		sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Content: "Your insult has been send >:)",
-				Flags:   discordgo.MessageFlagsEphemeral,
-			},
-		})
-	}
-	return insult, nil
+		// send a normal insult if nothing is passed in, or if anonymous flag is set to false
+		if optionsMap["anonymous"] == nil || !optionsMap["anonymous"].BoolValue() {
+			err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: insult,
+				},
+			})
+			if err != nil {
+				log.Fatalln(err)
+			}
+		} else {
+			// send an anonymous insult
+			_, err := sess.ChannelMessageSend(i.ChannelID, insult)
+			if err != nil {
+				log.Fatalln(err)
+			}
+
+			sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Your insult has been send >:)",
+					Flags:   discordgo.MessageFlagsEphemeral,
+				},
+			})
+		}
+		return insult, nil
+	},
 }
 
 // GetInsult return an insult ping the user passed into the function
@@ -95,4 +86,8 @@ func GetInsult(user *discordgo.User) string {
 		log.Println(err)
 	}
 	return fmt.Sprintf("<@%v> %v", user.ID, string(body))
+}
+
+func init() {
+	command.Register(insult)
 }
