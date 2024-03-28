@@ -1,14 +1,13 @@
 package main
 
 import (
-	"log"
 	"os"
 	"os/signal"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/charmbracelet/log"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/blackmail"
-
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/courseOutline"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/dd"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/emotes"
@@ -16,6 +15,7 @@ import (
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/ivan"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/manageIvan"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/memes/mock"
+	messagetracking "github.com/shawnyu5/debate_dragon_2.0/commands/messageTracking"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/reddit"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
@@ -70,7 +70,7 @@ func init() {
 		// handle slash command response and autocomplete requests the same way
 		case discordgo.InteractionApplicationCommand:
 			if cmd, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-				logger := middware.NewLogger(log.New(os.Stdout, "", log.LstdFlags), cmd)
+				logger := middware.NewLogger(log.New(os.Stdout), cmd)
 				if cmd.EditInteractionResponse != nil {
 					logger.EditIteractionResponse(sess, i)
 				} else if cmd.HandlerFunc != nil {
@@ -84,7 +84,7 @@ func init() {
 				// command := command.Command{
 				//    EditInteractionResponse: handlerFunc,
 				// }
-				logger := middware.NewLogger(log.New(os.Stdout, "", log.LstdFlags), cmd)
+				logger := middware.NewLogger(log.New(os.Stdout), cmd)
 				logger.InteractionApplicationCommandAutocomplete(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")
@@ -95,7 +95,7 @@ func init() {
 					EditInteractionResponse: handlerFunc,
 				}
 
-				logger := middware.NewLogger(log.New(os.Stdout, "", log.LstdFlags), command)
+				logger := middware.NewLogger(log.New(os.Stdout), command)
 				logger.EditIteractionResponse(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")
@@ -109,24 +109,28 @@ func main() {
 		generatedocs.Generate()
 	}()
 	// create database dir
-	os.Mkdir(c.DbPath, 0755)
+	// os.Mkdir(c.DbPath, 0755)
+	log.SetLevel(log.DebugLevel)
+	log.Info("Starting bot...")
 
 	dg.Identify.Intents |= discordgo.IntentGuildMessages
 	dg.Identify.Intents |= discordgo.IntentGuildMembers
 	dg.AddHandler(func(s *discordgo.Session, _ *discordgo.Ready) {
-		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
+		log.Info("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 
 	dg.AddHandler(func(_ *discordgo.Session, mess *discordgo.MessageDelete) {
 		// fmt.Printf("deleted message id: %+v", mess.ID)
 		snipe.LastDeletedMessage = *mess
-		snipe.TrackDeletedMessage(*mess)
+		// snipe.TrackDeletedMessage(*mess)
+		messagetracking.TrackDeletedMessage(mess.GuildID, mess.ID)
 	})
 
 	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 		// fmt.Println(mess.Content)
 		// subforcarmen.Listen(sess, mess.Message)
-		snipe.TrackMessage(mess)
+		// snipe.TrackMessage(mess)
+		messagetracking.TrackAllSentMessage(mess)
 		stfu.TellUser(sess, mess)
 	})
 
@@ -151,15 +155,14 @@ func main() {
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
-	log.Println("Press Ctrl+C to exit")
+	log.Info("Press Ctrl+C to exit")
 	<-stop
 
 	// TODO: commands are not being deleted in my own server
 	// only remove commands in production
-	// if !c.Development {
-	// utils.RemoveCommands(dg, registeredCommands)
-	command.RemoveCommands(dg, registeredCommands)
-	// }
+	if !c.Development {
+		command.RemoveCommands(dg, registeredCommands)
+	}
 
-	log.Println("Gracefully shutting down.")
+	log.Info("Gracefully shutting down.")
 }

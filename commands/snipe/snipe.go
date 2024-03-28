@@ -93,6 +93,8 @@ var snipe = command.Command{
 // TrackMessage adds a message to allMessages map.
 //
 // We will only keep track of 1000 messages per guild. When we reach the 1000 message limit, delete the oldest message
+//
+// Deprecated: use messagetracking.TrackAllSentMessage() instead
 func TrackMessage(mess *discordgo.MessageCreate) {
 	// if the map doesn't exist, initialize it
 	if AllMessages[mess.GuildID] == nil {
@@ -122,6 +124,8 @@ func TrackMessage(mess *discordgo.MessageCreate) {
 // TrackDeletedMessage tracks the last 10 deleted messages, excluding their content.
 //
 // When there are 10 messages, the oldest message will be deleted.
+//
+// Deprecated: use messagetracking.TrackDeletedMessage() instead
 func TrackDeletedMessage(mess discordgo.MessageDelete) {
 	if len(DeletedMessages) == 10 {
 		DeletedMessages = DeletedMessages[1:]
@@ -133,6 +137,8 @@ func TrackDeletedMessage(mess discordgo.MessageDelete) {
 // guildID: the guild id the message is from.
 // messageID: the id of the message.
 // return: the discord message that was deleted.
+//
+// Deprecated: use messagetracking.GetMessageByID() instead
 func GetMessageByID(guildID, messageID string) discordgo.Message {
 	return AllMessages[guildID][messageID]
 }

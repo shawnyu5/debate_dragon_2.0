@@ -6,7 +6,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
+	messagetracking "github.com/shawnyu5/debate_dragon_2.0/commands/messageTracking"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
@@ -31,10 +31,7 @@ var blackmail = command.Command{
 		utils.DeferReply(sess, i.Interaction)
 		input := utils.ParseUserOptions(sess, i)
 		user := input["user"].UserValue(sess)
-		msgs := []discordgo.Message{}
-		for _, deletedMsg := range snipe.DeletedMessages {
-			msgs = append(msgs, snipe.GetMessageByID(deletedMsg.GuildID, deletedMsg.ID))
-		}
+		msgs := messagetracking.GetDeletedMessagesByAuthorID(i.GuildID, user.ID)
 
 		if len(msgs) == 0 {
 			content := fmt.Sprintf("<@%s> hasnt deleted any messages recently", user.ID)
@@ -44,7 +41,6 @@ var blackmail = command.Command{
 			return fmt.Sprintf("User %s has not deleted any messages recently", user.Username), nil
 		}
 
-		// fmt.Printf("%+v\n", msgs)
 		content := fmt.Sprintf("<@%s>'s last %d deleted messages", user.ID, len(msgs))
 		embed := constructEmbed(msgs)
 		sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{

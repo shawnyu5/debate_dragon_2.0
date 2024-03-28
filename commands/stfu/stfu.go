@@ -3,11 +3,11 @@ package stfu
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strconv"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/charmbracelet/log"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
@@ -137,10 +137,10 @@ var State = NewState()
 // mess: the message to check.
 func TellUser(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 	if !State.InUse && !State.IsCoolDown {
-		log.Println("stfu is not in use right now")
+		log.Debug("stfu is not in use right now")
 		return
 	} else if mess.Author.ID != State.User.ID {
-		log.Println("not the user to stfu to")
+		log.Debug("not the user to stfu to")
 		return
 	}
 

@@ -1,10 +1,8 @@
 package command
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/bwmarrin/discordgo"
+	"github.com/charmbracelet/log"
 )
 
 // Contains all slash commands for this bot
@@ -79,7 +77,7 @@ func GetComponentHandler() map[string]HandlerFunc {
 
 // RemoveCommands removes all registered slash commands from all servers the bot is in
 func RemoveCommands(sess *discordgo.Session, registeredCommands []*discordgo.ApplicationCommand) {
-	log.Println("Removing commands...")
+	log.Info("Removing commands...")
 	for _, gld := range sess.State.Guilds {
 		for _, cmd := range registeredCommands {
 			err := sess.ApplicationCommandDelete(sess.State.User.ID, gld.ID, cmd.ID)
@@ -114,9 +112,9 @@ func RegisterCommands(sess *discordgo.Session) (registeredCommands []*discordgo.
 		for _, v := range CmdStore {
 			cmd, err := sess.ApplicationCommandCreate(sess.State.User.ID, gld.ID, v.ApplicationCommand())
 			if err != nil {
-				log.Panicf("Cannot create '%v' command: %v", v.ApplicationCommand().Name, err)
+				log.Fatalf("Cannot create '%v' command: %v", v.ApplicationCommand().Name, err)
 			}
-			fmt.Printf("Registering /%s in guild %v\n", cmd.Name, gld.Name) // __AUTO_GENERATED_PRINT_VAR__
+			log.Infof("Registering /%s in guild %v", cmd.Name, gld.Name) // __AUTO_GENERATED_PRINT_VAR__
 			registeredCommands = append(registeredCommands, cmd)
 		}
 	}
