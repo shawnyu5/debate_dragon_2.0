@@ -13,6 +13,8 @@ var allMessagesMap = make(map[string]map[string]discordgo.Message)
 // map of guild id to author ID to list of deleted messages
 var deletedMessagesMap = make(map[string]map[string][]discordgo.Message)
 
+var lastDeletedMessage = discordgo.Message{}
+
 // TrackAllSentMessage tracks all sent messages in all guilds this bot is in for the duration of the bot's life time
 //
 // We will only keep track of 1000 messages per guild. When we reach the 1000 message limit, delete the oldest message
@@ -65,7 +67,7 @@ func TrackDeletedMessage(guildID string, messageID string) {
 		deletedMessagesMap[mess.GuildID][mess.Author.ID] = deletedMessagesMap[mess.GuildID][mess.Author.ID][1:]
 	}
 	deletedMessagesMap[mess.GuildID][mess.Author.ID] = append(deletedMessagesMap[mess.GuildID][mess.Author.ID], mess)
-	// fmt.Printf("%+v\n", deletedMessagesMap)
+	lastDeletedMessage = mess
 }
 
 // GetMessageByID returns the message with the given `messageID` from the given `guildID`.
@@ -77,4 +79,8 @@ func GetMessageByID(guildID, messageID string) discordgo.Message {
 func GetDeletedMessagesByAuthorID(guildID, authorID string) []discordgo.Message {
 	usrMsg := deletedMessagesMap[guildID][authorID]
 	return usrMsg
+}
+
+func GetLastDeletedMessage() discordgo.Message {
+	return lastDeletedMessage
 }

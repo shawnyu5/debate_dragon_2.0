@@ -7,7 +7,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/charmbracelet/log"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
-	_ "github.com/shawnyu5/debate_dragon_2.0/commands/blackmail"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/courseOutline"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/dd"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/emotes"
@@ -18,7 +17,7 @@ import (
 	messagetracking "github.com/shawnyu5/debate_dragon_2.0/commands/messageTracking"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/reddit"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
-	"github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
+	_ "github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/stfu"
 
 	// "github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
@@ -120,9 +119,6 @@ func main() {
 	})
 
 	dg.AddHandler(func(_ *discordgo.Session, mess *discordgo.MessageDelete) {
-		// fmt.Printf("deleted message id: %+v", mess.ID)
-		snipe.LastDeletedMessage = *mess
-		// snipe.TrackDeletedMessage(*mess)
 		messagetracking.TrackDeletedMessage(mess.GuildID, mess.ID)
 	})
 
