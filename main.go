@@ -69,7 +69,7 @@ func init() {
 		// handle slash command response and autocomplete requests the same way
 		case discordgo.InteractionApplicationCommand:
 			if cmd, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-				logger := middware.NewLogger(log.New(os.Stdout), cmd)
+				logger := middware.NewLogger(cmd)
 				if cmd.EditInteractionResponse != nil {
 					logger.EditIteractionResponse(sess, i)
 				} else if cmd.HandlerFunc != nil {
@@ -83,7 +83,7 @@ func init() {
 				// command := command.Command{
 				//    EditInteractionResponse: handlerFunc,
 				// }
-				logger := middware.NewLogger(log.New(os.Stdout), cmd)
+				logger := middware.NewLogger(cmd)
 				logger.InteractionApplicationCommandAutocomplete(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")
@@ -94,7 +94,7 @@ func init() {
 					EditInteractionResponse: handlerFunc,
 				}
 
-				logger := middware.NewLogger(log.New(os.Stdout), command)
+				logger := middware.NewLogger(command)
 				logger.EditIteractionResponse(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")
