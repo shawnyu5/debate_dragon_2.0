@@ -7,6 +7,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/charmbracelet/log"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
+	_ "github.com/shawnyu5/debate_dragon_2.0/commands/caramel_bot/bitch"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/courseOutline"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/dd"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/emotes"
@@ -80,9 +81,6 @@ func init() {
 			}
 		case discordgo.InteractionApplicationCommandAutocomplete:
 			if cmd, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-				// command := command.Command{
-				//    EditInteractionResponse: handlerFunc,
-				// }
 				logger := middware.NewLogger(cmd)
 				logger.InteractionApplicationCommandAutocomplete(sess, i)
 			} else {
@@ -123,25 +121,18 @@ func main() {
 	})
 
 	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
-		// fmt.Println(mess.Content)
-		// subforcarmen.Listen(sess, mess.Message)
-		// snipe.TrackMessage(mess)
 		messagetracking.TrackAllSentMessage(mess)
 		stfu.TellUser(sess, mess)
 	})
 
-	err := dg.Open()
-
-	if err != nil {
+	if err := dg.Open(); err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
 	}
 
 	// utils.RegisterCommands(dg, slashCommandDefs, registeredCommands)
 	registeredCommands := command.RegisterCommands(dg)
-
 	dg.AddHandler(func(_ *discordgo.Session, gld *discordgo.GuildCreate) {
 		log.Printf("Bot added to new guild: %v", gld.Name)
-		// utils.RegisterCommands(dg, slashCommandDefs, registeredCommands)
 		command.RegisterCommands(dg)
 	})
 
