@@ -12,7 +12,6 @@ import (
 )
 
 var insult = command.Command{
-	Name: "insult",
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		return &discordgo.ApplicationCommand{
 			Name:        "insult",

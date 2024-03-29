@@ -15,7 +15,6 @@ import (
 )
 
 var outline = command.Command{
-	Name: "outline",
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		return &discordgo.ApplicationCommand{
 			Version:     "1.0.1",

@@ -12,8 +12,8 @@ var CmdStore []Command
 type HandlerFunc func(sess *discordgo.Session, i *discordgo.InteractionCreate) (successMsg string, err error)
 
 type Command struct {
-	// Name of the slash command
-	Name string
+	// // Name of the slash command
+	// Name string
 	// Command definition
 	ApplicationCommand func() *discordgo.ApplicationCommand
 	// Handler for handling slash command interactions. This function should edit an interaction response. Returns a log message, and error

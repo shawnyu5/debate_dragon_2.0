@@ -9,7 +9,6 @@ import (
 )
 
 var bitch = command.Command{
-	Name: "caramel-bot-bitch",
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		return &discordgo.ApplicationCommand{
 			Name:        "caramel-bot-bitch",

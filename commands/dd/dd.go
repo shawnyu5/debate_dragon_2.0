@@ -11,7 +11,6 @@ import (
 )
 
 var dd = command.Command{
-	Name: "dd",
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		return &discordgo.ApplicationCommand{
 			Name:        "dd",

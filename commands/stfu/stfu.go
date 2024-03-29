@@ -13,7 +13,6 @@ import (
 )
 
 var stfu = command.Command{
-	Name: "stfu",
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		minLengthValue := float64(5)
 		return &discordgo.ApplicationCommand{

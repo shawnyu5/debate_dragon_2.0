@@ -15,7 +15,6 @@ import (
 )
 
 var mock = command.Command{
-	Name: "mock",
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		return &discordgo.ApplicationCommand{
 			Version:     "1.0.0",

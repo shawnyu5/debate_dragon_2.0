@@ -13,7 +13,6 @@ import (
 var DeletedMessages []discordgo.MessageDelete
 
 var snipe = command.Command{
-	Name: "snipe",
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		return &discordgo.ApplicationCommand{
 			Version:     "1.0.0",

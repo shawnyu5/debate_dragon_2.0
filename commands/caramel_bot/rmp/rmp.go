@@ -9,7 +9,6 @@ import (
 )
 
 var rmpCmd = command.Command{
-	Name: "caramel-bot-rmp",
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		return &discordgo.ApplicationCommand{
 			Name:        "caramel-bot-rmp",

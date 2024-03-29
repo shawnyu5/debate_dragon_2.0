@@ -12,7 +12,6 @@ import (
 )
 
 var redditCmd = command.Command{
-	Name: "reddit",
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		return &discordgo.ApplicationCommand{
 			Version:     "1.0.0",

@@ -18,7 +18,6 @@ type state struct {
 }
 
 var manageIvan = command.Command{
-	Name: "manageivan",
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		defaultManageMessagesPermission := int64(discordgo.PermissionManageMessages)
 		minValue := float64(5)

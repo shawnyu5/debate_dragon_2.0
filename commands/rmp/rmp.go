@@ -13,7 +13,6 @@ import (
 const profSelectMenuID = "prof select menu"
 
 var rmp = command.Command{
-	Name: "rmp",
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		return &discordgo.ApplicationCommand{
 			Name:        "rmp",

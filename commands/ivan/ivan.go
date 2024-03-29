@@ -12,7 +12,6 @@ import (
 )
 
 var ivan = command.Command{
-	Name: "ivan",
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		maxLength := float64(1000)
 		emotes := GetAllEmotes()

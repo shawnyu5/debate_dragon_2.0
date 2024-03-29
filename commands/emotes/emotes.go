@@ -7,7 +7,6 @@ import (
 )
 
 var emote = command.Command{
-	Name: "emote",
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		def := &discordgo.ApplicationCommand{
 			Version:     "1.0.0",
