@@ -16,11 +16,11 @@ type Command struct {
 	// Name string
 	// Command definition
 	ApplicationCommand func() *discordgo.ApplicationCommand
-	// Handler for handling slash command interactions. This function should edit an interaction response. Returns a log message, and error
+	// Handler for handling slash command interactions. This function should edit an interaction response. Returns a log message, and error if any
 	EditInteractionResponse HandlerFunc
-	// Handler for handling slash command interactions. This function should send a direct interaction response. Returns a log message, and error
+	// Handler for handling slash command interactions. This function should send a direct interaction response. Returns a log message, and error if any
 	InteractionRespond HandlerFunc
-	// Handler for auto completion requests
+	// Handler for auto completion requests. Returns a log message, and error if any
 	InteractionApplicationCommandAutocomplete HandlerFunc
 	// Command components, with their handler
 	Components []struct {

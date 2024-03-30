@@ -72,11 +72,13 @@ func init() {
 		case discordgo.InteractionApplicationCommand:
 			if cmd, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 				logger := middware.NewLogger(cmd)
-				if cmd.EditInteractionResponse != nil {
-					logger.EditIteractionResponse(sess, i)
-				} else if cmd.HandlerFunc != nil {
-					logger.HandlerFunc(sess, i)
-				}
+				logger.HandleInteractionApplicationCommand(sess, i)
+				// logger := middware.NewLogger(cmd)
+				// if cmd.EditInteractionResponse != nil {
+				//    logger.EditIteractionResponse(sess, i)
+				// } else if cmd.HandlerFunc != nil {
+				//    logger.HandlerFunc(sess, i)
+				// }
 			} else {
 				utils.SendErrorMessage(sess, i, "")
 			}

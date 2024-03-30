@@ -32,7 +32,7 @@ var outline = command.Command{
 			},
 		}
 	},
-	EditInteractionResponse: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		utils.DeferReply(sess, i.Interaction)
 		url := GeneratewebPageURL(sess, i)
 		courseInfo := GetCourseInfo(url)

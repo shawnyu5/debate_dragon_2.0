@@ -35,7 +35,7 @@ var emote = command.Command{
 	},
 	EditInteractionResponse: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		input := utils.ParseUserOptions(sess, i)
-		utils.DeferReply(sess, i.Interaction)
+		// utils.DeferReply(sess, i.Interaction)
 		emoteUrl := input["name"].StringValue()
 		_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 			Content: &emoteUrl,

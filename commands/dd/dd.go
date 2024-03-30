@@ -25,9 +25,8 @@ var dd = command.Command{
 			},
 		}
 	},
-	EditInteractionResponse: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		userOptions := utils.ParseUserOptions(sess, i)
-
 		img, err := gg.LoadImage("./media/img/dragon_drawing.png")
 		if err != nil {
 			log.Fatalln(err)

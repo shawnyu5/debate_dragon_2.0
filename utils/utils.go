@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/charmbracelet/log"
 	"github.com/joho/godotenv"
 	"github.com/spf13/afero"
 )
@@ -111,7 +112,7 @@ func LoadConfig() Config {
 func RegisterCommands(sess *discordgo.Session, commands []*discordgo.ApplicationCommand, registeredCommands []*discordgo.ApplicationCommand) {
 	// c := LoadConfig()
 	ignoreGuilds := make([]discordgo.Guild, 0)
-	log.Println("Adding commands...")
+	log.Info("Adding commands...")
 	for _, gld := range sess.State.Guilds {
 		// roles := gld.Roles
 		// for _, role := range roles {
@@ -129,7 +130,7 @@ func RegisterCommands(sess *discordgo.Session, commands []*discordgo.Application
 			}
 			cmd, err := sess.ApplicationCommandCreate(sess.State.User.ID, gld.ID, v)
 			if err != nil {
-				log.Panicf("Cannot create '%v' command: %v", v.Name, err)
+				log.Info("Cannot create '%v' command: %v", v.Name, err)
 			}
 			fmt.Printf("Registering /%s in guild %v\n", cmd.Name, gld.Name) // __AUTO_GENERATED_PRINT_VAR__
 			registeredCommands[i] = cmd
@@ -141,7 +142,7 @@ func RegisterCommands(sess *discordgo.Session, commands []*discordgo.Application
 // sess: discord session.
 // registeredCommands: array of commands to remove.
 func RemoveCommands(sess *discordgo.Session, registeredCommands []*discordgo.ApplicationCommand) {
-	log.Println("Removing commands...")
+	log.Info("Removing commands...")
 	for _, gld := range sess.State.Guilds {
 		for _, cmd := range registeredCommands {
 			err := sess.ApplicationCommandDelete(sess.State.User.ID, gld.ID, cmd.ID)
@@ -174,20 +175,40 @@ func DeferReply(sess *discordgo.Session, i *discordgo.Interaction) error {
 	return err
 }
 
-// SendErrorMessage send an empheral message notifying the user something went wrong with the command. With an optional error message.
-// sess: discord session.
-// i   : discord interaction.
-// err : optional error message to send.
+// SendErrorMessage send an empheral interaction response message notifying the user something went wrong with the slash command. With an optional error message.
 func SendErrorMessage(sess *discordgo.Session, i *discordgo.InteractionCreate, err string) {
-	_, e := sess.FollowupMessageCreate(i.Interaction, false, &discordgo.WebhookParams{
-		Content: "Something went wrong... " + err,
-		Flags:   discordgo.MessageFlagsEphemeral,
+	e := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "Something went wrong... " + err,
+			Flags:   discordgo.MessageFlagsEphemeral,
+		},
 	})
 
 	if e != nil {
-		log.Printf("Error editing response: %v", e)
+		log.Printf("Error sending error response: %v", e)
+	}
+}
+
+// EditErrorMessage edits the previous interaction response with an error message notifying the user something went wrong with the slash command. With an optional error message.
+//
+// Since the error message is not empheral, it will be deleted after 5 seconds
+func EditErrorMessage(sess *discordgo.Session, i *discordgo.InteractionCreate, err string) {
+	content := "Something went wrong... " + err
+	msg, e := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+		Content: &content,
+	},
+	)
+	if e != nil {
+		log.Printf("Error editing error response: %v", e)
 	}
 
+	time.AfterFunc(5*time.Second, func() {
+		err := sess.ChannelMessageDelete(msg.ChannelID, msg.ID)
+		if err != nil {
+			log.Warnf("Failed to delete command failure message: %s", err)
+		}
+	})
 }
 
 // DeleteAllMessages Delete all messages in a channel.
@@ -199,7 +220,7 @@ func DeleteAllMessages(sess *discordgo.Session, i *discordgo.InteractionCreate, 
 		go func(mess *discordgo.Message) {
 			err := sess.ChannelMessageDelete(i.ChannelID, mess.ID)
 			if err != nil {
-				log.Println(err)
+				log.Info(err)
 				return
 			}
 
