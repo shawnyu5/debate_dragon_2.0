@@ -46,7 +46,7 @@ var manageIvan = command.Command{
 			},
 		}
 	},
-	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		optionsMap := utils.ParseUserOptions(sess, i)
 		countDown := optionsMap["countdown"]
 

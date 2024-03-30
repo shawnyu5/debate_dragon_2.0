@@ -34,7 +34,7 @@ var insult = command.Command{
 			},
 		}
 	},
-	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		optionsMap := utils.ParseUserOptions(sess, i)
 		user := optionsMap["user"].UserValue(sess)
 		if user.ID == utils.LoadConfig().BotOwner {

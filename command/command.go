@@ -19,7 +19,7 @@ type Command struct {
 	// Handler for handling slash command interactions. This function should edit an interaction response. Returns a log message, and error
 	EditInteractionResponse HandlerFunc
 	// Handler for handling slash command interactions. This function should send a direct interaction response. Returns a log message, and error
-	HandlerFunc HandlerFunc
+	InteractionRespond HandlerFunc
 	// Handler for auto completion requests
 	InteractionApplicationCommandAutocomplete HandlerFunc
 	// Command components, with their handler
@@ -50,15 +50,6 @@ func GetCmdHandler() map[string]Command {
 	cmdHandlers := map[string]Command{}
 	for _, cmd := range CmdStore {
 		cmdHandlers[cmd.ApplicationCommand().Name] = cmd
-		// if cmd.EditInteractionResponse != nil {
-		//    fmt.Printf("command %s, using edit handler\n", cmd.ApplicationCommand().Name)
-		//    cmdHandlers[cmd.ApplicationCommand().Name] = cmd.EditInteractionResponse
-		// } else if cmd.HandlerFunc != nil {
-		//    fmt.Printf("command %s, using handler func\n", cmd.ApplicationCommand().Name)
-		//    cmdHandlers[cmd.ApplicationCommand().Name] = cmd.HandlerFunc
-		// } else {
-		//    panic("A command must have either `EditInteractionResponse` or `HandlerFunc` defined")
-		// }
 	}
 	return cmdHandlers
 

@@ -19,7 +19,7 @@ var redditCmd = command.Command{
 			Description: "Get a random Reddit post from r/Seneca",
 		}
 	},
-	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		err := utils.DeferReply(sess, i.Interaction)
 		if err != nil {
 			return "", err

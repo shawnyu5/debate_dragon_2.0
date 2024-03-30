@@ -48,7 +48,7 @@ var ivan = command.Command{
 		obj.Options = append(obj.Options, &newOption)
 		return obj
 	},
-	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		utils.DeferReply(sess, i.Interaction)
 		optionMap := utils.ParseUserOptions(sess, i)
 

@@ -30,7 +30,7 @@ var mock = command.Command{
 			},
 		}
 	},
-	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		userOptions := utils.ParseUserOptions(sess, i)
 		user := userOptions["user"].UserValue(sess)
 		mess, err := GetUserLastMessage(sess, userOptions["user"].UserValue(sess), i.ChannelID)

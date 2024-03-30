@@ -40,7 +40,7 @@ var stfu = command.Command{
 			},
 		}
 	},
-	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		userOptions := utils.ParseUserOptions(sess, i)
 		// if a user set a custom length, use that
 		if val, ok := userOptions["length"]; ok {

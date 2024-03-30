@@ -29,7 +29,7 @@ var rmp = command.Command{
 			},
 		}
 	},
-	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		options := utils.ParseUserOptions(sess, i)
 		profName := options["profname"].StringValue()
 		searchResult := SearchRmpProfByName(profName)

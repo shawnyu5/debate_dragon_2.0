@@ -23,7 +23,7 @@ var rmpCmd = command.Command{
 			},
 		}
 	},
-	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		options := i.ApplicationCommandData().Options
 
 		if options[0] != nil {

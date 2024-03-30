@@ -20,7 +20,7 @@ var snipe = command.Command{
 			Description: "Get the contents of the last deleted message",
 		}
 	},
-	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		utils.DeferReply(sess, i.Interaction)
 
 		deletedMess := messagetracking.GetLastDeletedMessage()

@@ -23,7 +23,7 @@ var bitch = command.Command{
 			},
 		}
 	},
-	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		var message = ""
 		options := utils.ParseUserOptions(sess, i)
 		user := options["user"].UserValue(sess)
