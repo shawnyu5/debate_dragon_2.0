@@ -28,12 +28,11 @@ var bitch = command.Command{
 		options := utils.ParseUserOptions(sess, i)
 		user := options["user"].UserValue(sess)
 
-		if user != nil && user.ID != "246732655373189120" {
-			message = "<@" + user.ID + "> is a bitch."
-		} else if user != nil {
+		if user.ID == utils.LoadConfig().BotOwner {
 			message = "<@" + i.Member.User.ID + "> nice try, you're a bitch."
+		} else {
+			message = "<@" + user.ID + "> is a bitch."
 		}
-
 		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
