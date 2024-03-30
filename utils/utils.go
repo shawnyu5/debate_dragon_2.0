@@ -25,9 +25,11 @@ type Config struct {
 	RedditPassword string `json:"-"`
 	LogLevel       string `json:"logLevel"`
 	Development    bool   `json:"-"`
+	RapidAPIKey    string `json:"-"`
+	// ID of the bot owner
+	BotOwner string `json:"botOwner"`
 	// path to the local db
 	DbPath string `json:"dbPath"`
-
 	Emotes []struct {
 		// name of emote
 		Name string `json:"name"`
@@ -65,6 +67,40 @@ type Config struct {
 		// channels to ignore
 		IgnoredChannels []string `json:"ignoredChannels"`
 	} `json:"subForCarmen"`
+}
+
+// LoadConfig loads config.json and .env.
+func LoadConfig() Config {
+	var c Config
+	// read json file
+	f, err := AppFs.Open("config.json")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	b, err := io.ReadAll(f)
+	if err != nil {
+		panic(err)
+	}
+	json.Unmarshal(b, &c)
+
+	godotenv.Load()
+	c.Token = os.Getenv("TOKEN")
+	c.RapidAPIKey = os.Getenv("RAPIDAPI_KEY")
+	c.TokenDev = os.Getenv("TOKEN_DEV")
+	c.RedditUserName = os.Getenv("REDDIT_USERNAME")
+	c.RedditClientId = os.Getenv("REDDIT_CLIENT_ID")
+	c.RedditSecret = os.Getenv("REDDIT_SECRET")
+	c.RedditPassword = os.Getenv("REDDIT_PASSWORD")
+
+	dev := os.Getenv("DEVELOPMENT")
+	if dev == "true" {
+		c.Development = true
+	} else {
+		c.Development = false
+	}
+	return c
 }
 
 // RegisterCommands register an array of commands to a discord session.
@@ -136,39 +172,6 @@ func DeferReply(sess *discordgo.Session, i *discordgo.Interaction) error {
 		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 	})
 	return err
-}
-
-// LoadConfig loads config.json and .env.
-func LoadConfig() Config {
-	var c Config
-	// read json file
-	f, err := AppFs.Open("config.json")
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	b, err := io.ReadAll(f)
-	if err != nil {
-		panic(err)
-	}
-	json.Unmarshal(b, &c)
-
-	godotenv.Load()
-	c.Token = os.Getenv("TOKEN")
-	c.TokenDev = os.Getenv("TOKEN_DEV")
-	c.RedditUserName = os.Getenv("REDDIT_USERNAME")
-	c.RedditClientId = os.Getenv("REDDIT_CLIENT_ID")
-	c.RedditSecret = os.Getenv("REDDIT_SECRET")
-	c.RedditPassword = os.Getenv("REDDIT_PASSWORD")
-
-	dev := os.Getenv("DEVELOPMENT")
-	if dev == "true" {
-		c.Development = true
-	} else {
-		c.Development = false
-	}
-	return c
 }
 
 // SendErrorMessage send an empheral message notifying the user something went wrong with the command. With an optional error message.

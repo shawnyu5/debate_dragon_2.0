@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/caramel_bot/bitch"
+	_ "github.com/shawnyu5/debate_dragon_2.0/commands/caramel_bot/compliment"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/courseOutline"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/dd"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/emotes"
