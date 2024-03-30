@@ -37,7 +37,7 @@ var insult = command.Command{
 	HandlerFunc: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		optionsMap := utils.ParseUserOptions(sess, i)
 		user := optionsMap["user"].UserValue(sess)
-		if user.ID == "652511543845453855" {
+		if user.ID == utils.LoadConfig().BotOwner {
 			user = i.Member.User
 			log.Println("I am being insulted. This will not fly. Insult this user instead", user)
 		}

@@ -1,5 +1,6 @@
 {
    "dbPath": "./db",
+   "botOwner": "652511543845453855",
    "newMemberGreeting": {
       "config": [
          {
