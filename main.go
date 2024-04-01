@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"math/rand/v2"
 	"os"
 	"os/signal"
 
@@ -127,11 +125,11 @@ func main() {
 	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 		messagetracking.TrackAllSentMessage(mess)
 		stfu.TellUser(sess, mess)
-		randomNumber := rand.IntN(100)
-		log.Debugf("April fools random number: %v", randomNumber)
-		if randomNumber < 20 && mess.Author.ID != sess.State.User.ID {
-			sess.ChannelMessageSendReply(mess.ChannelID, fmt.Sprintf("<@%s> stfu", mess.Author.ID), mess.Reference())
-		}
+		// randomNumber := rand.IntN(100)
+		// log.Debugf("April fools random number: %v", randomNumber)
+		// if randomNumber < 20 && mess.Author.ID != sess.State.User.ID {
+		//    sess.ChannelMessageSendReply(mess.ChannelID, fmt.Sprintf("<@%s> stfu", mess.Author.ID), mess.Reference())
+		// }
 	})
 
 	if err := dg.Open(); err != nil {
