@@ -132,6 +132,7 @@ func NewState() StfuState {
 var State = NewState()
 
 // TellUser tell a user to stfu on every message they send.
+//
 // sess: discord session.
 // mess: the message to check.
 func TellUser(sess *discordgo.Session, mess *discordgo.MessageCreate) {
