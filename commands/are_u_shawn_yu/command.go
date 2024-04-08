@@ -76,7 +76,7 @@ func ListenForShawnYuMessages(sess *discordgo.Session, mess *discordgo.MessageCr
 	sess.ChannelTyping(mess.ChannelID)
 	s.CancelHandler = time.AfterFunc(3*time.Second, func() {
 		if mess.Author.ID == *s.UserID {
-			log.Debugf("Accusing user %s of being Shawn Yu", mess.Author.Username)
+			log.Debugf("Accusing user @%s of being Shawn Yu", mess.Author.Username)
 			_, err := sess.ChannelMessageSend(mess.ChannelID, fmt.Sprintf("<@%s> You are Shawn Yu", *s.UserID))
 			if err != nil {
 				log.Error(err)
@@ -84,6 +84,7 @@ func ListenForShawnYuMessages(sess *discordgo.Session, mess *discordgo.MessageCr
 
 			sess.ChannelTyping(mess.ChannelID)
 			s.CancelHandler = time.AfterFunc(7*time.Second, func() {
+				log.Debugf("Telling user @%s that the bot will come after them", mess.Author.Username)
 				_, err = sess.ChannelMessageSend(mess.ChannelID, fmt.Sprintf("<@%s> I will find you https://www.youtube.com/watch?v=jZOywn1qArI&ab_channel=GreatestMovieClips", *s.UserID))
 			})
 
