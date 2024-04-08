@@ -59,6 +59,7 @@ var cmd = command.Command{
 
 		s.Active = true
 		s.UserID = &user.ID
+		s.GuildID = &i.GuildID
 		return fmt.Sprintf("Asked @%s if they are Shawn Yu", user.Username), nil
 	},
 }
