@@ -7,6 +7,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/charmbracelet/log"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
+	areushawnyu "github.com/shawnyu5/debate_dragon_2.0/commands/are_u_shawn_yu"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/caramel_bot/bitch"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/caramel_bot/compliment"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/courseOutline"
@@ -118,18 +119,15 @@ func main() {
 	dg.AddHandler(func(s *discordgo.Session, _ *discordgo.Ready) {
 		log.Info("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
+
 	dg.AddHandler(func(_ *discordgo.Session, mess *discordgo.MessageDelete) {
 		messagetracking.TrackDeletedMessage(mess.GuildID, mess.ID)
 	})
 
 	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 		messagetracking.TrackAllSentMessage(mess)
+		areushawnyu.ListenForShawnYuMessages(sess, mess)
 		stfu.TellUser(sess, mess)
-		// randomNumber := rand.IntN(100)
-		// log.Debugf("April fools random number: %v", randomNumber)
-		// if randomNumber < 20 && mess.Author.ID != sess.State.User.ID {
-		//    sess.ChannelMessageSendReply(mess.ChannelID, fmt.Sprintf("<@%s> stfu", mess.Author.ID), mess.Reference())
-		// }
 	})
 
 	if err := dg.Open(); err != nil {
@@ -146,6 +144,8 @@ func main() {
 	// command.DiscoverCommands()
 
 	defer dg.Close()
+
+	dg.StateEnabled = true
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
