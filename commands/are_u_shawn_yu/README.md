@@ -1,3 +1,3 @@
-`/are-u-shawn-yu` - Recreates the following image:
+`/are-u-shawn-yu user:<user>` - Recreates the following image by accusing the user they are Shawn Yu.
 
 ![ivan_reference](img/ivan_reference.png)
