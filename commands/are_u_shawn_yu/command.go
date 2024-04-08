@@ -13,6 +13,7 @@ import (
 type state struct {
 	Active        bool
 	UserID        *string
+	GuildID       *string
 	CancelHandler *time.Timer
 }
 
@@ -65,7 +66,8 @@ var cmd = command.Command{
 // ListenForShawnYuMessages checks if `s.Active` is true. If it is, and the sent message matches `s.UserID`, tell `s.UserID` they are Shawn Yu.
 // And set `s.Active` to false.
 func ListenForShawnYuMessages(sess *discordgo.Session, mess *discordgo.MessageCreate) {
-	if !s.Active {
+	// If the command is not active, or if the message is in a different guild, do nothing
+	if !s.Active || mess.GuildID != *s.GuildID {
 		return
 	}
 	s.Active = false
