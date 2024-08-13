@@ -206,7 +206,7 @@ func createBanButton(disable bool) discordgo.Button {
 		Label:    "Ban",
 		Style:    discordgo.DangerButton,
 		Disabled: disable,
-		Emoji: discordgo.ComponentEmoji{
+		Emoji: &discordgo.ComponentEmoji{
 			Name:     "✅",
 			Animated: false,
 		},
@@ -220,7 +220,7 @@ func createDontBanButton(disable bool) discordgo.Button {
 		Label:    "Dont ban...",
 		Style:    discordgo.PrimaryButton,
 		Disabled: disable,
-		Emoji: discordgo.ComponentEmoji{
+		Emoji: &discordgo.ComponentEmoji{
 			Name:     "❌",
 			Animated: false,
 		},

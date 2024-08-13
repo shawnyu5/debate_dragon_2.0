@@ -167,7 +167,7 @@ func createSelectMenu(profs []ProfNode, disable bool) discordgo.SelectMenu {
 			Label:       prof.fullName(),
 			Value:       prof.Node.ID,
 			Description: fmt.Sprintf("Department: %s", prof.Node.Department),
-			Emoji:       discordgo.ComponentEmoji{},
+			Emoji:       &discordgo.ComponentEmoji{},
 			Default:     false,
 		}
 		menu.Options = append(menu.Options, option)
