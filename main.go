@@ -93,11 +93,17 @@ func init() {
 		case discordgo.InteractionMessageComponent:
 			if handlerFunc, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
 				command := command.Command{
+					// This field is needed for `HandleInteractionApplicationCommand()`'s logging
+					ApplicationCommand: func() *discordgo.ApplicationCommand {
+						return &discordgo.ApplicationCommand{
+							Name: i.MessageComponentData().CustomID,
+						}
+					},
 					EditInteractionResponse: handlerFunc,
 				}
 
 				logger := middware.NewLogger(command)
-				logger.EditIteractionResponse(sess, i)
+				logger.HandleInteractionApplicationCommand(sess, i)
 			} else {
 				utils.SendErrorMessage(sess, i, "")
 			}

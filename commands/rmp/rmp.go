@@ -2,10 +2,10 @@ package rmp
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/charmbracelet/log"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
@@ -16,7 +16,7 @@ var rmp = command.Command{
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		return &discordgo.ApplicationCommand{
 			Name:        "rmp",
-			Version:     "2.0.0",
+			Version:     "2.0.1",
 			Description: "Get reviews from rate my prof",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -167,8 +167,8 @@ func createSelectMenu(profs []ProfNode, disable bool) discordgo.SelectMenu {
 			Label:       prof.fullName(),
 			Value:       prof.Node.ID,
 			Description: fmt.Sprintf("Department: %s", prof.Node.Department),
-			Emoji:       &discordgo.ComponentEmoji{},
-			Default:     false,
+			// Emoji:       &discordgo.ComponentEmoji{},
+			Default: false,
 		}
 		menu.Options = append(menu.Options, option)
 	}
@@ -181,33 +181,31 @@ func createSelectMenu(profs []ProfNode, disable bool) discordgo.SelectMenu {
 // prof  : professor information to send.
 // return: error if any.
 func SendProfInformation(sess *discordgo.Session, i *discordgo.InteractionCreate, prof ProfNode) error {
-	return sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Embeds: []*discordgo.MessageEmbed{
-				{
-					URL:         prof.rmpURL(),
-					Type:        "",
-					Title:       fmt.Sprintf("%s %s", prof.Node.FirstName, prof.Node.LastName),
-					Description: prof.profDescription(),
-					Timestamp:   "",
-					Color:       0,
-					Footer: &discordgo.MessageEmbedFooter{
-						Text:         "Information retrieved from ratemyprof.com",
-						IconURL:      "https://pbs.twimg.com/profile_images/1146077191043788800/hG1lAGm9_400x400.png",
-						ProxyIconURL: "",
-					},
-					Author: &discordgo.MessageEmbedAuthor{
-						URL:          "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
-						Name:         fmt.Sprintf("brought to you by @%s's mom TM", i.Member.User.Username),
-						IconURL:      "",
-						ProxyIconURL: "",
-					},
+	_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+		Embeds: &[]*discordgo.MessageEmbed{
+			{
+				URL:         prof.rmpURL(),
+				Type:        "",
+				Title:       fmt.Sprintf("%s %s", prof.Node.FirstName, prof.Node.LastName),
+				Description: prof.profDescription(),
+				Timestamp:   "",
+				Color:       0,
+				Footer: &discordgo.MessageEmbedFooter{
+					Text:         "Information retrieved from ratemyprof.com",
+					IconURL:      "https://pbs.twimg.com/profile_images/1146077191043788800/hG1lAGm9_400x400.png",
+					ProxyIconURL: "",
+				},
+				Author: &discordgo.MessageEmbedAuthor{
+					URL:          "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
+					Name:         fmt.Sprintf("brought to you by @%s's mom TM", i.Member.User.Username),
+					IconURL:      "",
+					ProxyIconURL: "",
 				},
 			},
 		},
 	})
 
+	return err
 }
 
 // autoCompleteHandler handles filling the auto complete results

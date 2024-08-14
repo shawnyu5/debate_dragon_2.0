@@ -18,9 +18,11 @@ func (l Logger) HandleInteractionApplicationCommand(sess *discordgo.Session, i *
 	var output string
 	var err error
 	if l.Next.EditInteractionResponse != nil {
+		log.Debugf("Editing interaction response")
 		utils.DeferReply(sess, i.Interaction)
 		output, err = l.Next.EditInteractionResponse(sess, i)
 	} else if l.Next.InteractionRespond != nil {
+		log.Debugf("Sending interaction response")
 		output, err = l.Next.InteractionRespond(sess, i)
 	} else {
 		panic("No handler defined for slash command " + l.Next.ApplicationCommand().Name)
