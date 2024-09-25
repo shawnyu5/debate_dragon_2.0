@@ -19,6 +19,7 @@ import (
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/memes/mock"
 	messagetracking "github.com/shawnyu5/debate_dragon_2.0/commands/messageTracking"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/reddit"
+	_ "github.com/shawnyu5/debate_dragon_2.0/commands/release_notes"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/rmp"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/snipe"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/stfu"
