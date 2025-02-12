@@ -124,7 +124,7 @@ func main() {
 	dg.Identify.Intents |= discordgo.IntentGuildMessages
 	dg.Identify.Intents |= discordgo.IntentGuildMembers
 	dg.AddHandler(func(s *discordgo.Session, _ *discordgo.Ready) {
-		log.Info("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
+		log.Infof("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 
 	dg.AddHandler(func(_ *discordgo.Session, mess *discordgo.MessageDelete) {

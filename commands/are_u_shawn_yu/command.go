@@ -7,7 +7,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/charmbracelet/log"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
-	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
 type state struct {
@@ -26,9 +25,9 @@ var s = state{
 var cmd = command.Command{
 	ApplicationCommand: func() *discordgo.ApplicationCommand {
 		return &discordgo.ApplicationCommand{
-			Version:     "1.0.0",
+			Version:     "2.0.0",
 			Name:        "are-u-shawn-yu",
-			Description: "Accuses a user of being Shawn Yu",
+			Description: "DEPRECATED: Accuses a user of being Shawn Yu",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Name:        "user",
@@ -39,28 +38,14 @@ var cmd = command.Command{
 			},
 		}
 	},
-	EditInteractionResponse: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
-		// If the command is currently active, cancel the previous iteration before continuing
-		if s.Active {
-			s.CancelHandler.Stop()
-			s.Active = false
-		}
-
-		userOptions := utils.ParseUserOptions(sess, i)
-		user := userOptions["user"].UserValue(sess)
-
-		content := fmt.Sprintf("<@%s> are you Shawn Yu?", user.ID)
-		_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
-			Content: &content,
+	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (successMsg string, err error) {
+		sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: "DEPRECATED",
+			},
 		})
-		if err != nil {
-			return "", err
-		}
-
-		s.Active = true
-		s.UserID = &user.ID
-		s.GuildID = &i.GuildID
-		return fmt.Sprintf("Asked @%s if they are Shawn Yu", user.Username), nil
+		return "Deprecation message sent", nil
 	},
 }
 
