@@ -1,4 +1,4 @@
-FROM golang:1.22.0-alpine3.19 AS build
+FROM golang:1.24rc3-alpine AS build
 
 WORKDIR /bot
 
