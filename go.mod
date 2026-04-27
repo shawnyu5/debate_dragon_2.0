@@ -3,7 +3,7 @@ module github.com/shawnyu5/debate_dragon_2.0
 go 1.24
 
 require (
-	github.com/bwmarrin/discordgo v0.28.1
+	github.com/bwmarrin/discordgo v0.29.0
 	github.com/charmbracelet/log v0.4.0
 	github.com/fogleman/gg v1.3.0
 	github.com/gocolly/colly v1.2.0
