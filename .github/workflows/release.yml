@@ -4,6 +4,10 @@ on:
   push:
     branches: ["master"]
 
+permissions:
+  contents: write
+  issues: write
+
 jobs:
   build:
     name: Build
@@ -26,7 +30,7 @@ jobs:
       - build
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
