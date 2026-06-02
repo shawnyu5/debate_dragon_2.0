@@ -9,7 +9,7 @@ require (
 	github.com/gocolly/colly v1.2.0
 	github.com/onsi/ginkgo/v2 v2.5.1
 	github.com/onsi/gomega v1.24.1
-	github.com/spf13/afero v1.12.0
+	github.com/spf13/afero v1.15.0
 	github.com/vartanbeno/go-reddit/v2 v2.0.1
 )
 
@@ -40,7 +40,7 @@ require (
 	golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac // indirect
 	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/oauth2 v0.26.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
+	golang.org/x/text v0.28.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.36.5 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
