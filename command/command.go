@@ -1,6 +1,8 @@
 package command
 
 import (
+	"sync"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/charmbracelet/log"
 )
@@ -67,47 +69,71 @@ func GetComponentHandler() map[string]HandlerFunc {
 }
 
 // RemoveCommands removes all registered slash commands from all servers the bot is in
-func RemoveCommands(sess *discordgo.Session, registeredCommands []*discordgo.ApplicationCommand) {
-	log.Info("Removing commands...")
-	for _, gld := range sess.State.Guilds {
-		for _, cmd := range registeredCommands {
-			err := sess.ApplicationCommandDelete(sess.State.User.ID, gld.ID, cmd.ID)
-			if err != nil {
-				log.Printf("Cannot delete '%v' command in guild '%v': %v\n", cmd.Name, gld.Name, err)
-			} else {
-				log.Printf("Removing command /%v in guild %v", cmd.Name, gld.Name)
-			}
-		}
-	}
-}
+// func RemoveCommands(sess *discordgo.Session, registeredCommands []*discordgo.ApplicationCommand) {
+// 	log.Info("Removing commands...")
+// 	for _, gld := range sess.State.Guilds {
+// 		for _, cmd := range registeredCommands {
+// 			err := sess.ApplicationCommandDelete(sess.State.User.ID, gld.ID, cmd.ID)
+// 			if err != nil {
+// 				log.Printf("Cannot delete '%v' command in guild '%v': %v\n", cmd.Name, gld.Name, err)
+// 			} else {
+// 				log.Printf("Removing command /%v in guild %v", cmd.Name, gld.Name)
+// 			}
+// 		}
+// 	}
+// }
 
 // RegisterCommands register an array of commands to a discord session. Returns a list of all the registered commands.
 //
 // this function will panic if registration of a command fails.
 func RegisterCommands(sess *discordgo.Session) (registeredCommands []*discordgo.ApplicationCommand) {
 	registeredCommands = make([]*discordgo.ApplicationCommand, 0)
-	// c := LoadConfig()
-	// ignoreGuilds := make([]discordgo.Guild, 0)
 
 	for _, gld := range sess.State.Guilds {
-		// NOTE: should we do this?
-		// roles := gld.Roles
-		// for _, role := range roles {
-		// // if bot role is not at the top 3, dont register commmands here
-		// if role.Name == "debate_dragon" && role.Position > 4 {
-		// log.Printf("Bot role is not at the top 3. Bot position: %d, not registering commands in guild %v", role.Position, gld.Name)
-		// ignoreGuilds = append(ignoreGuilds, *gld)
-		// }
-		// }
-
-		for _, v := range CmdStore {
-			cmd, err := sess.ApplicationCommandCreate(sess.State.User.ID, gld.ID, v.ApplicationCommand())
+		for _, c := range CmdStore {
+			cmd, err := sess.ApplicationCommandCreate(sess.State.User.ID, gld.ID, c.ApplicationCommand())
 			if err != nil {
-				log.Fatalf("Cannot create '%v' command: %v", v.ApplicationCommand().Name, err)
+				log.Fatalf("Cannot create '%v' command: %v", c.ApplicationCommand().Name, err)
 			}
 			log.Infof("Registering /%s in guild %v", cmd.Name, gld.Name) // __AUTO_GENERATED_PRINT_VAR__
 			registeredCommands = append(registeredCommands, cmd)
 		}
 	}
+
 	return registeredCommands
+}
+
+// RemoveAllSlashCommandFromAllGuilds removes all slash commands from all guilds this bot is in
+func RemoveAllSlashCommandFromAllGuilds(dg *discordgo.Session) error {
+	glds := dg.State.Guilds
+	var wg sync.WaitGroup
+
+	for _, guild := range glds {
+		log.Infof("Removing slash commands from guild %s", guild.Name)
+		log.Debug("Getting slash commands")
+		cmds, err := dg.ApplicationCommands(dg.State.User.ID, guild.ID)
+		if err != nil {
+			log.Fatalf("failed to get slash commands: %s", err)
+		}
+
+		log.Debugf("Got %d slash commands in guild %s", len(cmds), guild.Name)
+
+		for _, cmd := range cmds {
+			wg.Add(1)
+			go func(c *discordgo.ApplicationCommand, guildName string, guildID string) {
+				defer wg.Done()
+
+				log.Infof("Deleting slash command %s from guild %s", c.Name, guildName)
+				err := dg.ApplicationCommandDelete(dg.State.Application.ID, guildID, c.ID)
+				if err != nil {
+					log.Errorf("Failed to delete slash command: %s", err)
+				}
+			}(cmd, guild.Name, guild.ID)
+		}
+	}
+
+	wg.Wait()
+	log.Info("Finished deleting all slash commands")
+
+	return nil
 }

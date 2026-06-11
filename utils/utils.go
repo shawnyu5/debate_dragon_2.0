@@ -1,16 +1,14 @@
 package utils
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/charmbracelet/log"
-	"github.com/joho/godotenv"
 	"github.com/spf13/afero"
+	"gopkg.in/yaml.v3"
 )
 
 var AppFs = afero.NewOsFs()
@@ -18,63 +16,65 @@ var AppFs = afero.NewOsFs()
 // config object as defined in config.json.
 // do not json martial sensitive fields such as discord token
 type Config struct {
-	Token          string `json:"-"`
-	TokenDev       string `json:"-"`
-	RedditUserName string `json:"-"`
-	RedditClientId string `json:"-"`
-	RedditSecret   string `json:"-"`
-	RedditPassword string `json:"-"`
-	LogLevel       string `json:"logLevel"`
-	Development    bool   `json:"-"`
-	RapidAPIKey    string `json:"-"`
+	// Discord token used to connect to discord
+	DiscordToken string `yaml:"discord_token"`
+	// Token          string `yaml:"-"`
+	// TokenDev       string `yaml:"-"`
+	// RedditUserName string `yaml:"-"`
+	// RedditClientId string `yaml:"-"`
+	// RedditSecret   string `yaml:"-"`
+	// RedditPassword string `yaml:"-"`
+	LogLevel string `yaml:"logLevel"`
+	DevMode  bool   `yaml:"dev_mode"`
+	// RapidAPIKey string `yaml:"-"`
 	// ID of the bot owner
-	BotOwner string `json:"botOwner"`
+	BotOwner string `yaml:"botOwner"`
 	// path to the local db
-	DbPath string `json:"dbPath"`
+	DbPath string `yaml:"dbPath"`
 	Emotes []struct {
 		// name of emote
-		Name string `json:"name"`
+		Name string `yaml:"name"`
 		// url to emote
-		URL string `json:"url"`
-	} `json:"emotes"`
+		URL string `yaml:"url"`
+	} `yaml:"emotes"`
 	// config for new member greetings
 	NewMemberGreeting struct {
 		Config []struct {
-			ServerName string `json:"serverName"`
-			RoleID     string `json:"roleID"`
-			ServerID   string `json:"serverID"`
-			ChannelID  string `json:"channelID"`
-			Enable     bool   `json:"enable"`
-		} `json:"config"`
-	} `json:"newMemberGreeting"`
+			ServerName string `yaml:"serverName"`
+			RoleID     string `yaml:"roleID"`
+			ServerID   string `yaml:"serverID"`
+			ChannelID  string `yaml:"channelID"`
+			Enable     bool   `yaml:"enable"`
+		} `yaml:"config"`
+	} `yaml:"newMemberGreeting"`
 	Ivan struct {
 		Emotes []struct {
-			Name         string `json:"name"`
-			FileLocation string `json:"fileLocation"`
-		} `json:"emotes"`
-	} `json:"ivan"`
+			Name         string `yaml:"name"`
+			FileLocation string `yaml:"fileLocation"`
+		} `yaml:"emotes"`
+	} `yaml:"ivan"`
 	SubForCarmen struct {
 		// toggle this feature on and off
-		On bool `json:"on"`
+		On bool `yaml:"on"`
 		// id of carmen user to track messages of
-		CarmenID string `json:"carmenId"`
+		CarmenID string `yaml:"carmenId"`
 		// cool down, defined in minutes
-		CoolDown int `json:"coolDown"`
+		CoolDown int `yaml:"coolDown"`
 		// the guild to keep track of carmen messages
-		GuildID string `json:"guildID"`
+		GuildID string `yaml:"guildID"`
 		// number of messages before a notification is triggered
-		MessageLimit      int    `json:"messageLimit"`
-		SubscribersRoleID string `json:"subscribersRoleID"`
+		MessageLimit      int    `yaml:"messageLimit"`
+		SubscribersRoleID string `yaml:"subscribersRoleID"`
 		// channels to ignore
-		IgnoredChannels []string `json:"ignoredChannels"`
-	} `json:"subForCarmen"`
+		IgnoredChannels []string `yaml:"ignoredChannels"`
+	} `yaml:"subForCarmen"`
 }
 
 // LoadConfig loads config.json and .env.
 func LoadConfig() Config {
 	var c Config
 	// read json file
-	f, err := AppFs.Open("config.json")
+	f, err := AppFs.Open("config.yml")
 	if err != nil {
 		panic(err)
 	}
@@ -84,23 +84,22 @@ func LoadConfig() Config {
 	if err != nil {
 		panic(err)
 	}
-	json.Unmarshal(b, &c)
+	yaml.Unmarshal(b, &c)
 
-	godotenv.Load()
-	c.Token = os.Getenv("TOKEN")
-	c.RapidAPIKey = os.Getenv("RAPIDAPI_KEY")
-	c.TokenDev = os.Getenv("TOKEN_DEV")
-	c.RedditUserName = os.Getenv("REDDIT_USERNAME")
-	c.RedditClientId = os.Getenv("REDDIT_CLIENT_ID")
-	c.RedditSecret = os.Getenv("REDDIT_SECRET")
-	c.RedditPassword = os.Getenv("REDDIT_PASSWORD")
+	// c.Token = os.Getenv("TOKEN")
+	// c.RapidAPIKey = os.Getenv("RAPIDAPI_KEY")
+	// c.TokenDev = os.Getenv("TOKEN_DEV")
+	// c.RedditUserName = os.Getenv("REDDIT_USERNAME")
+	// c.RedditClientId = os.Getenv("REDDIT_CLIENT_ID")
+	// c.RedditSecret = os.Getenv("REDDIT_SECRET")
+	// c.RedditPassword = os.Getenv("REDDIT_PASSWORD")
 
-	dev := os.Getenv("DEVELOPMENT")
-	if dev == "true" {
-		c.Development = true
-	} else {
-		c.Development = false
-	}
+	// dev := os.Getenv("DEVELOPMENT")
+	// if dev == "true" {
+	// 	c.Development = true
+	// } else {
+	// 	c.Development = false
+	// }
 	return c
 }
 
@@ -141,19 +140,19 @@ func RegisterCommands(sess *discordgo.Session, commands []*discordgo.Application
 // RemoveCommands will delete all registered commands in all servers the discord bot is currently in.
 // sess: discord session.
 // registeredCommands: array of commands to remove.
-func RemoveCommands(sess *discordgo.Session, registeredCommands []*discordgo.ApplicationCommand) {
-	log.Info("Removing commands...")
-	for _, gld := range sess.State.Guilds {
-		for _, cmd := range registeredCommands {
-			err := sess.ApplicationCommandDelete(sess.State.User.ID, gld.ID, cmd.ID)
-			if err != nil {
-				log.Printf("Cannot delete '%v' command in guild '%v': %v\n", cmd.Name, gld.Name, err)
-			} else {
-				log.Printf("Removing command /%v in guild %v", cmd.Name, gld.Name)
-			}
-		}
-	}
-}
+// func RemoveCommands(sess *discordgo.Session, registeredCommands []*discordgo.ApplicationCommand) {
+// 	log.Info("Removing commands...")
+// 	for _, gld := range sess.State.Guilds {
+// 		for _, cmd := range registeredCommands {
+// 			err := sess.ApplicationCommandDelete(sess.State.User.ID, gld.ID, cmd.ID)
+// 			if err != nil {
+// 				log.Printf("Cannot delete '%v' command in guild '%v': %v\n", cmd.Name, gld.Name, err)
+// 			} else {
+// 				log.Printf("Removing command /%v in guild %v", cmd.Name, gld.Name)
+// 			}
+// 		}
+// 	}
+// }
 
 // ParseUserOptions parses the user option passed to a command.
 // sess: discord session.

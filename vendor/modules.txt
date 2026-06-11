@@ -92,9 +92,6 @@ github.com/google/go-querystring/query
 # github.com/gorilla/websocket v1.5.3
 ## explicit; go 1.12
 github.com/gorilla/websocket
-# github.com/joho/godotenv v1.5.1
-## explicit; go 1.12
-github.com/joho/godotenv
 # github.com/kennygrant/sanitize v1.2.4
 ## explicit
 github.com/kennygrant/sanitize
@@ -150,9 +147,6 @@ github.com/spf13/afero/mem
 # github.com/temoto/robotstxt v1.1.2
 ## explicit; go 1.11
 github.com/temoto/robotstxt
-# github.com/vartanbeno/go-reddit/v2 v2.0.1
-## explicit; go 1.15
-github.com/vartanbeno/go-reddit/v2/reddit
 # github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e
 ## explicit; go 1.19
 github.com/xo/terminfo
@@ -177,14 +171,9 @@ golang.org/x/image/math/f64
 golang.org/x/image/math/fixed
 # golang.org/x/net v0.56.0
 ## explicit; go 1.25.0
-golang.org/x/net/context/ctxhttp
 golang.org/x/net/html
 golang.org/x/net/html/atom
 golang.org/x/net/html/charset
-# golang.org/x/oauth2 v0.36.0
-## explicit; go 1.25.0
-golang.org/x/oauth2
-golang.org/x/oauth2/internal
 # golang.org/x/sys v0.46.0
 ## explicit; go 1.25.0
 golang.org/x/sys/cpu

@@ -10,7 +10,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.5.1
 	github.com/onsi/gomega v1.24.1
 	github.com/spf13/afero v1.15.0
-	github.com/vartanbeno/go-reddit/v2 v2.0.1
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -45,19 +45,16 @@ require (
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	golang.org/x/exp v0.0.0-20260611194520-c48552f49976 // indirect
 	golang.org/x/net v0.56.0 // indirect
-	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/text v0.38.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/google/go-querystring v1.2.0
 	github.com/gorilla/websocket v1.5.3 // indirect
-	github.com/joho/godotenv v1.5.1
 	golang.org/x/crypto v0.53.0 // indirect
 	golang.org/x/image v0.42.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect

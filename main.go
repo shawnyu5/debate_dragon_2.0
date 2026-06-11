@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 
@@ -30,21 +31,18 @@ import (
 	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
-var c utils.Config
+var cfg utils.Config
 var dg *discordgo.Session
 
 // init reads config.json and sets global config variable
 func init() {
-	c = utils.LoadConfig()
+	cfg = utils.LoadConfig()
 }
 
 func init() {
 	var err error
-	if c.Development {
-		dg, err = discordgo.New("Bot " + c.TokenDev)
-	} else {
-		dg, err = discordgo.New("Bot " + c.Token)
-	}
+	dg, err = discordgo.New(fmt.Sprintf("Bot %s", cfg.DiscordToken))
+	// dg, err = discordgo.New("Bot " + c.DiscordToken)
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
@@ -54,11 +52,6 @@ func init() {
 type handlerFunc func(sess *discordgo.Session, i *discordgo.InteractionCreate)
 
 var (
-	// // array of all slash commands in this bot
-	// allCommands = []commands.Command{
-	//    snipe.Snipe{},
-	// }
-
 	// array of slash command definitions
 	slashCommandDefs = command.GetCmdDefs()
 	// array of command handlers
@@ -75,12 +68,6 @@ func init() {
 			if cmd, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 				logger := middware.NewLogger(cmd)
 				logger.HandleInteractionApplicationCommand(sess, i)
-				// logger := middware.NewLogger(cmd)
-				// if cmd.EditInteractionResponse != nil {
-				//    logger.EditIteractionResponse(sess, i)
-				// } else if cmd.HandlerFunc != nil {
-				//    logger.HandlerFunc(sess, i)
-				// }
 			} else {
 				utils.SendErrorMessage(sess, i, "")
 			}
@@ -114,8 +101,10 @@ func init() {
 
 func main() {
 	go func() {
+		log.Info("Generating docs...")
 		generatedocs.Generate()
 	}()
+
 	// create database dir
 	// os.Mkdir(c.DbPath, 0755)
 	log.SetLevel(log.DebugLevel)
@@ -138,17 +127,25 @@ func main() {
 	})
 
 	if err := dg.Open(); err != nil {
-		log.Fatalf("Cannot open the session: %v", err)
+		log.Fatalf("Cannot open the discord session: %v", err)
 	}
 
-	// utils.RegisterCommands(dg, slashCommandDefs, registeredCommands)
-	registeredCommands := command.RegisterCommands(dg)
+	// Only recreate commands in PROD
+	// Dont re register slash commands on every restart in DEV
+	if !cfg.DevMode {
+		err := command.RemoveAllSlashCommandFromAllGuilds(dg)
+		if err != nil {
+			log.Fatalf("failed to remove slash command: %s", err)
+		}
+	}
+
+	log.Info("Registering slash commands")
+	command.RegisterCommands(dg)
+
 	dg.AddHandler(func(_ *discordgo.Session, gld *discordgo.GuildCreate) {
 		log.Printf("Bot added to new guild: %v", gld.Name)
 		command.RegisterCommands(dg)
 	})
-
-	// command.DiscoverCommands()
 
 	defer dg.Close()
 
@@ -158,12 +155,6 @@ func main() {
 	signal.Notify(stop, os.Interrupt)
 	log.Info("Press Ctrl+C to exit")
 	<-stop
-
-	// TODO: commands are not being deleted in my own server
-	// only remove commands in production
-	if !c.Development {
-		command.RemoveCommands(dg, registeredCommands)
-	}
 
 	log.Info("Gracefully shutting down.")
 }
