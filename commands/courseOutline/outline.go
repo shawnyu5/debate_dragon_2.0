@@ -1,6 +1,7 @@
 package courseoutline
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -32,7 +33,7 @@ var outline = command.Command{
 			},
 		}
 	},
-	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		utils.DeferReply(sess, i.Interaction)
 		url := GeneratewebPageURL(sess, i)
 		courseInfo := GetCourseInfo(url)
@@ -56,7 +57,7 @@ var outline = command.Command{
 
 		return fmt.Sprintf("Send course outline for `%s`", courseInfo.Title), nil
 	},
-	InteractionApplicationCommandAutocomplete: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionApplicationCommandAutocomplete: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		return GenerateSubjectCodeCompletion(sess, i)
 	},
 }

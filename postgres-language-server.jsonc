@@ -1,0 +1,23 @@
+{
+   "db": {
+      // Database host address (default: "127.0.0.1")
+      // "host": "192.168.2.232",
+      // Database port (default: 5432)
+      "port": 5432,
+      // Database username (default: "postgres")
+      "username": "postgres",
+      // Database password (default: "postgres")
+      "password": "postgres",
+      // Database name to connect to (default: "postgres")
+      "database": "debate_dragon_dev",
+      // Connection timeout in seconds (default: 10)
+      "connTimeoutSecs": 10,
+      // Schemas where code action statement execution is allowed (default: [])
+      "allowStatementExecutionsAgainst": [
+         "public",
+         "testing"
+      ],
+      // Completely disable database features (default: false)
+      "disableConnection": false,
+   },
+}

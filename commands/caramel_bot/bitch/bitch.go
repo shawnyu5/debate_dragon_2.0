@@ -1,6 +1,7 @@
 package bitch
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
@@ -24,7 +25,7 @@ var bitch = command.Command{
 			},
 		}
 	},
-	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (successMsg string, err error) {
 		var message = ""
 		options := utils.ParseUserOptions(sess, i)
 		user := options["user"].UserValue(sess)
@@ -34,7 +35,7 @@ var bitch = command.Command{
 		} else {
 			message = "<@" + user.ID + "> is a bitch."
 		}
-		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		err = sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				Content: message,

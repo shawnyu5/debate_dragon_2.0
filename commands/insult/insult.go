@@ -1,6 +1,7 @@
 package insult
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -35,7 +36,7 @@ var insult = command.Command{
 			},
 		}
 	},
-	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		optionsMap := utils.ParseUserOptions(sess, i)
 		user := optionsMap["user"].UserValue(sess)
 		if user.ID == config.LoadConfig().BotOwner {

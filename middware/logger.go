@@ -1,6 +1,7 @@
 package middware
 
 import (
+	"context"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -14,16 +15,16 @@ type Logger struct {
 	Next command.Command
 }
 
-func (l Logger) HandleInteractionApplicationCommand(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+func (l Logger) HandleInteractionApplicationCommand(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	var output string
 	var err error
 	if l.Next.EditInteractionResponse != nil {
 		log.Debugf("Editing interaction response")
 		utils.DeferReply(sess, i.Interaction)
-		output, err = l.Next.EditInteractionResponse(sess, i)
+		output, err = l.Next.EditInteractionResponse(ctx, sess, i)
 	} else if l.Next.InteractionRespond != nil {
 		log.Debugf("Sending interaction response")
-		output, err = l.Next.InteractionRespond(sess, i)
+		output, err = l.Next.InteractionRespond(ctx, sess, i)
 	} else {
 		panic("No handler defined for slash command " + l.Next.ApplicationCommand().Name)
 	}
@@ -49,8 +50,8 @@ func (l Logger) HandleInteractionApplicationCommand(sess *discordgo.Session, i *
 // handler calls discord slash command handler with logging
 //
 // Deprecated: use `HandleInteractionApplicationCommand()` instead
-func (l Logger) EditIteractionResponse(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
-	output, err := l.Next.EditInteractionResponse(sess, i)
+func (l Logger) EditIteractionResponse(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	output, err := l.Next.EditInteractionResponse(ctx, sess, i)
 	defer func(begin time.Time, output string) {
 		log.Infof("command=%s edited interaction response='%s' err=%s took=%s", l.Next.ApplicationCommand().Name, output, err, time.Since(begin))
 	}(time.Now(), output)
@@ -61,8 +62,8 @@ func (l Logger) EditIteractionResponse(sess *discordgo.Session, i *discordgo.Int
 // handler calls discord slash command handler with logging
 //
 // Deprecated: use `HandleInteractionApplicationCommand()` instead
-func (l Logger) HandlerFunc(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
-	output, err := l.Next.InteractionRespond(sess, i)
+func (l Logger) HandlerFunc(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	output, err := l.Next.InteractionRespond(ctx, sess, i)
 	defer func(begin time.Time, output string) {
 		log.Infof("command=%s response='%s' err=%s took=%s", l.Next.ApplicationCommand().Name, output, err, time.Since(begin))
 	}(time.Now(), output)
@@ -71,8 +72,8 @@ func (l Logger) HandlerFunc(sess *discordgo.Session, i *discordgo.InteractionCre
 }
 
 // handler calls discord slash command handler with logging
-func (l Logger) InteractionApplicationCommandAutocomplete(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
-	output, err := l.Next.InteractionApplicationCommandAutocomplete(sess, i)
+func (l Logger) InteractionApplicationCommandAutocomplete(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	output, err := l.Next.InteractionApplicationCommandAutocomplete(ctx, sess, i)
 	defer func(begin time.Time, output string) {
 		log.Infof("command=%s auto complete response='%s' err=%s took=%s", l.Next.ApplicationCommand().Name, output, err, time.Since(begin))
 	}(time.Now(), output)

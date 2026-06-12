@@ -1,6 +1,8 @@
 package emotes
 
 import (
+	"context"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
 	"github.com/shawnyu5/debate_dragon_2.0/config"
@@ -34,7 +36,7 @@ var emote = command.Command{
 
 		return def
 	},
-	EditInteractionResponse: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	EditInteractionResponse: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		input := utils.ParseUserOptions(sess, i)
 		// utils.DeferReply(sess, i.Interaction)
 		emoteUrl := input["name"].StringValue()

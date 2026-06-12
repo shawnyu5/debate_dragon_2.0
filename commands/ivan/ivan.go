@@ -1,6 +1,7 @@
 package ivan
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -49,7 +50,7 @@ var ivan = command.Command{
 		obj.Options = append(obj.Options, &newOption)
 		return obj
 	},
-	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		utils.DeferReply(sess, i.Interaction)
 		optionMap := utils.ParseUserOptions(sess, i)
 

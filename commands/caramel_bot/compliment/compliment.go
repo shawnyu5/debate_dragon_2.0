@@ -30,7 +30,7 @@ package compliment
 // 			},
 // 		}
 // 	},
-// 	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+// 	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 // 		userOptions := utils.ParseUserOptions(sess, i)
 // 		user := userOptions["user"].UserValue(sess)
 //

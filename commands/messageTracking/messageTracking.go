@@ -1,10 +1,15 @@
 package messagetracking
 
 import (
-	"time"
+	"context"
+	"encoding/json"
+	"fmt"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/charmbracelet/log"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/shawnyu5/debate_dragon_2.0/db"
 )
 
 // contains all discord messages sent since the bot startup, map of guild id to message id to discord message
@@ -15,40 +20,71 @@ var deletedMessagesMap = make(map[string]map[string][]discordgo.Message)
 
 var lastDeletedMessage = discordgo.Message{}
 
-// TrackAllSentMessage tracks all sent messages in all guilds this bot is in for the duration of the bot's life time
-//
-// We will only keep track of 1000 messages per guild. When we reach the 1000 message limit, delete the oldest message
-func TrackAllSentMessage(mess *discordgo.MessageCreate) {
-	// if the map for the current guild doesn't exist, initialize it
-	if allMessagesMap[mess.GuildID] == nil {
-		allMessagesMap[mess.GuildID] = map[string]discordgo.Message{}
+// PrepareMessageForDB converts a discordgo.Message into a format that can be inserted into Postgres
+func PrepareMessageForDB(msg *discordgo.Message) ([]byte, error) {
+	uuid, err := uuid.NewV7()
+	if err != nil {
+		log.Fatalf("failed to generate new UUID: %s", err)
 	}
 
-	// add message to map
-	log.Debugf("Tracking message from user %s in guild %s", mess.Author.Username, mess.GuildID)
-	allMessagesMap[mess.GuildID][mess.ID] = *mess.Message
+	savedMsg := db.SavedMessage{
+		ID:          uuid.String(),
+		Content:     msg.Content,
+		AuthorID:    msg.Author.ID,
+		Attachments: msg.Attachments,
+	}
 
-	// store the messages to be removed
-	oldestMessage := discordgo.Message{}
-	oldestTimeDuration := time.Duration(0)
+	jsonData, err := json.Marshal(savedMsg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal discord message: %w", err)
+	}
 
-	// if we have more than 1000 messages stored for this guild, then remove the oldest message
-	if len(allMessagesMap[mess.GuildID]) > 1000 {
-		log.Debug("Over 1000 messages, deleting oldest message for guild", mess.GuildID)
-		for _, message := range allMessagesMap[mess.GuildID] {
-			timeDiff := time.Since(message.Timestamp.UTC())
-			if oldestTimeDuration < timeDiff {
-				oldestTimeDuration = timeDiff
-				oldestMessage = message
-			}
+	return jsonData, nil
+}
+
+// TrackAllSentMessage tracks all sent messages in all guilds, up to 1000 messages total
+func TrackAllSentMessage(store *db.Store, msg *discordgo.MessageCreate) {
+	log.Infof("Storing message in DB: %s", msg.Content)
+	log.Debugf("Got discord message: %+v", msg.Message)
+	uuid, err := uuid.NewV7()
+	if err != nil {
+		log.Error("failed to create UUID: %s", err)
+	}
+
+	json, err := PrepareMessageForDB(msg.Message)
+	if err != nil {
+		log.Fatalf("failed to convert Discord message to JSON: %s", err)
+	}
+
+	err = store.InsertMessage(context.Background(), db.InsertMessageParams{
+		ID: pgtype.UUID{
+			Bytes: uuid,
+			Valid: true,
+		},
+		GuildID:  msg.GuildID,
+		AuthorID: msg.Author.ID,
+		Metadata: json,
+	})
+	if err != nil {
+		log.Errorf("failed to insert new message into DB: %s", err)
+	}
+
+	go func() {
+		log.Info("Cleaning up messages table")
+		ctx := context.Background()
+		err := store.CleanupMessagesTable(ctx)
+		if err != nil {
+			log.Errorf("failed to clean up messages table: %s", err)
 		}
-		delete(allMessagesMap[mess.GuildID], oldestMessage.ID)
-	}
+
+	}()
 }
 
 // TrackDeletedMessage tracks the last 10 deleted messages metadata for a guild, excluding their content. Use allMessagesMap to get the contents of those messages
 //
 // When there are 10 messages, the oldest message will be deleted.
+//
+// Deprecated: no longer need to specifically track deleted messages anymore
 func TrackDeletedMessage(guildID string, messageID string) {
 	if deletedMessagesMap[guildID] == nil {
 		log.Debugf("Creating deleted messages guild map for guild %s", guildID)

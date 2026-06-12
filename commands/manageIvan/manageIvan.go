@@ -1,6 +1,7 @@
 package manageIvan
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
@@ -47,7 +48,7 @@ var manageIvan = command.Command{
 			},
 		}
 	},
-	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		optionsMap := utils.ParseUserOptions(sess, i)
 		countDown := optionsMap["countdown"]
 
@@ -109,7 +110,7 @@ var ivanBanState = state{}
 type ManageIvan struct{}
 
 // startBanningIvan handles the interaction countdown to ban a user
-func startBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+func startBanningIvan(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	// change original ephemeral message to command executor
 	err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseUpdateMessage,
@@ -177,7 +178,7 @@ func startBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) (
 }
 
 // dontBanButtonHandler handle when the dont ban button is pushed
-func dontBanButtonHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+func dontBanButtonHandler(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseUpdateMessage,
 		Data: &discordgo.InteractionResponseData{

@@ -1,6 +1,7 @@
 package rmp
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -29,7 +30,7 @@ var rmp = command.Command{
 			},
 		}
 	},
-	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		options := utils.ParseUserOptions(sess, i)
 		profName := options["profname"].StringValue()
 		searchResult := SearchRmpProfByName(profName)
@@ -100,7 +101,7 @@ var rmp = command.Command{
 		}
 
 	},
-	InteractionApplicationCommandAutocomplete: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionApplicationCommandAutocomplete: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		err := autoCompleteHandler(sess, i)
 		if err != nil {
 			return "", err
@@ -129,7 +130,7 @@ type state struct {
 var rmpState = state{}
 
 // menuHandler handles when an option is selected in the select menu
-func menuHandler(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+func menuHandler(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 	data := i.MessageComponentData()
 	// id of the prof selected by the user
 	selectedProfID := data.Values[0]

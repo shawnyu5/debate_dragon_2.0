@@ -19,7 +19,7 @@ package reddit
 // 			Description: "Get a random Reddit post from r/Seneca",
 // 		}
 // 	},
-// 	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+// 	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 // 		err := utils.DeferReply(sess, i.Interaction)
 // 		if err != nil {
 // 			return "", err

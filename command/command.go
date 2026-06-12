@@ -1,6 +1,7 @@
 package command
 
 import (
+	"context"
 	"sync"
 
 	"github.com/bwmarrin/discordgo"
@@ -11,7 +12,7 @@ import (
 var CmdStore []Command
 
 // A handler function type for slash commands
-type HandlerFunc func(sess *discordgo.Session, i *discordgo.InteractionCreate) (successMsg string, err error)
+type HandlerFunc func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (successMsg string, err error)
 
 type Command struct {
 	// // Name of the slash command

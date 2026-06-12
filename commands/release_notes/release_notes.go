@@ -1,6 +1,8 @@
 package releasenotes
 
 import (
+	"context"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
 )
@@ -13,7 +15,7 @@ var releaseNotes = command.Command{
 			Description: "Get the release notes for this release",
 		}
 	},
-	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		err := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{

@@ -1,6 +1,7 @@
 package snipe
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
@@ -20,13 +21,17 @@ var snipe = command.Command{
 			Description: "Get the contents of the last deleted message",
 		}
 	},
-	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		utils.DeferReply(sess, i.Interaction)
+		// store, err := middware.StoreFromContext(ctx)
+		// if err != nil {
+		// 	log.Fatalf("db store not found in context: %s. This is bug!", err)
+		// }
 
 		deletedMess := messagetracking.GetLastDeletedMessage()
 		// deletedMess := GetMessageByID(LastDeletedMessage.GuildID, LastDeletedMessage.ID)
 		// if there are no deleted messages in cache, then send error response
-		if deletedMess.Content == "" && len(deletedMess.Attachments) == 0 {
+		if deletedMess.Content == "" {
 			_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 				Embeds: &[]*discordgo.MessageEmbed{
 					{

@@ -1,6 +1,7 @@
 package areushawnyu
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -38,7 +39,7 @@ var cmd = command.Command{
 			},
 		}
 	},
-	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (successMsg string, err error) {
+	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (successMsg string, err error) {
 		sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{

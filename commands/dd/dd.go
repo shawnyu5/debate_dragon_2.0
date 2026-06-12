@@ -1,6 +1,7 @@
 package dd
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -25,7 +26,7 @@ var dd = command.Command{
 			},
 		}
 	},
-	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		userOptions := utils.ParseUserOptions(sess, i)
 		img, err := gg.LoadImage("./media/img/dragon_drawing.png")
 		if err != nil {
@@ -35,25 +36,25 @@ var dd = command.Command{
 		fontSize := 70
 		fontSize = utils.ShrinkFontSize(fontSize, userOptions["text"].StringValue(), 7)
 
-		ctx := gg.NewContext(CanvasSize, CanvasSize)
-		ctx.SetRGB(1, 1, 1)
-		ctx.Clear()
-		ctx.SetRGB(0, 0, 0)
+		ggCtx := gg.NewContext(CanvasSize, CanvasSize)
+		ggCtx.SetRGB(1, 1, 1)
+		ggCtx.Clear()
+		ggCtx.SetRGB(0, 0, 0)
 
-		if err := ctx.LoadFontFace("./media/font/comic_sans/comicz.ttf", float64(fontSize)); err != nil {
+		if err := ggCtx.LoadFontFace("./media/font/comic_sans/comicz.ttf", float64(fontSize)); err != nil {
 			log.Fatalln(err)
 		}
 
-		ctx.DrawRoundedRectangle(0, 0, 512, 512, 0)
-		ctx.DrawImage(img, 0, 0)
+		ggCtx.DrawRoundedRectangle(0, 0, 512, 512, 0)
+		ggCtx.DrawImage(img, 0, 0)
 
 		// The anchor point is x - w * ax, y - h * ay, where w, h is the size of the
 		// text. Use ax=0.5, ay=0.5 to center the text at the specified point
 		x := 20
 		y := 0.1
-		ctx.DrawStringWrapped(userOptions["text"].StringValue(), float64(CanvasSize/2), float64(CanvasSize/2), float64(x), float64(y), 15, 1, gg.AlignCenter)
-		ctx.Clip()
-		ctx.SavePNG("out.png")
+		ggCtx.DrawStringWrapped(userOptions["text"].StringValue(), float64(CanvasSize/2), float64(CanvasSize/2), float64(x), float64(y), 15, 1, gg.AlignCenter)
+		ggCtx.Clip()
+		ggCtx.SavePNG("out.png")
 
 		out, err := os.Open("out.png")
 		defer out.Close()

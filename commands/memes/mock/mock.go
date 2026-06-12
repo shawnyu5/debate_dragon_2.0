@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"image/color"
@@ -30,7 +31,7 @@ var mock = command.Command{
 			},
 		}
 	},
-	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		userOptions := utils.ParseUserOptions(sess, i)
 		user := userOptions["user"].UserValue(sess)
 		mess, err := GetUserLastMessage(sess, userOptions["user"].UserValue(sess), i.ChannelID)

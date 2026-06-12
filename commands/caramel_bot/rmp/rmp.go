@@ -1,6 +1,7 @@
 package caramelbotrmp
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -23,7 +24,7 @@ var rmpCmd = command.Command{
 			},
 		}
 	},
-	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (successMsg string, err error) {
 		options := i.ApplicationCommandData().Options
 
 		if options[0] != nil {

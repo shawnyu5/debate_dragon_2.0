@@ -1,6 +1,7 @@
 package stfu
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strconv"
@@ -40,7 +41,7 @@ var stfu = command.Command{
 			},
 		}
 	},
-	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
+	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		userOptions := utils.ParseUserOptions(sess, i)
 		// if a user set a custom length, use that
 		if val, ok := userOptions["length"]; ok {
