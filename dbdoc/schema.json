@@ -1,0 +1,128 @@
+{
+  "name": "debate_dragon",
+  "tables": [
+    {
+      "name": "public.messages",
+      "type": "BASE TABLE",
+      "comment": "Table containing all messages send in all guilds this bot is in",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "guild_id",
+          "type": "text",
+          "nullable": false,
+          "comment": "Guild ID this message came from"
+        },
+        {
+          "name": "author_id",
+          "type": "text",
+          "nullable": false,
+          "comment": "Author ID this message came from"
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb",
+          "nullable": false,
+          "comment": "JSON encoded string, containg other properties, such as image and attachments"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": "now()",
+          "comment": "Timestamp the message was created at"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "messages_pkey",
+          "def": "CREATE UNIQUE INDEX messages_pkey ON public.messages USING btree (id)",
+          "table": "public.messages",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "messages_author_id_not_null",
+          "type": "n",
+          "def": "NOT NULL author_id",
+          "table": "public.messages",
+          "referenced_table": "",
+          "columns": [
+            "author_id"
+          ]
+        },
+        {
+          "name": "messages_created_at_not_null",
+          "type": "n",
+          "def": "NOT NULL created_at",
+          "table": "public.messages",
+          "referenced_table": "",
+          "columns": [
+            "created_at"
+          ]
+        },
+        {
+          "name": "messages_guild_id_not_null",
+          "type": "n",
+          "def": "NOT NULL guild_id",
+          "table": "public.messages",
+          "referenced_table": "",
+          "columns": [
+            "guild_id"
+          ]
+        },
+        {
+          "name": "messages_id_not_null",
+          "type": "n",
+          "def": "NOT NULL id",
+          "table": "public.messages",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "messages_metadata_not_null",
+          "type": "n",
+          "def": "NOT NULL metadata",
+          "table": "public.messages",
+          "referenced_table": "",
+          "columns": [
+            "metadata"
+          ]
+        },
+        {
+          "name": "messages_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "public.messages",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        }
+      ]
+    }
+  ],
+  "driver": {
+    "name": "postgres",
+    "database_version": "PostgreSQL 18.3 (Debian 18.3-1.pgdg13+1) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "meta": {
+      "current_schema": "public",
+      "search_paths": [
+        "postgres",
+        "public"
+      ],
+      "dict": {
+        "Functions": "Stored procedures and functions"
+      }
+    }
+  }
+}

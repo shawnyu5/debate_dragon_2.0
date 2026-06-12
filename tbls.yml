@@ -1,0 +1,5 @@
+name: debate_dragon
+dsn: postgres://postgres:postgres@localhost/debate_dragon_dev?sslmode=disable
+exclude:
+  - goose_db_version
+

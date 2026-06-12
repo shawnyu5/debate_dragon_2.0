@@ -30,7 +30,6 @@ func PrepareMessageForDB(msg *discordgo.Message) ([]byte, error) {
 	savedMsg := db.SavedMessage{
 		ID:          uuid.String(),
 		Content:     msg.Content,
-		AuthorID:    msg.Author.ID,
 		Attachments: msg.Attachments,
 	}
 
