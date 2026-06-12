@@ -2,106 +2,17 @@ package utils
 
 import (
 	"fmt"
-	"io"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/afero"
-	"gopkg.in/yaml.v3"
 )
 
 var AppFs = afero.NewOsFs()
 
 // config object as defined in config.json.
 // do not json martial sensitive fields such as discord token
-type Config struct {
-	// Discord token used to connect to discord
-	DiscordToken string `yaml:"discord_token"`
-	// Token          string `yaml:"-"`
-	// TokenDev       string `yaml:"-"`
-	// RedditUserName string `yaml:"-"`
-	// RedditClientId string `yaml:"-"`
-	// RedditSecret   string `yaml:"-"`
-	// RedditPassword string `yaml:"-"`
-	LogLevel string `yaml:"logLevel"`
-	DevMode  bool   `yaml:"dev_mode"`
-	// RapidAPIKey string `yaml:"-"`
-	// ID of the bot owner
-	BotOwner string `yaml:"botOwner"`
-	// path to the local db
-	DbPath string `yaml:"dbPath"`
-	Emotes []struct {
-		// name of emote
-		Name string `yaml:"name"`
-		// url to emote
-		URL string `yaml:"url"`
-	} `yaml:"emotes"`
-	// config for new member greetings
-	NewMemberGreeting struct {
-		Config []struct {
-			ServerName string `yaml:"serverName"`
-			RoleID     string `yaml:"roleID"`
-			ServerID   string `yaml:"serverID"`
-			ChannelID  string `yaml:"channelID"`
-			Enable     bool   `yaml:"enable"`
-		} `yaml:"config"`
-	} `yaml:"newMemberGreeting"`
-	Ivan struct {
-		Emotes []struct {
-			Name         string `yaml:"name"`
-			FileLocation string `yaml:"fileLocation"`
-		} `yaml:"emotes"`
-	} `yaml:"ivan"`
-	SubForCarmen struct {
-		// toggle this feature on and off
-		On bool `yaml:"on"`
-		// id of carmen user to track messages of
-		CarmenID string `yaml:"carmenId"`
-		// cool down, defined in minutes
-		CoolDown int `yaml:"coolDown"`
-		// the guild to keep track of carmen messages
-		GuildID string `yaml:"guildID"`
-		// number of messages before a notification is triggered
-		MessageLimit      int    `yaml:"messageLimit"`
-		SubscribersRoleID string `yaml:"subscribersRoleID"`
-		// channels to ignore
-		IgnoredChannels []string `yaml:"ignoredChannels"`
-	} `yaml:"subForCarmen"`
-}
-
-// LoadConfig loads config.json and .env.
-func LoadConfig() Config {
-	var c Config
-	// read json file
-	f, err := AppFs.Open("config.yml")
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	b, err := io.ReadAll(f)
-	if err != nil {
-		panic(err)
-	}
-	yaml.Unmarshal(b, &c)
-
-	// c.Token = os.Getenv("TOKEN")
-	// c.RapidAPIKey = os.Getenv("RAPIDAPI_KEY")
-	// c.TokenDev = os.Getenv("TOKEN_DEV")
-	// c.RedditUserName = os.Getenv("REDDIT_USERNAME")
-	// c.RedditClientId = os.Getenv("REDDIT_CLIENT_ID")
-	// c.RedditSecret = os.Getenv("REDDIT_SECRET")
-	// c.RedditPassword = os.Getenv("REDDIT_PASSWORD")
-
-	// dev := os.Getenv("DEVELOPMENT")
-	// if dev == "true" {
-	// 	c.Development = true
-	// } else {
-	// 	c.Development = false
-	// }
-	return c
-}
 
 // RegisterCommands register an array of commands to a discord session.
 // sess: discord session.

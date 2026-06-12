@@ -5,6 +5,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
+	"github.com/shawnyu5/debate_dragon_2.0/config"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
@@ -28,7 +29,7 @@ var bitch = command.Command{
 		options := utils.ParseUserOptions(sess, i)
 		user := options["user"].UserValue(sess)
 
-		if user.ID == utils.LoadConfig().BotOwner {
+		if user.ID == config.LoadConfig().BotOwner {
 			message = "<@" + i.Member.User.ID + "> nice try, you're a bitch."
 		} else {
 			message = "<@" + user.ID + "> is a bitch."

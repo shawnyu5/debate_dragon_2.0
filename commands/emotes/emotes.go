@@ -3,6 +3,7 @@ package emotes
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
+	"github.com/shawnyu5/debate_dragon_2.0/config"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
@@ -58,7 +59,7 @@ func GetEmotes() emotesMapType {
 	if len(emoteCache) != 0 {
 		return emoteCache
 	}
-	c := utils.LoadConfig()
+	c := config.LoadConfig()
 	for _, emote := range c.Emotes {
 		emoteCache[emote.Name] = emote.URL
 	}

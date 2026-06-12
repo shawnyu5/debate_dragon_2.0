@@ -70,7 +70,7 @@ package compliment
 //
 // 	req, _ := http.NewRequest("GET", url, nil)
 //
-// 	req.Header.Add("X-RapidAPI-Key", utils.LoadConfig().RapidAPIKey)
+// 	req.Header.Add("X-RapidAPI-Key", config.LoadConfig().RapidAPIKey)
 // 	req.Header.Add("X-RapidAPI-Host", "nerdy-pickup-lines1.p.rapidapi.com")
 //
 // 	res, _ := http.DefaultClient.Do(req)

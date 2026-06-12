@@ -41,7 +41,7 @@ package reddit
 //
 // // getRandomRedditPost get a random post from r/Seneca
 // func getRandomRedditPost() (*reddit.Post, error) {
-// 	config := utils.LoadConfig()
+// 	config := config.LoadConfig()
 // 	credentials := reddit.Credentials{
 // 		ID:       config.RedditClientId,
 // 		Secret:   config.RedditSecret,

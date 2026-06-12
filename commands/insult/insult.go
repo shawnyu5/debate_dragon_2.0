@@ -8,6 +8,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
+	"github.com/shawnyu5/debate_dragon_2.0/config"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
@@ -37,7 +38,7 @@ var insult = command.Command{
 	InteractionRespond: func(sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		optionsMap := utils.ParseUserOptions(sess, i)
 		user := optionsMap["user"].UserValue(sess)
-		if user.ID == utils.LoadConfig().BotOwner {
+		if user.ID == config.LoadConfig().BotOwner {
 			user = i.Member.User
 			log.Println("I am being insulted. This will not fly. Insult this user instead", user)
 		}

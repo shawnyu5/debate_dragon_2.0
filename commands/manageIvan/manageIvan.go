@@ -7,6 +7,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
+	"github.com/shawnyu5/debate_dragon_2.0/config"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
@@ -98,8 +99,6 @@ var manageIvan = command.Command{
 	},
 }
 
-var config = utils.LoadConfig()
-
 // custom ID for banning ivan
 var startBanProcessID = "start_ivan_ban"
 var dontBanIvanID = "dont_ban_ivan"
@@ -146,7 +145,7 @@ func startBanningIvan(sess *discordgo.Session, i *discordgo.InteractionCreate) (
 		time.Sleep(message.countDownTime * time.Second)
 	}
 
-	if !config.DevMode {
+	if !config.LoadConfig().DevMode {
 		err = sess.GuildBanCreateWithReason(i.GuildID, ivanBanState.User.ID, "Ivan", 0)
 		if err != nil {
 			return "", err

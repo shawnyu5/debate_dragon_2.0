@@ -8,6 +8,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
+	"github.com/shawnyu5/debate_dragon_2.0/config"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
@@ -160,7 +161,7 @@ func FilterIvanBans(bans []*discordgo.GuildBan, listLength int64) []*discordgo.G
 func GetAllEmotes() map[string]string {
 	// map of name: fileLocation for all emotes
 	emotes := make(map[string]string)
-	config := utils.LoadConfig()
+	config := config.LoadConfig()
 
 	for _, emote := range config.Ivan.Emotes {
 		emotes[emote.Name] = emote.FileLocation
