@@ -94,33 +94,72 @@ type group struct {
 	runOncePairs   map[uint]runOncePairs
 	runOnceTracker map[runOncePair]types.SpecState
 
-	succeeded bool
+	succeeded              bool
+	failedInARunOnceBefore bool
+	continueOnFailure      bool
 }
 
 func newGroup(suite *Suite) *group {
 	return &group{
-		suite:          suite,
-		runOncePairs:   map[uint]runOncePairs{},
-		runOnceTracker: map[runOncePair]types.SpecState{},
-		succeeded:      true,
+		suite:                  suite,
+		runOncePairs:           map[uint]runOncePairs{},
+		runOnceTracker:         map[runOncePair]types.SpecState{},
+		succeeded:              true,
+		failedInARunOnceBefore: false,
+		continueOnFailure:      false,
 	}
 }
 
+// initialReportForSpec constructs a new SpecReport right before running the spec.
 func (g *group) initialReportForSpec(spec Spec) types.SpecReport {
 	return types.SpecReport{
-		ContainerHierarchyTexts:     spec.Nodes.WithType(types.NodeTypeContainer).Texts(),
-		ContainerHierarchyLocations: spec.Nodes.WithType(types.NodeTypeContainer).CodeLocations(),
-		ContainerHierarchyLabels:    spec.Nodes.WithType(types.NodeTypeContainer).Labels(),
-		LeafNodeLocation:            spec.FirstNodeWithType(types.NodeTypeIt).CodeLocation,
-		LeafNodeType:                types.NodeTypeIt,
-		LeafNodeText:                spec.FirstNodeWithType(types.NodeTypeIt).Text,
-		LeafNodeLabels:              []string(spec.FirstNodeWithType(types.NodeTypeIt).Labels),
-		ParallelProcess:             g.suite.config.ParallelProcess,
-		RunningInParallel:           g.suite.isRunningInParallel(),
-		IsSerial:                    spec.Nodes.HasNodeMarkedSerial(),
-		IsInOrderedContainer:        !spec.Nodes.FirstNodeMarkedOrdered().IsZero(),
-		MaxFlakeAttempts:            spec.Nodes.GetMaxFlakeAttempts(),
-		MaxMustPassRepeatedly:       spec.Nodes.GetMaxMustPassRepeatedly(),
+		ContainerHierarchyTexts:                      spec.Nodes.WithType(types.NodeTypeContainer).Texts(),
+		ContainerHierarchyLocations:                  spec.Nodes.WithType(types.NodeTypeContainer).CodeLocations(),
+		ContainerHierarchyLabels:                     spec.Nodes.WithType(types.NodeTypeContainer).Labels(),
+		ContainerHierarchySemVerConstraints:          spec.Nodes.WithType(types.NodeTypeContainer).SemVerConstraints(),
+		ContainerHierarchyComponentSemVerConstraints: spec.Nodes.WithType(types.NodeTypeContainer).ComponentSemVerConstraints(),
+		LeafNodeLocation:                             spec.FirstNodeWithType(types.NodeTypeIt).CodeLocation,
+		LeafNodeType:                                 types.NodeTypeIt,
+		LeafNodeText:                                 spec.FirstNodeWithType(types.NodeTypeIt).Text,
+		LeafNodeLabels:                               []string(spec.FirstNodeWithType(types.NodeTypeIt).Labels),
+		LeafNodeSemVerConstraints:                    []string(spec.FirstNodeWithType(types.NodeTypeIt).SemVerConstraints),
+		LeafNodeComponentSemVerConstraints:           map[string][]string(spec.FirstNodeWithType(types.NodeTypeIt).ComponentSemVerConstraints),
+		ParallelProcess:                              g.suite.config.ParallelProcess,
+		RunningInParallel:                            g.suite.isRunningInParallel(),
+		IsSerial:                                     spec.Nodes.HasNodeMarkedSerial(),
+		IsInOrderedContainer:                         !spec.Nodes.FirstNodeMarkedOrdered().IsZero(),
+		MaxFlakeAttempts:                             spec.Nodes.GetMaxFlakeAttempts(),
+		MaxMustPassRepeatedly:                        spec.Nodes.GetMaxMustPassRepeatedly(),
+		SpecPriority:                                 spec.Nodes.GetSpecPriority(),
+	}
+}
+
+// constructionNodeReportForTreeNode constructs a new SpecReport right before invoking the body
+// of a container node during construction of the full tree.
+func constructionNodeReportForTreeNode(node *TreeNode) *types.ConstructionNodeReport {
+	var report types.ConstructionNodeReport
+	// Walk up the tree and set attributes accordingly.
+	addNodeToReportForNode(&report, node)
+	return &report
+}
+
+// addNodeToReportForNode is conceptually similar to initialReportForSpec and therefore placed here
+// although it doesn't do anything with a group.
+func addNodeToReportForNode(report *types.ConstructionNodeReport, node *TreeNode) {
+	if node.Parent != nil {
+		// First add the parent node, then the current one.
+		addNodeToReportForNode(report, node.Parent)
+	}
+	report.ContainerHierarchyTexts = append(report.ContainerHierarchyTexts, node.Node.Text)
+	report.ContainerHierarchyLocations = append(report.ContainerHierarchyLocations, node.Node.CodeLocation)
+	report.ContainerHierarchyLabels = append(report.ContainerHierarchyLabels, node.Node.Labels)
+	report.ContainerHierarchySemVerConstraints = append(report.ContainerHierarchySemVerConstraints, node.Node.SemVerConstraints)
+	report.ContainerHierarchyComponentSemVerConstraints = append(report.ContainerHierarchyComponentSemVerConstraints, node.Node.ComponentSemVerConstraints)
+	if node.Node.MarkedSerial {
+		report.IsSerial = true
+	}
+	if node.Node.MarkedOrdered {
+		report.IsInOrderedContainer = true
 	}
 }
 
@@ -137,9 +176,13 @@ func (g *group) evaluateSkipStatus(spec Spec) (types.SpecState, types.Failure) {
 	if !g.suite.deadline.IsZero() && g.suite.deadline.Before(time.Now()) {
 		return types.SpecStateSkipped, types.Failure{}
 	}
-	if !g.succeeded {
+	if !g.succeeded && !g.continueOnFailure {
 		return types.SpecStateSkipped, g.suite.failureForLeafNodeWithMessage(spec.FirstNodeWithType(types.NodeTypeIt),
 			"Spec skipped because an earlier spec in an ordered container failed")
+	}
+	if g.failedInARunOnceBefore && g.continueOnFailure {
+		return types.SpecStateSkipped, g.suite.failureForLeafNodeWithMessage(spec.FirstNodeWithType(types.NodeTypeIt),
+			"Spec skipped because a BeforeAll node failed")
 	}
 	beforeOncePairs := g.runOncePairs[spec.SubjectID()].withType(types.NodeTypeBeforeAll | types.NodeTypeBeforeEach | types.NodeTypeJustBeforeEach)
 	for _, pair := range beforeOncePairs {
@@ -168,7 +211,8 @@ func (g *group) isLastSpecWithPair(specID uint, pair runOncePair) bool {
 	return lastSpecID == specID
 }
 
-func (g *group) attemptSpec(isFinalAttempt bool, spec Spec) {
+func (g *group) attemptSpec(isFinalAttempt bool, spec Spec) bool {
+	failedInARunOnceBefore := false
 	pairs := g.runOncePairs[spec.SubjectID()]
 
 	nodes := spec.Nodes.WithType(types.NodeTypeBeforeAll)
@@ -194,6 +238,7 @@ func (g *group) attemptSpec(isFinalAttempt bool, spec Spec) {
 		}
 		if g.suite.currentSpecReport.State != types.SpecStatePassed {
 			terminatingNode, terminatingPair = node, oncePair
+			failedInARunOnceBefore = !terminatingPair.isZero()
 			break
 		}
 	}
@@ -216,7 +261,7 @@ func (g *group) attemptSpec(isFinalAttempt bool, spec Spec) {
 				//this node has already been run on this attempt, don't rerun it
 				return false
 			}
-			pair := runOncePair{}
+			var pair runOncePair
 			switch node.NodeType {
 			case types.NodeTypeCleanupAfterEach, types.NodeTypeCleanupAfterAll:
 				// check if we were generated in an AfterNode that has already run
@@ -246,9 +291,13 @@ func (g *group) attemptSpec(isFinalAttempt bool, spec Spec) {
 				if !terminatingPair.isZero() && terminatingNode.NestingLevel == node.NestingLevel {
 					return true //...or, a run-once node at our nesting level was skipped which means this is our last chance to run
 				}
-			case types.SpecStateFailed, types.SpecStatePanicked: // the spec has failed...
+			case types.SpecStateFailed, types.SpecStatePanicked, types.SpecStateTimedout: // the spec has failed...
 				if isFinalAttempt {
-					return true //...if this was the last attempt then we're the last spec to run and so the AfterNode should run
+					if g.continueOnFailure {
+						return isLastSpecWithPair || failedInARunOnceBefore //...we're configured to continue on failures - so we should only run if we're the last spec for this pair or if we failed in a runOnceBefore (which means we _are_ the last spec to run)
+					} else {
+						return true //...this was the last attempt and continueOnFailure is false therefore we are the last spec to run and so the AfterNode should run
+					}
 				}
 				if !terminatingPair.isZero() { // ...and it failed in a run-once.  which will be running again
 					if node.NodeType.Is(types.NodeTypeCleanupAfterEach | types.NodeTypeCleanupAfterAll) {
@@ -281,10 +330,12 @@ func (g *group) attemptSpec(isFinalAttempt bool, spec Spec) {
 		includeDeferCleanups = true
 	}
 
+	return failedInARunOnceBefore
 }
 
 func (g *group) run(specs Specs) {
 	g.specs = specs
+	g.continueOnFailure = specs[0].Nodes.FirstNodeMarkedOrdered().MarkedContinueOnFailure
 	for _, spec := range g.specs {
 		g.runOncePairs[spec.SubjectID()] = runOncePairsForSpec(spec)
 	}
@@ -301,11 +352,14 @@ func (g *group) run(specs Specs) {
 		skip := g.suite.config.DryRun || g.suite.currentSpecReport.State.Is(types.SpecStateFailureStates|types.SpecStateSkipped|types.SpecStatePending)
 
 		g.suite.currentSpecReport.StartTime = time.Now()
+		failedInARunOnceBefore := false
 		if !skip {
-
 			var maxAttempts = 1
 
-			if g.suite.currentSpecReport.MaxMustPassRepeatedly > 0 {
+			if g.suite.config.MustPassRepeatedly > 0 {
+				maxAttempts = g.suite.config.MustPassRepeatedly
+				g.suite.currentSpecReport.MaxMustPassRepeatedly = maxAttempts
+			} else if g.suite.currentSpecReport.MaxMustPassRepeatedly > 0 {
 				maxAttempts = max(1, spec.MustPassRepeatedly())
 			} else if g.suite.config.FlakeAttempts > 0 {
 				maxAttempts = g.suite.config.FlakeAttempts
@@ -327,7 +381,7 @@ func (g *group) run(specs Specs) {
 					}
 				}
 
-				g.attemptSpec(attempt == maxAttempts-1, spec)
+				failedInARunOnceBefore = g.attemptSpec(attempt == maxAttempts-1, spec)
 
 				g.suite.currentSpecReport.EndTime = time.Now()
 				g.suite.currentSpecReport.RunTime = g.suite.currentSpecReport.EndTime.Sub(g.suite.currentSpecReport.StartTime)
@@ -355,6 +409,7 @@ func (g *group) run(specs Specs) {
 		g.suite.processCurrentSpecReport()
 		if g.suite.currentSpecReport.State.Is(types.SpecStateFailureStates) {
 			g.succeeded = false
+			g.failedInARunOnceBefore = g.failedInARunOnceBefore || failedInARunOnceBefore
 		}
 		g.suite.selectiveLock.Lock()
 		g.suite.currentSpecReport = types.SpecReport{}
