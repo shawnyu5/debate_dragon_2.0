@@ -7,5 +7,6 @@ type SavedMessage struct {
 	ID          string                         `json:"id"`
 	Content     string                         `json:"content"`
 	AuthorID    string                         `json:"author_id"`
+	MessageID   string                         `json:"message_id"`
 	Attachments []*discordgo.MessageAttachment `json:"attachments,omitempty"`
 }

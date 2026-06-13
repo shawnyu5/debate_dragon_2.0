@@ -105,7 +105,7 @@ func main() {
 	})
 
 	dg.AddHandler(func(_ *discordgo.Session, mess *discordgo.MessageDelete) {
-		messagetracking.TrackDeletedMessage(mess)
+		messagetracking.TrackDeletedMessage(ctx, mess)
 	})
 
 	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {

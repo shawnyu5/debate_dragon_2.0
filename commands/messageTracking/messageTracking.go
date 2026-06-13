@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shawnyu5/debate_dragon_2.0/db"
+	"github.com/shawnyu5/debate_dragon_2.0/middware"
 )
 
 // PrepareMessageForDB converts a discordgo.Message into a format that can be inserted into Postgres
@@ -133,8 +134,17 @@ func GetLastDeletedMessage() discordgo.Message {
 }
 
 // TrackDeletedMessages marks a message as been deleted in the DB
-func TrackDeletedMessage(mess *discordgo.MessageDelete) {
+func TrackDeletedMessage(ctx context.Context, mess *discordgo.MessageDelete) {
 	log.Infof("Marking message %s as deleted in DB", mess.ID)
 	log.Debugf("Received deleted message: %+v", mess)
+
+	store, err := middware.StoreFromContext(ctx)
+	if err != nil {
+		log.Fatalf("No db found in context: %s", err)
+	}
+
+	store.ExecTx(context.Background(), func(q *db.Queries) error {
+		return nil
+	})
 
 }
