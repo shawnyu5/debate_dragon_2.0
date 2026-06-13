@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/charmbracelet/log"
@@ -31,10 +32,10 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands/stfu"
 	"github.com/shawnyu5/debate_dragon_2.0/config"
 	"github.com/shawnyu5/debate_dragon_2.0/db"
+	"github.com/shawnyu5/debate_dragon_2.0/middware"
 
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
-	"github.com/shawnyu5/debate_dragon_2.0/middware"
-	utils "github.com/shawnyu5/debate_dragon_2.0/utils"
+	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
 var cfg config.Config
@@ -71,12 +72,13 @@ func main() {
 
 	dbUrl := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", cfg.DB.UserName, cfg.DB.Password, cfg.DB.URL, cfg.DB.DBName)
 	pool, err := pgxpool.New(ctx, dbUrl)
-	store := db.NewStore(pool)
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v\n", err)
 	}
 	defer pool.Close()
 
+	store := db.NewStore(pool)
+	ctx = middware.ContextWithStore(ctx, store)
 	stdlibDb := stdlib.OpenDB(*pool.Config().ConnConfig)
 	defer stdlibDb.Close()
 
@@ -112,7 +114,10 @@ func main() {
 		stfu.TellUser(sess, mess)
 	})
 
-	dg.AddHandler(handleInteraction)
+	dg.AddHandler(func(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+		handleInteraction(ctx, sess, i)
+	})
+	// dg.AddHandler(handleInteraction)
 
 	if err := dg.Open(); err != nil {
 		log.Fatalf("Cannot open the discord session: %v", err)
@@ -145,19 +150,17 @@ func main() {
 	log.Info("Gracefully shutting down.")
 }
 
-func handleInteraction(sess *discordgo.Session, i *discordgo.InteractionCreate) {
+func handleInteraction(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) {
 	switch i.Type {
 	case discordgo.InteractionApplicationCommand:
 		if cmd, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-			logger := middware.NewLogger(cmd)
-			logger.HandleInteractionApplicationCommand(context.Background(), sess, i)
+			handleCommand(ctx, cmd, sess, i)
 		} else {
 			utils.SendErrorMessage(sess, i, "")
 		}
 	case discordgo.InteractionApplicationCommandAutocomplete:
 		if cmd, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-			logger := middware.NewLogger(cmd)
-			logger.InteractionApplicationCommandAutocomplete(context.Background(), sess, i)
+			handleCommand(ctx, cmd, sess, i)
 		} else {
 			utils.SendErrorMessage(sess, i, "")
 		}
@@ -172,12 +175,29 @@ func handleInteraction(sess *discordgo.Session, i *discordgo.InteractionCreate) 
 				EditInteractionResponse: handlerFunc,
 			}
 
-			logger := middware.NewLogger(command)
-			logger.HandleInteractionApplicationCommand(context.Background(), sess, i)
+			handleCommand(ctx, command, sess, i)
 		} else {
 			utils.SendErrorMessage(sess, i, "")
 		}
 	default:
 		log.Warnf("Unhandled interaction type: %v", i.Type)
+	}
+}
+
+func handleCommand(ctx context.Context, cmd command.Command, sess *discordgo.Session, i *discordgo.InteractionCreate) {
+	var output string
+	var err error
+
+	if cmd.EditInteractionResponse != nil {
+		output, err = cmd.EditInteractionResponse(ctx, sess, i)
+	} else if cmd.InteractionRespond != nil {
+		output, err = cmd.InteractionRespond(ctx, sess, i)
+	}
+
+	if err != nil {
+		log.Errorf("Error handling command %s: %v", cmd.ApplicationCommand().Name, err)
+		utils.SendErrorMessage(sess, i, err.Error())
+	} else {
+		log.Infof("command=%s response='%s' took=%s", cmd.ApplicationCommand().Name, output, time.Since(time.Now()))
 	}
 }
