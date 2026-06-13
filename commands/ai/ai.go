@@ -39,18 +39,7 @@ var cmd = command.Command{
 		utils.DeferReply(sess, i.Interaction)
 		cfg := config.LoadConfig()
 
-		var ollama *api.Client
-		if cfg.Ollama.Host != "" {
-			ollamaURL, _ := url.Parse(cfg.Ollama.Host)
-			httpClient := http.Client{
-				Timeout: 10 * time.Second,
-			}
-			ollama = api.NewClient(ollamaURL, &httpClient)
-		} else {
-			ollama, err = api.ClientFromEnvironment()
-
-		}
-
+		ollama, err := initOllamaClient()
 		if err != nil {
 			return "", fmt.Errorf("failed to initialize ollama client: %s", err)
 		}
@@ -104,6 +93,82 @@ var cmd = command.Command{
 
 		return "Query sent to AI", nil
 	},
+}
+
+// initOllamaClient initializes ollama API client, reading from `config.yml`
+func initOllamaClient() (*api.Client, error) {
+	cfg := config.LoadConfig()
+
+	var ollama *api.Client
+	var err error
+	if cfg.Ollama.Host != "" {
+		ollamaURL, _ := url.Parse(cfg.Ollama.Host)
+		httpClient := http.Client{
+			Timeout: 10 * time.Second,
+		}
+		ollama = api.NewClient(ollamaURL, &httpClient)
+	} else {
+		ollama, err = api.ClientFromEnvironment()
+
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize ollama client: %s", err)
+	}
+
+	return ollama, nil
+
+}
+
+// DownloadModel checks if the model configured in `config.yml` is downloaded locally. If not download the model
+//
+// This is meant to be called during bot startup
+func DownloadModel(ctx context.Context) error {
+	ollama, err := initOllamaClient()
+	if err != nil {
+		return fmt.Errorf("failed to initialize ollama client: %s", err)
+	}
+
+	list, err := ollama.List(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get ollama models: %s", err)
+	}
+
+	cfg := config.LoadConfig()
+	for _, m := range list.Models {
+		if m.Name == cfg.Ollama.Model {
+			log.Infof("Ollama model %s found locally. Skip downloading from internet", cfg.Ollama.Model)
+			return nil
+		}
+	}
+
+	log.Infof("Downloading model %s from internet", cfg.Ollama.Model)
+
+	downloadReq := &api.PullRequest{
+		Model: cfg.Ollama.Model,
+	}
+
+	// This progress function handles the streaming download logs in your terminal
+	progressFunc := func(resp api.ProgressResponse) error {
+		if resp.Status != "" {
+			if resp.Total > 0 {
+				percent := (float64(resp.Completed) / float64(resp.Total)) * 100
+				log.Infof("Pulling %s: %s (%.2f%%)", cfg.Ollama.Model, resp.Status, percent)
+			} else {
+				log.Infof("Pulling %s: %s", cfg.Ollama.Model, resp.Status)
+			}
+		}
+		return nil
+	}
+
+	err = ollama.Pull(ctx, downloadReq, progressFunc)
+	if err != nil {
+		return fmt.Errorf("failed pulling model: %w", err)
+	}
+
+	log.Infof("Successfully downloaded %s!", cfg.Ollama.Model)
+
+	return nil
 }
 
 func init() {

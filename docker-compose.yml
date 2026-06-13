@@ -1,13 +1,9 @@
 services:
   debate_dragon:
-    volumes:
-      - type: bind
-        source: ./db
-        target: /bot/db
     build: ./
     restart: "always"
-    env_file:
-      - .env
+    volumes:
+      - ./config.yml:/app/config.yml
 
   postgres:
     container_name: postgres

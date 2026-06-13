@@ -14,7 +14,7 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
-	_ "github.com/shawnyu5/debate_dragon_2.0/commands/ai"
+	"github.com/shawnyu5/debate_dragon_2.0/commands/ai"
 	areushawnyu "github.com/shawnyu5/debate_dragon_2.0/commands/are_u_shawn_yu"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/caramel_bot/bitch"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/caramel_bot/compliment"
@@ -95,6 +95,9 @@ func main() {
 		log.Fatalf("Goose migration failed: %v", err)
 	}
 	log.Infof("Database migration complete!")
+
+	log.Infof("Checking AI model")
+	ai.DownloadModel(ctx)
 
 	log.SetLevel(log.DebugLevel)
 	log.Info("Starting bot...")

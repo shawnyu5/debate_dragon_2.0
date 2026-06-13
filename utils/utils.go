@@ -87,16 +87,12 @@ func DeferReply(sess *discordgo.Session, i *discordgo.Interaction) error {
 
 // SendErrorMessage send an empheral interaction response message notifying the user something went wrong with the slash command. With an optional error message.
 func SendErrorMessage(sess *discordgo.Session, i *discordgo.InteractionCreate, err string) {
-	e := sess.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Content: "Something went wrong... " + err,
-			Flags:   discordgo.MessageFlagsEphemeral,
-		},
+	content := "Something went wrong..."
+	_, e := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+		Content: &content,
 	})
-
 	if e != nil {
-		log.Printf("Error sending error response: %v", e)
+		log.Errorf("Error sending error response: %v", e)
 	}
 }
 
