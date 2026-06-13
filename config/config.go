@@ -1,8 +1,10 @@
 package config
 
 import (
+	"log"
 	"os"
 
+	"github.com/go-playground/validator/v10"
 	"gopkg.in/yaml.v3"
 )
 
@@ -19,6 +21,11 @@ type Config struct {
 		URL      string `yaml:"url"`
 		DBName   string `yaml:"db_name"`
 	} `yaml:"db"`
+	Ollama struct {
+		Host string `yaml:"host" validate:"omitempty,url"`
+		// Name of the model to use
+		Model string `yaml:"model" validate:"required"`
+	} `yaml:"ollama"`
 	LogLevel string `yaml:"logLevel"`
 	DevMode  bool   `yaml:"dev_mode"`
 	// RapidAPIKey string `yaml:"-"`
@@ -46,21 +53,6 @@ type Config struct {
 			FileLocation string `yaml:"fileLocation"`
 		} `yaml:"emotes"`
 	} `yaml:"ivan"`
-	SubForCarmen struct {
-		// toggle this feature on and off
-		On bool `yaml:"on"`
-		// id of carmen user to track messages of
-		CarmenID string `yaml:"carmenId"`
-		// cool down, defined in minutes
-		CoolDown int `yaml:"coolDown"`
-		// the guild to keep track of carmen messages
-		GuildID string `yaml:"guildID"`
-		// number of messages before a notification is triggered
-		MessageLimit      int    `yaml:"messageLimit"`
-		SubscribersRoleID string `yaml:"subscribersRoleID"`
-		// channels to ignore
-		IgnoredChannels []string `yaml:"ignoredChannels"`
-	} `yaml:"subForCarmen"`
 }
 
 // LoadConfig loads configuration from config.yml
@@ -73,5 +65,11 @@ func LoadConfig() Config {
 	}
 
 	yaml.Unmarshal(f, &c)
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	err = validate.Struct(c)
+	if err != nil {
+		log.Fatalf("Invalid config file format: %s", err)
+	}
+
 	return c
 }
