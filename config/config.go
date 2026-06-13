@@ -10,6 +10,8 @@ import (
 type Config struct {
 	// Discord token used to connect to discord
 	DiscordToken string `yaml:"discord_token"`
+	// If the bot should generate `README` docs on startup
+	GenerateDocs bool `yaml:"generate_docs"`
 	// Configuration related to the DB
 	DB struct {
 		UserName string `yaml:"username"`

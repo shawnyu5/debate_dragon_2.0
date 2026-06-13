@@ -63,8 +63,10 @@ var (
 
 func main() {
 	go func() {
-		log.Info("Generating docs...")
-		generatedocs.Generate()
+		if cfg.GenerateDocs {
+			log.Info("Generating docs...")
+			generatedocs.Generate()
+		}
 	}()
 
 	ctx := context.Background()
