@@ -25,6 +25,8 @@ type Config struct {
 		Host string `yaml:"host" validate:"omitempty,url"`
 		// Name of the model to use
 		Model string `yaml:"model" validate:"required"`
+		// Request to ollama timeout duration
+		Timeout string `yaml:"timeout"`
 	} `yaml:"ollama"`
 	LogLevel string `yaml:"logLevel"`
 	DevMode  bool   `yaml:"dev_mode"`
