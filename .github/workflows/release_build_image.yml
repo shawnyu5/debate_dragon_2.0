@@ -1,0 +1,66 @@
+name: Semantic release and publish image
+on:
+  push:
+    branches:
+      - "master"
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release_deploy:
+    name: Semantic release and deploy backend
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Semantic release dry run
+        id: dry_run
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: docker://ghcr.io/codfish/semantic-release-action:v5@sha256:be31901958263944a710564b22c9da41cc7b25f5d70e68b0cd9306e222cb5276
+        with:
+          dry-run: true
+
+      - name: Next release version
+        run: |
+          echo ${{ steps.dry_run.outputs.release-version }}
+
+      - name: Set up Docker
+        if: steps.dry_run.outputs.new-release-published == 'true'
+        uses: docker/setup-buildx-action@v3.12.0
+
+      - name: Build docker image
+        uses: docker/build-push-action@v7.1.0
+        with:
+          context: .
+          push: false
+          tags: ghcr.io/shawnyu5/debate_dragon_2:${{ steps.dry_run.outputs.release-version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Semantic release
+        id: semantic_release
+        if: steps.dry_run.outputs.new-release-published == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: docker://ghcr.io/codfish/semantic-release-action:v5@sha256:be31901958263944a710564b22c9da41cc7b25f5d70e68b0cd9306e222cb5276
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v4.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Push new image to ghcr
+        if: steps.dry_run.outputs.new-release-published == 'true'
+        uses: docker/build-push-action@v7.1.0
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/shawnyu5/debate_dragon_2:${{ steps.semantic_release.outputs.release-version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

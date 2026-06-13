@@ -1,26 +1,13 @@
-FROM golang:1.24rc3-alpine AS build
+FROM golang:1.26-alpine AS build
 
-WORKDIR /bot
+WORKDIR /app
 
 COPY . .
-# COPY ./go.* ./
-# COPY ./utils ./utils/
-# COPY ./media ./media/
-# COPY ./commands ./commands/
-# COPY ./main.go ./main.go
-# COPY ./config.json ./config.json
-# COPY ./generate_docs/ ./generate_docs/
-# COPY ./middware ./middware/
-
 RUN go build -o bot
 
-FROM golang:1.22.0-alpine3.19 AS prod
+FROM alpine:3.24.0 AS prod
 
-WORKDIR /bot
-COPY . .
-COPY --from=build /bot/bot ./bot
-# COPY --from=build /bot/commands/ ./commands/
-# COPY --from=build /bot/config.json ./config.json
-# COPY --from=build /bot/media ./media
-# COPY --from=build /bot/generate_docs ./generate_docs
+WORKDIR /app
+COPY --from=build /app/bot .
+COPY ./media .
 CMD ["./bot"]
