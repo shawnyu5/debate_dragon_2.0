@@ -9,5 +9,5 @@ FROM alpine:3.24.0 AS prod
 
 WORKDIR /app
 COPY --from=build /app/bot .
-COPY ./media .
+COPY ./media ./media
 CMD ["./bot"]
