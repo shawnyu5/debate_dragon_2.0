@@ -13,6 +13,7 @@ Table containing all messages send in all guilds this bot is in
 | author_id | text |  | false |  |  | Author ID this message came from |
 | metadata | jsonb |  | false |  |  | JSON encoded string, containg other properties, such as image and attachments |
 | created_at | timestamp with time zone | now() | false |  |  | Timestamp the message was created at |
+| deleted | boolean | false | false |  |  |  |
 
 ## Constraints
 
@@ -20,6 +21,7 @@ Table containing all messages send in all guilds this bot is in
 | ---- | ---- | ---------- |
 | messages_author_id_not_null | n | NOT NULL author_id |
 | messages_created_at_not_null | n | NOT NULL created_at |
+| messages_deleted_not_null | n | NOT NULL deleted |
 | messages_guild_id_not_null | n | NOT NULL guild_id |
 | messages_id_not_null | n | NOT NULL id |
 | messages_metadata_not_null | n | NOT NULL metadata |

@@ -7,6 +7,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
 	messagetracking "github.com/shawnyu5/debate_dragon_2.0/commands/messageTracking"
+	"github.com/shawnyu5/debate_dragon_2.0/middware"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
@@ -28,7 +29,12 @@ var snipe = command.Command{
 		// 	log.Fatalf("db store not found in context: %s. This is bug!", err)
 		// }
 
-		deletedMess := messagetracking.GetLastDeletedMessage()
+		db, err := middware.StoreFromContext(ctx)
+		if err != nil {
+			return "", fmt.Errorf("failed to find DB in context: %s. This is a bug!", err)
+		}
+
+		deletedMess, err := messagetracking.GetDeletedMessageByGuildID(db, i.GuildID)
 		// deletedMess := GetMessageByID(LastDeletedMessage.GuildID, LastDeletedMessage.ID)
 		// if there are no deleted messages in cache, then send error response
 		if deletedMess.Content == "" {
@@ -56,7 +62,7 @@ var snipe = command.Command{
 					{
 						Type:        discordgo.EmbedTypeArticle,
 						Title:       "Sniped",
-						Description: fmt.Sprintf("<@%s>", deletedMess.Author.ID),
+						Description: fmt.Sprintf("<@%s>", deletedMess.AuthorID),
 						Image: &discordgo.MessageEmbedImage{
 							URL: deletedMess.Attachments[0].URL,
 						},
@@ -72,13 +78,13 @@ var snipe = command.Command{
 						URL:         "",
 						Type:        discordgo.EmbedTypeArticle,
 						Title:       "Snipe",
-						Description: fmt.Sprintf("%s - <@%s>", deletedMess.Content, deletedMess.Author.ID),
+						Description: fmt.Sprintf("%s - <@%s>", deletedMess.Content, deletedMess.AuthorID),
 					},
 				},
 			}
 
 		}
-		_, err := sess.InteractionResponseEdit(i.Interaction, webHookEdit)
+		_, err = sess.InteractionResponseEdit(i.Interaction, webHookEdit)
 		if err != nil {
 			return "", err
 		}

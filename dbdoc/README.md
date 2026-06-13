@@ -4,7 +4,7 @@
 
 | Name | Columns | Comment | Type |
 | ---- | ------- | ------- | ---- |
-| [public.messages](public.messages.md) | 5 | Table containing all messages send in all guilds this bot is in | BASE TABLE |
+| [public.messages](public.messages.md) | 6 | Table containing all messages send in all guilds this bot is in | BASE TABLE |
 
 ## Relations
 

@@ -8,10 +8,16 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+// Table containing all messages send in all guilds this bot is in
 type Message struct {
-	ID        pgtype.UUID
-	GuildID   string
-	AuthorID  string
-	Metadata  []byte
+	ID pgtype.UUID
+	// Guild ID this message came from
+	GuildID string
+	// Author ID this message came from
+	AuthorID string
+	// JSON encoded string, containg other properties, such as image and attachments
+	Metadata []byte
+	// Timestamp the message was created at
 	CreatedAt pgtype.Timestamptz
+	Deleted   bool
 }
