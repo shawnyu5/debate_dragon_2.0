@@ -104,7 +104,7 @@ func initOllamaClient() (*api.Client, error) {
 	if cfg.Ollama.Host != "" {
 		ollamaURL, _ := url.Parse(cfg.Ollama.Host)
 		httpClient := http.Client{
-			Timeout: 10 * time.Second,
+			Timeout: 20 * time.Second,
 		}
 		ollama = api.NewClient(ollamaURL, &httpClient)
 	} else {
