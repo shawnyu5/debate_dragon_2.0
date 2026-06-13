@@ -7,12 +7,10 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const getDeletedMessagesByAuthorID = `-- name: GetDeletedMessagesByAuthorID :one
-SELECT id, guild_id, author_id, metadata, created_at
+SELECT id, guild_id, author_id, metadata, created_at, deleted
 FROM messages
 WHERE author_id = $1 AND guild_id = $2
 ORDER BY created_at DESC
@@ -24,24 +22,17 @@ type GetDeletedMessagesByAuthorIDParams struct {
 	GuildID  string
 }
 
-type GetDeletedMessagesByAuthorIDRow struct {
-	ID        pgtype.UUID
-	GuildID   string
-	AuthorID  string
-	Metadata  []byte
-	CreatedAt pgtype.Timestamptz
-}
-
 // GetDeletedMessagesByAuthorID gets a specific author's latest deleted message in a specific guild
-func (q *Queries) GetDeletedMessagesByAuthorID(ctx context.Context, arg GetDeletedMessagesByAuthorIDParams) (GetDeletedMessagesByAuthorIDRow, error) {
+func (q *Queries) GetDeletedMessagesByAuthorID(ctx context.Context, arg GetDeletedMessagesByAuthorIDParams) (Message, error) {
 	row := q.db.QueryRow(ctx, getDeletedMessagesByAuthorID, arg.AuthorID, arg.GuildID)
-	var i GetDeletedMessagesByAuthorIDRow
+	var i Message
 	err := row.Scan(
 		&i.ID,
 		&i.GuildID,
 		&i.AuthorID,
 		&i.Metadata,
 		&i.CreatedAt,
+		&i.Deleted,
 	)
 	return i, err
 }

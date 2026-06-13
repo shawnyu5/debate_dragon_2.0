@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/charmbracelet/log"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
 	messagetracking "github.com/shawnyu5/debate_dragon_2.0/commands/messageTracking"
 	"github.com/shawnyu5/debate_dragon_2.0/middware"
@@ -24,19 +25,14 @@ var snipe = command.Command{
 	},
 	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		utils.DeferReply(sess, i.Interaction)
-		// store, err := middware.StoreFromContext(ctx)
-		// if err != nil {
-		// 	log.Fatalf("db store not found in context: %s. This is bug!", err)
-		// }
-
 		db, err := middware.StoreFromContext(ctx)
 		if err != nil {
 			return "", fmt.Errorf("failed to find DB in context: %s. This is a bug!", err)
 		}
 
 		deletedMess, err := messagetracking.GetDeletedMessageByGuildID(db, i.GuildID)
-		// deletedMess := GetMessageByID(LastDeletedMessage.GuildID, LastDeletedMessage.ID)
-		// if there are no deleted messages in cache, then send error response
+		log.Debugf("Deleted message: %+v", deletedMess)
+
 		if deletedMess.Content == "" {
 			_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 				Embeds: &[]*discordgo.MessageEmbed{
@@ -53,9 +49,9 @@ var snipe = command.Command{
 			}
 			return "No deleted message cached", nil
 		}
+
 		webHookEdit := &discordgo.WebhookEdit{}
 
-		// if there is an image, send it
 		if len(deletedMess.Attachments) > 0 {
 			webHookEdit = &discordgo.WebhookEdit{
 				Embeds: &[]*discordgo.MessageEmbed{
@@ -69,9 +65,7 @@ var snipe = command.Command{
 					},
 				},
 			}
-
 		} else {
-			// otherwise send the message
 			webHookEdit = &discordgo.WebhookEdit{
 				Embeds: &[]*discordgo.MessageEmbed{
 					{
@@ -82,8 +76,8 @@ var snipe = command.Command{
 					},
 				},
 			}
-
 		}
+
 		_, err = sess.InteractionResponseEdit(i.Interaction, webHookEdit)
 		if err != nil {
 			return "", err

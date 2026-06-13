@@ -7,36 +7,42 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const getDeletedMessagesByGuildID = `-- name: GetDeletedMessagesByGuildID :one
-SELECT id, guild_id, author_id, metadata, created_at
+const getDeletedMessagesByGuildID = `-- name: GetDeletedMessagesByGuildID :many
+SELECT id, guild_id, author_id, metadata, created_at, deleted
 FROM messages
-WHERE guild_id = $1
+WHERE guild_id = $1 AND deleted = true
 ORDER BY created_at DESC
 LIMIT 1
 `
 
-type GetDeletedMessagesByGuildIDRow struct {
-	ID        pgtype.UUID
-	GuildID   string
-	AuthorID  string
-	Metadata  []byte
-	CreatedAt pgtype.Timestamptz
-}
-
 // GetDeletedMessagesByGuildID gets a specific guild's latest deleted message in a specific guild
-func (q *Queries) GetDeletedMessagesByGuildID(ctx context.Context, guildID string) (GetDeletedMessagesByGuildIDRow, error) {
-	row := q.db.QueryRow(ctx, getDeletedMessagesByGuildID, guildID)
-	var i GetDeletedMessagesByGuildIDRow
-	err := row.Scan(
-		&i.ID,
-		&i.GuildID,
-		&i.AuthorID,
-		&i.Metadata,
-		&i.CreatedAt,
-	)
-	return i, err
+//
+// There may not be any deleted messages in a guild, so this query may return 0 rows
+func (q *Queries) GetDeletedMessagesByGuildID(ctx context.Context, guildID string) ([]Message, error) {
+	rows, err := q.db.Query(ctx, getDeletedMessagesByGuildID, guildID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Message
+	for rows.Next() {
+		var i Message
+		if err := rows.Scan(
+			&i.ID,
+			&i.GuildID,
+			&i.AuthorID,
+			&i.Metadata,
+			&i.CreatedAt,
+			&i.Deleted,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

@@ -109,12 +109,16 @@ func GetDeletedMessageByAuthorID(store *db.Store, guildID, authorID string) (*db
 
 // GetDeletedMessageByGuildID get the last deleted message by guild ID
 func GetDeletedMessageByGuildID(store *db.Store, guildID string) (*db.SavedMessage, error) {
-	message, err := store.GetDeletedMessagesByGuildID(context.Background(), guildID)
+	messages, err := store.GetDeletedMessagesByGuildID(context.Background(), guildID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get last deleted message: %s", err)
 	}
 
-	richMsg, err := DBMessageToRichMessage(message)
+	if len(messages) == 0 {
+		return &db.SavedMessage{}, nil
+	}
+
+	richMsg, err := DBMessageToRichMessage(messages[0])
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert DB message to rich message: %s", err)
 	}
