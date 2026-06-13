@@ -8,7 +8,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
 	messagetracking "github.com/shawnyu5/debate_dragon_2.0/commands/messageTracking"
-	"github.com/shawnyu5/debate_dragon_2.0/middware"
+	"github.com/shawnyu5/debate_dragon_2.0/db"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
 )
 
@@ -25,15 +25,19 @@ var snipe = command.Command{
 	},
 	InteractionRespond: func(ctx context.Context, sess *discordgo.Session, i *discordgo.InteractionCreate) (string, error) {
 		utils.DeferReply(sess, i.Interaction)
-		db, err := middware.StoreFromContext(ctx)
+		db, err := db.StoreFromContext(ctx)
 		if err != nil {
-			return "", fmt.Errorf("failed to find DB in context: %s. This is a bug!", err)
+			return "", fmt.Errorf("failed to find DB in context: %s. This is a bug", err)
 		}
 
-		deletedMess, err := messagetracking.GetDeletedMessageByGuildID(db, i.GuildID)
-		log.Debugf("Deleted message: %+v", deletedMess)
+		deletedMsg, err := messagetracking.GetDeletedMessageByGuildID(db, i.GuildID)
+		if err != nil {
+			return "", fmt.Errorf("failed to get deleted message: %s", err)
+		}
 
-		if deletedMess.Content == "" {
+		log.Infof("Deleted message from dB: %+v", deletedMsg)
+
+		if deletedMsg.Content == "" {
 			_, err := sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 				Embeds: &[]*discordgo.MessageEmbed{
 					{
@@ -52,15 +56,15 @@ var snipe = command.Command{
 
 		webHookEdit := &discordgo.WebhookEdit{}
 
-		if len(deletedMess.Attachments) > 0 {
+		if len(deletedMsg.Attachments) > 0 {
 			webHookEdit = &discordgo.WebhookEdit{
 				Embeds: &[]*discordgo.MessageEmbed{
 					{
 						Type:        discordgo.EmbedTypeArticle,
 						Title:       "Sniped",
-						Description: fmt.Sprintf("<@%s>", deletedMess.AuthorID),
+						Description: fmt.Sprintf("<@%s>", deletedMsg.AuthorID),
 						Image: &discordgo.MessageEmbedImage{
-							URL: deletedMess.Attachments[0].URL,
+							URL: deletedMsg.Attachments[0].URL,
 						},
 					},
 				},
@@ -72,7 +76,7 @@ var snipe = command.Command{
 						URL:         "",
 						Type:        discordgo.EmbedTypeArticle,
 						Title:       "Snipe",
-						Description: fmt.Sprintf("%s - <@%s>", deletedMess.Content, deletedMess.AuthorID),
+						Description: fmt.Sprintf("%s - <@%s>", deletedMsg.Content, deletedMsg.AuthorID),
 					},
 				},
 			}

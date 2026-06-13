@@ -12,15 +12,16 @@ import (
 )
 
 const insertMessage = `-- name: InsertMessage :exec
-INSERT INTO messages (id, guild_id, author_id, metadata)
-VALUES ($1, $2, $3, $4)
+INSERT INTO messages (id, guild_id, author_id, message_id, metadata)
+VALUES ($1, $2, $3, $4, $5)
 `
 
 type InsertMessageParams struct {
-	ID       pgtype.UUID
-	GuildID  string
-	AuthorID string
-	Metadata []byte
+	ID        pgtype.UUID
+	GuildID   string
+	AuthorID  string
+	MessageID string
+	Metadata  []byte
 }
 
 func (q *Queries) InsertMessage(ctx context.Context, arg InsertMessageParams) error {
@@ -28,6 +29,7 @@ func (q *Queries) InsertMessage(ctx context.Context, arg InsertMessageParams) er
 		arg.ID,
 		arg.GuildID,
 		arg.AuthorID,
+		arg.MessageID,
 		arg.Metadata,
 	)
 	return err

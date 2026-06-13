@@ -32,7 +32,6 @@ import (
 	"github.com/shawnyu5/debate_dragon_2.0/commands/stfu"
 	"github.com/shawnyu5/debate_dragon_2.0/config"
 	"github.com/shawnyu5/debate_dragon_2.0/db"
-	"github.com/shawnyu5/debate_dragon_2.0/middware"
 
 	generatedocs "github.com/shawnyu5/debate_dragon_2.0/generate_docs"
 	"github.com/shawnyu5/debate_dragon_2.0/utils"
@@ -78,7 +77,7 @@ func main() {
 	defer pool.Close()
 
 	store := db.NewStore(pool)
-	ctx = middware.ContextWithStore(ctx, store)
+	ctx = db.ContextWithStore(ctx, store)
 	stdlibDb := stdlib.OpenDB(*pool.Config().ConnConfig)
 	defer stdlibDb.Close()
 
@@ -105,7 +104,7 @@ func main() {
 	})
 
 	dg.AddHandler(func(_ *discordgo.Session, mess *discordgo.MessageDelete) {
-		messagetracking.TrackDeletedMessage(mess)
+		messagetracking.TrackDeletedMessage(ctx, mess)
 	})
 
 	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {

@@ -20,4 +20,5 @@ type Message struct {
 	// Timestamp the message was created at
 	CreatedAt pgtype.Timestamptz
 	Deleted   bool
+	MessageID string
 }
