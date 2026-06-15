@@ -83,10 +83,8 @@ var cmd = command.Command{
 			Content: new(string),
 			Embeds: &[]*discordgo.MessageEmbed{
 				{
-					Type:        discordgo.EmbedTypeArticle,
-					Title:       "Thinking...",
-					Description: "",
-					Timestamp:   "",
+					Type:  discordgo.EmbedTypeArticle,
+					Title: fmt.Sprintf("Thinking about... %s", userOptions["ask"].StringValue()),
 				},
 			},
 		})
