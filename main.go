@@ -99,7 +99,10 @@ func main() {
 	log.Infof("Checking AI model")
 	ai.DownloadModel(ctx)
 
-	log.SetLevel(log.DebugLevel)
+	if cfg.LogLevel == "debug" {
+		log.SetLevel(log.DebugLevel)
+	}
+
 	log.Info("Starting bot...")
 
 	dg.Identify.Intents |= discordgo.IntentGuildMessages
