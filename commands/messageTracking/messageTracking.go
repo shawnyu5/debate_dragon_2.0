@@ -53,7 +53,7 @@ func DBMessageToRichMessage(dbMsg db.Message) (*db.SavedMessage, error) {
 
 // TrackAllSentMessage tracks all sent messages in all guilds, up to 1000 messages total
 func TrackAllSentMessage(store *db.Store, msg *discordgo.MessageCreate) {
-	log.Infof("Storing message in DB: %s", msg.Content)
+	log.Infof("Storing message in DB: \"%s\" from user @%s", msg.Content, msg.Author.Username)
 	log.Debugf("Got discord message: %+v", msg.Message)
 
 	if msg.Content == "" {
@@ -76,7 +76,11 @@ func TrackAllSentMessage(store *db.Store, msg *discordgo.MessageCreate) {
 			Bytes: uuid,
 			Valid: true,
 		},
-		GuildID:   msg.GuildID,
+		GuildID: msg.GuildID,
+		ChannelID: pgtype.Text{
+			String: msg.ChannelID,
+			Valid:  true,
+		},
 		AuthorID:  msg.Author.ID,
 		MessageID: msg.ID,
 		Metadata:  json,

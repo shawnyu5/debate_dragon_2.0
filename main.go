@@ -112,10 +112,12 @@ func main() {
 		log.Infof("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 
+	// On message delete event
 	dg.AddHandler(func(_ *discordgo.Session, mess *discordgo.MessageDelete) {
 		messagetracking.TrackDeletedMessage(ctx, mess)
 	})
 
+	// On message create event
 	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 		messagetracking.TrackAllSentMessage(store, mess)
 		areushawnyu.ListenForShawnYuMessages(sess, mess)

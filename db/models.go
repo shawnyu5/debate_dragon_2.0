@@ -21,4 +21,5 @@ type Message struct {
 	CreatedAt pgtype.Timestamptz
 	Deleted   bool
 	MessageID string
+	ChannelID pgtype.Text
 }
