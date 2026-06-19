@@ -117,9 +117,12 @@ func main() {
 	})
 
 	// On message create event
-	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
-		messagetracking.TrackAllSentMessage(store, mess)
-		stfu.TellUser(sess, mess)
+	dg.AddHandler(func(sess *discordgo.Session, msg *discordgo.MessageCreate) {
+		messagetracking.TrackAllSentMessage(store, msg)
+		messagetracking.Pinged(ctx, sess, msg, func(ctx context.Context) {
+			ai.RespondToPing(ctx, sess, msg)
+		})
+		stfu.TellUser(sess, msg)
 	})
 
 	dg.AddHandler(func(sess *discordgo.Session, i *discordgo.InteractionCreate) {

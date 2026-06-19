@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/charmbracelet/log"
@@ -97,6 +98,14 @@ func TrackAllSentMessage(store *db.Store, msg *discordgo.MessageCreate) {
 			log.Errorf("failed to clean up messages table: %s", err)
 		}
 	}()
+}
+
+// Pinged calls callback when this bot is pinged by a user
+func Pinged(ctx context.Context, sess *discordgo.Session, msg *discordgo.MessageCreate, callback func(ctx context.Context)) {
+	if strings.Contains(msg.Content, fmt.Sprintf("<@%s>", sess.State.User.ID)) {
+		log.Infof("Bot pinged by user @%s", msg.Author.Username)
+		callback(ctx)
+	}
 }
 
 // GetDeletedMessageByAuthorID returns the last deleted messages in a specific `guildID` for a specific `authorID`
