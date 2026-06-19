@@ -55,21 +55,26 @@ type Config struct {
 	} `yaml:"ivan"`
 }
 
+var cfg *Config = nil
+
 // LoadConfig loads configuration from config.yml
 func LoadConfig() Config {
-	var c Config
+	if cfg != nil {
+		return *cfg
+	}
+
 	// read json file
 	f, err := os.ReadFile("config.yml")
 	if err != nil {
 		panic(err)
 	}
 
-	yaml.Unmarshal(f, &c)
+	yaml.Unmarshal(f, &cfg)
 	validate := validator.New(validator.WithRequiredStructEnabled())
-	err = validate.Struct(c)
+	err = validate.Struct(cfg)
 	if err != nil {
 		log.Fatalf("Invalid config file format: %s", err)
 	}
 
-	return c
+	return *cfg
 }
