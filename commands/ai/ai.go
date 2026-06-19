@@ -3,7 +3,6 @@ package ai
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -50,13 +49,15 @@ var cmd = command.Command{
 		userOptions := utils.ParseUserOptions(sess, i)
 		stream := false
 		req := &api.GenerateRequest{
-			Model:     cfg.Ollama.Model,
-			Prompt:    userOptions["ask"].StringValue(),
-			System:    personalitySystemPrompt,
-			Stream:    &stream,
-			Raw:       false,
-			Format:    json.RawMessage{},
-			KeepAlive: &api.Duration{},
+			Model:  cfg.Ollama.Model,
+			Prompt: userOptions["ask"].StringValue(),
+			System: personalitySystemPrompt,
+			Stream: &stream,
+			Raw:    false,
+			Options: map[string]interface{}{
+				"temperature":      0.3, // Lower temperature stops it from drifting back to safety text
+				"presence_penalty": 0.6, // Discourages repeating polite, preachy phrases
+			},
 			Think: &api.ThinkValue{
 				Value: false,
 			},
