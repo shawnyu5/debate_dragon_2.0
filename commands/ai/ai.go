@@ -101,12 +101,19 @@ var cmd = command.Command{
 func initOllamaClient() (*api.Client, error) {
 	cfg := config.LoadConfig()
 
+	var timeout time.Duration
+	if cfg.Ollama.Timeout == "" {
+		timeout = 25 * time.Second
+	} else {
+		timeout, _ = time.ParseDuration(cfg.Ollama.Timeout)
+	}
+
 	var ollama *api.Client
 	var err error
 	if cfg.Ollama.Host != "" {
 		ollamaURL, _ := url.Parse(cfg.Ollama.Host)
 		httpClient := http.Client{
-			Timeout: 10 * time.Second,
+			Timeout: timeout * time.Second,
 		}
 		ollama = api.NewClient(ollamaURL, &httpClient)
 	} else {
