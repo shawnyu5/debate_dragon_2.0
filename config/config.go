@@ -1,9 +1,9 @@
 package config
 
 import (
-	"log"
 	"os"
 
+	"github.com/charmbracelet/log"
 	"github.com/go-playground/validator/v10"
 	"gopkg.in/yaml.v3"
 )
@@ -59,6 +59,7 @@ type Config struct {
 
 // LoadConfig loads configuration from config.yml
 func LoadConfig() Config {
+	log.Debug("Loading config...")
 	var c Config
 	// read json file
 	f, err := os.ReadFile("config.yml")

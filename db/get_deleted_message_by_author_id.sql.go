@@ -10,7 +10,7 @@ import (
 )
 
 const getDeletedMessagesByAuthorID = `-- name: GetDeletedMessagesByAuthorID :one
-SELECT id, guild_id, author_id, metadata, created_at, deleted, message_id
+SELECT id, guild_id, author_id, metadata, created_at, deleted, message_id, channel_id
 FROM messages
 WHERE author_id = $1 AND guild_id = $2
 ORDER BY created_at DESC
@@ -34,6 +34,7 @@ func (q *Queries) GetDeletedMessagesByAuthorID(ctx context.Context, arg GetDelet
 		&i.CreatedAt,
 		&i.Deleted,
 		&i.MessageID,
+		&i.ChannelID,
 	)
 	return i, err
 }

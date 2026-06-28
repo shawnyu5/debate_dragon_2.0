@@ -15,7 +15,6 @@ import (
 	"github.com/pressly/goose/v3"
 	"github.com/shawnyu5/debate_dragon_2.0/command"
 	"github.com/shawnyu5/debate_dragon_2.0/commands/ai"
-	areushawnyu "github.com/shawnyu5/debate_dragon_2.0/commands/are_u_shawn_yu"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/caramel_bot/bitch"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/caramel_bot/compliment"
 	_ "github.com/shawnyu5/debate_dragon_2.0/commands/courseOutline"
@@ -112,13 +111,14 @@ func main() {
 		log.Infof("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 
+	// On message delete event
 	dg.AddHandler(func(_ *discordgo.Session, mess *discordgo.MessageDelete) {
 		messagetracking.TrackDeletedMessage(ctx, mess)
 	})
 
+	// On message create event
 	dg.AddHandler(func(sess *discordgo.Session, mess *discordgo.MessageCreate) {
 		messagetracking.TrackAllSentMessage(store, mess)
-		areushawnyu.ListenForShawnYuMessages(sess, mess)
 		stfu.TellUser(sess, mess)
 	})
 
