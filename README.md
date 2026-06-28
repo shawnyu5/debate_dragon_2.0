@@ -5,10 +5,6 @@ A blazingly fast discord bot written in Go to burn your debate foes to the groun
 ## Commands
 
 
-`/are-u-shawn-yu user:<user>` - Recreates the following image by accusing the user they are Shawn Yu.
-
-![ivan_reference](img/ivan_reference.png)
-
 `/caramel-bot-bitch user: <user>` - calls a user a bitch.
 
 `/caramel-bot-compliment user:<user>` - give a compliment to the user
@@ -37,5 +33,8 @@ A blazingly fast discord bot written in Go to burn your debate foes to the groun
 ## Development
 
 The bot requires a `config.json` to set environment variables. Refer to `config.example.jsonc` for all values needed in `config.json`.
+
+**Note** the actual config should be a json file. The `config.example.jsonc` is `jsonc` only to allow comments
+l values needed in `config.json`.
 
 **Note** the actual config should be a json file. The `config.example.jsonc` is `jsonc` only to allow comments

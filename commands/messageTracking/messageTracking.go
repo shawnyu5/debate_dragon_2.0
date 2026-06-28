@@ -144,7 +144,6 @@ func GetLastDeletedMessage() discordgo.Message {
 // TrackDeletedMessage marks a message as been deleted in the DB. If the message does not exist, nothing is done, since Discord does not provide the content of the message on messageDelete event
 func TrackDeletedMessage(ctx context.Context, msg *discordgo.MessageDelete) {
 	log.Infof("Marking message %s as deleted in DB", msg.ID)
-	log.Debugf("Received deleted message: %+v", msg)
 
 	cfg := config.LoadConfig()
 	// Ignore this rule in Dev mode, otherwise we cant test this thing...
