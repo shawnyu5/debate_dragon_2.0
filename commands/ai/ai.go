@@ -39,13 +39,40 @@ var cmd = command.Command{
 		utils.DeferReply(sess, i.Interaction)
 		cfg := config.LoadConfig()
 
-		ollama, err := initOllamaClient()
+		ollama, err := InitOllamaClient()
 		if err != nil {
 			return "", fmt.Errorf("failed to initialize ollama client: %s", err)
 		}
 
 		userOptions := utils.ParseUserOptions(sess, i)
 		stream := false
+
+		log.Infof("User prompt: %s", userOptions["ask"].StringValue())
+
+		safetyCheck := checkUserRequestSafety(ollama, userOptions["ask"].StringValue())
+		log.Infof("Safety check result: %+v", safetyCheck)
+		if !safetyCheck {
+			log.Infof("Caught unsafe prompt: %s", userOptions["ask"].StringValue())
+			_, err := sess.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
+				Content: fmt.Sprintf("<@%s>, I can not help you with your query, it violates safety check", i.Member.User.ID),
+			})
+			if err != nil {
+				log.Errorf("failed to send AI response to user: %s", err)
+			}
+
+			sess.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+				Content: new(string),
+				Embeds: &[]*discordgo.MessageEmbed{
+					{
+						Type:  discordgo.EmbedTypeArticle,
+						Title: fmt.Sprintf("Thinking about... %s", userOptions["ask"].StringValue()),
+					},
+				},
+			})
+
+			return "User prompt validated safety check", nil
+		}
+
 		req := &api.GenerateRequest{
 			Model:     cfg.Ollama.Model,
 			Prompt:    userOptions["ask"].StringValue(),
@@ -93,8 +120,23 @@ var cmd = command.Command{
 	},
 }
 
-// initOllamaClient initializes ollama API client, reading from `config.yml`
-func initOllamaClient() (*api.Client, error) {
+// // insultUser ask AI to write an insult for a user
+//
+//	func insultUser(ctx context.Context, guildID, string, userID string, ollama api.Client) string {
+//		dbStore, err := db.StoreFromContext(ctx)
+//		if err != nil {
+//			log.Fatalf("failed to get DB from context: %s", err)
+//		}
+//
+//		req := &api.GenerateRequest{}
+//		userMsgs, err := dbStore.GetUserMessages(ctx, db.GetUserMessagesParams{
+//			AuthorID: userID,
+//			GuildID:  guildID,
+//		})
+//	}
+//
+// InitOllamaClient initializes ollama API client, reading from `config.yml`
+func InitOllamaClient() (*api.Client, error) {
 	cfg := config.LoadConfig()
 
 	var timeout time.Duration
@@ -125,15 +167,10 @@ func initOllamaClient() (*api.Client, error) {
 
 }
 
-// DownloadModel checks if the model configured in `config.yml` is downloaded locally. If not download the model
+// DownloadModelsOnStartup checks if the model configured in `config.yml` is downloaded locally. If not download the model
 //
-// This is meant to be called during bot startup
-func DownloadModel(ctx context.Context) error {
-	ollama, err := initOllamaClient()
-	if err != nil {
-		return fmt.Errorf("failed to initialize ollama client: %s", err)
-	}
-
+// This is meant to be called on startup
+func DownloadModelsOnStartup(ctx context.Context, ollama *api.Client) error {
 	list, err := ollama.List(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get ollama models: %s", err)
@@ -149,8 +186,13 @@ func DownloadModel(ctx context.Context) error {
 
 	log.Infof("Downloading model %s from internet", cfg.Ollama.Model)
 
+	return nil
+}
+
+// DownloadModel downloads a model using ollama
+func DownloadModel(ctx context.Context, ollama *api.Client, model string) error {
 	downloadReq := &api.PullRequest{
-		Model: cfg.Ollama.Model,
+		Model: model,
 	}
 
 	// This progress function handles the streaming download logs in your terminal
@@ -158,20 +200,20 @@ func DownloadModel(ctx context.Context) error {
 		if resp.Status != "" {
 			if resp.Total > 0 {
 				percent := (float64(resp.Completed) / float64(resp.Total)) * 100
-				log.Infof("Pulling %s: %s (%.2f%%)", cfg.Ollama.Model, resp.Status, percent)
+				log.Infof("Pulling %s: %s (%.2f%%)", model, resp.Status, percent)
 			} else {
-				log.Infof("Pulling %s: %s", cfg.Ollama.Model, resp.Status)
+				log.Infof("Pulling %s: %s", model, resp.Status)
 			}
 		}
 		return nil
 	}
 
-	err = ollama.Pull(ctx, downloadReq, progressFunc)
+	err := ollama.Pull(ctx, downloadReq, progressFunc)
 	if err != nil {
 		return fmt.Errorf("failed pulling model: %w", err)
 	}
 
-	log.Infof("Successfully downloaded %s!", cfg.Ollama.Model)
+	log.Infof("Successfully downloaded %s!", model)
 
 	return nil
 }
