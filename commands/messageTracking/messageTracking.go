@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shawnyu5/debate_dragon_2.0/db"
+	"github.com/shawnyu5/debate_dragon_2.0/models"
 )
 
 // PrepareMessageForDB converts a discordgo.Message into a format that can be inserted into Postgres
@@ -19,7 +20,7 @@ func PrepareMessageForDB(msg *discordgo.Message) ([]byte, error) {
 		log.Fatalf("failed to generate new UUID: %s", err)
 	}
 
-	savedMsg := db.SavedMessage{
+	savedMsg := models.SavedMessage{
 		ID:          uuid.String(),
 		Content:     msg.Content,
 		MessageID:   msg.ID,
@@ -32,22 +33,6 @@ func PrepareMessageForDB(msg *discordgo.Message) ([]byte, error) {
 	}
 
 	return jsonData, nil
-}
-
-// DBMessageToRichMessage retrieves a rich message from the database and deserializes its metadata.
-//
-// Returns:
-//   - *db.SavedMessage: A pointer to the deserialized db.SavedMessage if successful.
-//   - error: An error if the deserialization fails
-func DBMessageToRichMessage(dbMsg db.Message) (*db.SavedMessage, error) {
-	var richDTO db.SavedMessage
-	err := json.Unmarshal(dbMsg.Metadata, &richDTO)
-	if err != nil {
-		return nil, fmt.Errorf("failed to deserialize message metadata: %w", err)
-	}
-
-	richDTO.AuthorID = dbMsg.AuthorID
-	return &richDTO, nil
 }
 
 // TrackAllSentMessage tracks all sent messages in all guilds, up to 1000 messages total
@@ -99,7 +84,7 @@ func TrackAllSentMessage(store *db.Store, msg *discordgo.MessageCreate) {
 }
 
 // GetDeletedMessageByAuthorID returns the last deleted messages in a specific `guildID` for a specific `authorID`
-func GetDeletedMessageByAuthorID(store *db.Store, guildID, authorID string) (*db.SavedMessage, error) {
+func GetDeletedMessageByAuthorID(store *db.Store, guildID, authorID string) (*models.SavedMessage, error) {
 	message, err := store.GetDeletedMessagesByAuthorID(context.Background(), db.GetDeletedMessagesByAuthorIDParams{
 		AuthorID: authorID,
 		GuildID:  guildID,
@@ -107,7 +92,7 @@ func GetDeletedMessageByAuthorID(store *db.Store, guildID, authorID string) (*db
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch deleted messages by author ID: %s", err)
 	}
-	richMsg, err := DBMessageToRichMessage(message)
+	richMsg, err := models.DBMessageToSavedMessage(message)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert DB message to rich message: %s", err)
 	}
@@ -116,17 +101,17 @@ func GetDeletedMessageByAuthorID(store *db.Store, guildID, authorID string) (*db
 }
 
 // GetDeletedMessageByGuildID get the last deleted message by guild ID
-func GetDeletedMessageByGuildID(store *db.Store, guildID string) (*db.SavedMessage, error) {
+func GetDeletedMessageByGuildID(store *db.Store, guildID string) (*models.SavedMessage, error) {
 	messages, err := store.GetDeletedMessagesByGuildID(context.Background(), guildID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get last deleted message: %s", err)
 	}
 
 	if len(messages) == 0 {
-		return &db.SavedMessage{}, nil
+		return &models.SavedMessage{}, nil
 	}
 
-	richMsg, err := DBMessageToRichMessage(messages[0])
+	richMsg, err := models.DBMessageToSavedMessage(messages[0])
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert DB message to rich message: %s", err)
 	}
