@@ -96,7 +96,13 @@ func main() {
 	log.Infof("Database migration complete!")
 
 	log.Infof("Checking AI model")
-	ai.DownloadModel(ctx)
+	ollama, err := ai.InitOllamaClient()
+	if err != nil {
+		log.Fatalf("failed to init ollama client: %s", err)
+	}
+
+	log.Infof("Download primary AI model")
+	ai.DownloadModelsOnStartup(context.Background(), ollama)
 
 	if cfg.LogLevel == "debug" {
 		log.SetLevel(log.DebugLevel)
